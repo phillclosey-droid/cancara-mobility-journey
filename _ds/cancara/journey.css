@@ -16,3 +16,32 @@
 @import "styles.css";
 @import "layout.css";
 @import "transitions.css";
+
+/* ============================================================
+   Responsive mobile fit (journey override, added post-export)
+   ------------------------------------------------------------
+   Several structural components (the page template base, header,
+   status bar, bottom nav, heroes) ship a hard-coded `width: 430px`
+   — the design-canvas width — with no viewport clamp. On any phone
+   narrower than 430px they overflow the frame and get clipped
+   (balances, right-hand cards, the 5th nav tab). Clamp ANY element
+   that carries an inline 430px width to the real viewport, so every
+   screen fills the phone width and its content reflows naturally.
+   On desktop (viewport > 430px) 100vw doesn't constrain, so the
+   intended 430px canvas is preserved.
+   ============================================================ */
+[style*="width: 430px"],
+[style*="width:430px"] {
+  max-width: 100vw !important;
+}
+
+/* The fixed light/dark toggle is deliberately "browser-window chrome"
+   that sits OUTSIDE the device frame on a wide desktop. On a phone the
+   frame fills the screen, so it just overlaps the top-right corner.
+   Hide it on phone-width viewports — the in-app header sun icon stays
+   as the theme control. */
+@media (max-width: 500px) {
+  button[aria-label="Toggle light / dark"] {
+    display: none !important;
+  }
+}

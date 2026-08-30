@@ -612,7 +612,9 @@ class Component extends DCLogic {
         const dx = e.changedTouches[0].clientX - this.touchStartX;
         this.touchStartX = null;
         if (Math.abs(dx) < 30) return;
-        this.rotateCars(dx < 0 ? "right" : "left");
+        // Follow the finger: swipe left (dx<0) reveals the car to the left,
+        // swipe right reveals the car to the right.
+        this.rotateCars(dx < 0 ? "left" : "right");
       },
 
       heroRef: this.heroRef,

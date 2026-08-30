@@ -13,4 +13,29 @@
   s.src = base + '/_ds_bundle.js';
   s.onerror = () => console.error('ds-base.js: failed to load ' + s.src + ' — point the base line at the bound _ds/<folder> tree relative to this page');
   document.head.appendChild(s);
+
+  // Keep the browser / status-bar chrome matched to the page background, so no
+  // stray brand-green band shows behind the phone status bar. Reads the resolved
+  // --background-page-default token (dark in dark theme, light in light theme)
+  // and writes it to <meta name="theme-color">. Re-runs when the theme toggles.
+  function syncThemeColor() {
+    try {
+      if (!document.body) return;
+      const probe = document.createElement('div');
+      probe.style.cssText = 'position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;background:var(--background-page-default);pointer-events:none';
+      document.body.appendChild(probe);
+      const c = getComputedStyle(probe).backgroundColor;
+      probe.remove();
+      if (!c || c === 'transparent' || c === 'rgba(0, 0, 0, 0)') return;
+      let m = document.querySelector('meta[name="theme-color"]');
+      if (!m) { m = document.createElement('meta'); m.setAttribute('name', 'theme-color'); document.head.appendChild(m); }
+      m.setAttribute('content', c);
+    } catch (e) {}
+  }
+  function scheduleSync() { syncThemeColor(); setTimeout(syncThemeColor, 120); setTimeout(syncThemeColor, 500); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', scheduleSync);
+  else scheduleSync();
+  try {
+    new MutationObserver(syncThemeColor).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  } catch (e) {}
 })();

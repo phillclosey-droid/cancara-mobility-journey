@@ -349,14 +349,21 @@ class Component extends DCLogic {
 
   rotateCars(dir) {
     if (this.state.rotating) return;
-    // Simplified 2-position toggle: renault only ever sits centre/left, byd only ever sits
-    // centre/right — no off-screen wraparound in this version of the carousel.
+    // Two cars only: renault (car 1) sits centre or left, byd (car 2) sits centre or
+    // right — no wraparound. "left" advances to the car on the RIGHT (renault → byd);
+    // "right" goes back to the car on the LEFT (byd → renault). At either end there is
+    // no car that way, so the gesture does nothing (bounded — not a blind toggle).
     const slots = this.state.slots;
-    this.setState({ rotating: true });
-    const newSlots = slots.renault === "center"
-      ? Object.assign({}, slots, { renault: "left", byd: "center" })
-      : Object.assign({}, slots, { renault: "center", byd: "right" });
-    this.setState({ slots: newSlots });
+    const renaultCentered = slots.renault === "center";
+    let newSlots;
+    if (dir === "left") {
+      if (!renaultCentered) return;   // byd already centred — nothing further right
+      newSlots = Object.assign({}, slots, { renault: "left", byd: "center" });
+    } else {
+      if (renaultCentered) return;    // renault already centred — nothing further left
+      newSlots = Object.assign({}, slots, { renault: "center", byd: "right" });
+    }
+    this.setState({ rotating: true, slots: newSlots });
     setTimeout(() => this.setState({ rotating: false }), 460);
   }
 
@@ -599,7 +606,9 @@ class Component extends DCLogic {
         const dx = e.changedTouches[0].clientX - this.touchStartX;
         this.touchStartX = null;
         if (Math.abs(dx) < 30) return;
-        this.rotateCars(dx < 0 ? "right" : "left");
+        // Follow the finger: swipe left advances to the car on the right; swipe right
+        // goes back to the car on the left. rotateCars ignores it at either end.
+        this.rotateCars(dx < 0 ? "left" : "right");
       },
 
       heroRef: this.heroRef,
