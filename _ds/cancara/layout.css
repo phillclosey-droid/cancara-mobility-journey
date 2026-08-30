@@ -1,0 +1,175 @@
+/* ============================================================
+   Cancara — Layout utilities (token-driven)
+   Container · Panel · Row · Column + a few helpers.
+
+   These are the building blocks for assembling journey pages.
+   They mirror the Figma "tree builder" primitives (container / row /
+   column / panel) so a page can be composed structurally rather than
+   with bespoke CSS. Every value resolves to a var(--…) token; the
+   per-class CSS variables below are the *default* settings and can be
+   overridden inline on any instance to achieve a specific layout.
+
+   Class names are prefixed `cnc-l-` (layout) so they never collide with
+   component-injected classes — note the ACTION `Panel` component owns
+   `.cnc-panel`, which is a different thing from the `.cnc-l-panel`
+   layout surface below.
+
+   Nothing here sets colour except .cnc-l-panel (a surface). Spacing,
+   radius and borders are all tokens, so light/dark map automatically.
+   ============================================================ */
+
+/* ----------------------------------------------------------------
+   CONTAINER — wraps one SECTION of a page.
+   Vertical. 16px left/right gutter. 48px gap below, so consecutive
+   sections sit 48px apart. The last container in a scroll region
+   drops its bottom margin (the page's bottom inset handles the rest).
+   Use .cnc-l-container--bleed for full-width content (e.g. a
+   horizontally scrolling rail) that must ignore the side gutter.
+   ---------------------------------------------------------------- */
+.cnc-l-container {
+  --cnc-container-gutter: var(--spacing-size16);
+  --cnc-container-gap-below: var(--spacing-size48);
+  --cnc-container-gap: var(--spacing-size16);
+  display: flex;
+  flex-direction: column;
+  gap: var(--cnc-container-gap);
+  padding-left: var(--cnc-container-gutter);
+  padding-right: var(--cnc-container-gutter);
+  margin-bottom: var(--cnc-container-gap-below);
+}
+.cnc-l-container:last-child {
+  margin-bottom: 0;
+}
+.cnc-l-container--bleed {
+  --cnc-container-gutter: var(--spacing-none);
+}
+
+/* ----------------------------------------------------------------
+   PANEL — a coloured surface to group content inside a section.
+   Vertical. Solid panel background, 16px padding, medium radius.
+   Override --cnc-panel-surface-bg inline for a secondary/brand surface
+   (e.g. var(--background-panel-secondary) / --background-section-brand).
+   NB: this is a layout surface, distinct from the ACTION `Panel`
+   component (a tappable list row).
+   ---------------------------------------------------------------- */
+.cnc-l-panel {
+  --cnc-panel-surface-bg: var(--background-panel-default);
+  --cnc-panel-surface-pad: var(--spacing-size16);
+  --cnc-panel-surface-radius: var(--radius-medium);
+  --cnc-panel-surface-gap: var(--spacing-size16);
+  display: flex;
+  flex-direction: column;
+  gap: var(--cnc-panel-surface-gap);
+  padding: var(--cnc-panel-surface-pad);
+  background: var(--cnc-panel-surface-bg);
+  border-radius: var(--cnc-panel-surface-radius);
+}
+
+/* ----------------------------------------------------------------
+   ROW — horizontal layout. Use to place items side by side.
+   16px gap, items vertically centred by default. Override the
+   alignment vars inline (e.g. --cnc-row-align: flex-start).
+   ---------------------------------------------------------------- */
+.cnc-l-row {
+  --cnc-row-gap: var(--spacing-size16);
+  --cnc-row-align: center;
+  --cnc-row-justify: flex-start;
+  display: flex;
+  flex-direction: row;
+  gap: var(--cnc-row-gap);
+  align-items: var(--cnc-row-align);
+  justify-content: var(--cnc-row-justify);
+}
+
+/* ----------------------------------------------------------------
+   COLUMN — vertical layout. Use as many as needed inside a row to
+   build a grid-like arrangement. Each column flexes to share space
+   equally by default (override --cnc-col-grow / set a width inline).
+   ---------------------------------------------------------------- */
+.cnc-l-col {
+  --cnc-col-gap: var(--spacing-size16);
+  --cnc-col-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--cnc-col-gap);
+  flex: var(--cnc-col-grow) 1 0;
+  min-width: 0;
+}
+
+/* ----------------------------------------------------------------
+   HELPERS
+   ---------------------------------------------------------------- */
+
+/* Force a child to fill the frame width. Many components are extracted
+   at a fixed 375 with min/max-width locks; on a wider (430) frame they
+   would otherwise stay 375 and centre. Apply .cnc-fill to the component
+   (or a wrapper) to release those locks and fill the available width. */
+.cnc-fill {
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+}
+
+/* Flush a SELF-GUTTERED component to the container's 16px gutter.
+   Some components ship their own 16px left/right screen-gutter (e.g. the
+   ACTION `Panel`'s `.cnc-panel-wrap`, `Tile`'s `.cnc-tile`). Dropped
+   straight into a `.cnc-l-container` (which already adds 16px), their
+   visible card would sit at 32px — misaligned with the section title at
+   16px. Wrap such a component in `.cnc-l-flush`: it cancels the
+   container's 16px gutter with a negative margin, so the component's OWN
+   gutter becomes the single 16px and its card aligns to the same left/right
+   edge as everything else. (Layout-only: it does not touch the component's
+   colours, radius, inner padding or type — it just removes a doubled gutter.) */
+.cnc-l-flush {
+  margin-left: calc(-1 * var(--spacing-size16));
+  margin-right: calc(-1 * var(--spacing-size16));
+}
+
+/* Horizontal scroller — a bleed rail that scrolls sideways. Pair with
+   .cnc-l-container--bleed on the wrapping container; re-introduce the
+   16px gutter as scroll padding so the first/last item still align to
+   the content edge. Scrollbar is hidden (still scrollable). Rail items
+   are usually PANELS (e.g. .cnc-l-panel cards). */
+.cnc-scroll-x {
+  --cnc-scroll-gap: var(--spacing-size16);
+  --cnc-scroll-gutter: var(--spacing-size16);
+  display: flex;
+  flex-direction: row;
+  gap: var(--cnc-scroll-gap);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-left: var(--cnc-scroll-gutter);
+  padding-right: var(--cnc-scroll-gutter);
+  /* Snap must respect the leading/trailing gutter, otherwise scroll-snap
+     rests with scrollLeft = padding and the first card sits flush to the
+     edge. scroll-padding offsets the snapport so the gutter stays visible. */
+  scroll-padding-left: var(--cnc-scroll-gutter);
+  scroll-padding-right: var(--cnc-scroll-gutter);
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;       /* Firefox */
+  -ms-overflow-style: none;    /* old Edge */
+}
+.cnc-scroll-x::-webkit-scrollbar { width: 0; height: 0; }
+.cnc-scroll-x > * {
+  scroll-snap-align: start;
+  flex: 0 0 auto;
+}
+
+/* Hide scrollbars on any scroll region (content still scrolls). Apply to
+   a journey's scrolling content area so no bars are visible. */
+.cnc-no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.cnc-no-scrollbar::-webkit-scrollbar { width: 0; height: 0; }
+
+/* Bottom clearance for the END of a page's content. Apply to the
+   scrolling content wrapper so the last item sits ~76px above the
+   bottom nav, signalling the page has finished. 76 is composed from
+   spacing tokens (48 + 16 + 8 + 4) — no raw value. */
+.cnc-l-page-end {
+  padding-bottom: calc(
+    var(--spacing-size48) +
+    var(--spacing-size16) + var(--spacing-size08) + var(--spacing-size04)
+  );
+}

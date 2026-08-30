@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <!-- PWA Meta Tags for Full Screen -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    
+        <!-- CRITICAL: Set theme BEFORE any CSS loads to prevent flicker -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('cancara-theme-preference') || 'dark';
+            // Set on html first for immediate effect
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            // Then set on body when it's available
+            if (document.body) {
+                document.body.setAttribute('data-theme', savedTheme);
+                html.setAttribute('data-theme', 'dark');
+            } else {
+                document.addEventListener('DOMContentLoaded', function() {
+                    document.body.setAttribute('data-theme', savedTheme);
+                html.setAttribute('data-theme', 'dark');
+                });
+            }
+        })();
+    </script>
+    
+<title>Vehicle Servicing</title>
+    
+    <!-- Design Tokens -->
+    <link rel="stylesheet" href="../../../src/css/cancara-tokens.css">
+    
+    <!-- Component Styles -->
+    <link rel="stylesheet" href="../../../src/components/navigation/status-bar/StatusBar.vanilla.css">
+    <link rel="stylesheet" href="../../../src/components/navigation/header/custom-header/CustomHeader.vanilla.css">
+    <link rel="stylesheet" href="../../../src/components/navigation/bottom-nav/BottomNav.vanilla.css">
+    <link rel="stylesheet" href="../../../src/components/custom/mobility-mvp/service-alert/ServiceAlert.vanilla.css">
+    <link rel="stylesheet" href="../../../src/components/custom/mobility-mvp/service-hero-panel/ServiceHeroPanel.vanilla.css">
+    <link rel="stylesheet" href="../../../src/components/content/icon/pictogram/Pictogram.vanilla.css">
+    <link rel="stylesheet" href="../../../src/components/notification/notification-tag/NotificationTag.vanilla.css">
+    <link rel="stylesheet" href="../../../src/components/notification/notification-hint/NotificationHint.vanilla.css">
+    <link rel="stylesheet" href="../../../src/components/content/accordion/Accordion.vanilla.css">
+    <link rel="stylesheet" href="../../../src/components/action/button/action-button/ActionButton.vanilla.css">
+    <link rel="stylesheet" href="../../../src/components/content/divider/Divider.vanilla.css">
+    <link rel="stylesheet" href="../../../src/templates/base-template/base-template.css">
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        html {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            font-family: var(--font-family-body);
+            background: var(--color-gray-800);
+            color: var(--text-default);
+            transition: background-color 0.3s, color 0.3s;
+            overflow: hidden;
+        }
+        
+        .base-template {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            max-width: 100%;
+            margin: 0;
+        }
+        
+        @media (min-width: 431px) {
+            .base-template {
+                max-width: 430px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+        }
+        
+        @media (max-width: 430px) {
+            .theme-toggle {
+                display: none;
+            }
+        }
+        
+        /* Service Alert Container - Add margin bottom */
+        .content-section:has(.service-alert) {
+            margin-bottom: var(--spacing-24);
+        }
+        
+        /* Hero Panel Container - Add margin bottom */
+        .content-section:has(.service-hero-panel) {
+            margin-top: 0;
+            margin-bottom: var(--spacing-24);
+        }
+        
+        /* Remove gap from content-container */
+        .content-container {
+            gap: 0 !important;
+        }
+        
+        /* Add spacing above section titles */
+        .section-title {
+            margin-top: var(--spacing-32) !important;
+        }
+        
+        /* Add spacing above accordion */
+        .accordion {
+            margin-top: var(--spacing-16);
+        }
+        
+        /* Content Section */
+        .content-section {
+            padding: 0 var(--spacing-16);
+        }
+        
+        /* Section Title - Type Style 3 */
+        .section-title {
+            font-family: var(--font-family-heading);
+            font-size: var(--type-style-3-size);
+            font-weight: var(--type-style-3-weight);
+            line-height: var(--type-style-3-line-height);
+            letter-spacing: var(--type-style-3-letter-spacing);
+            color: var(--text-default);
+            margin-top: var(--spacing-24);
+            margin-bottom: var(--spacing-16);
+        }
+        
+        /* Subsection Title - Type Style 5 (Regular weight) */
+        .subsection-title {
+            font-family: var(--type-style-5-family);
+            font-size: var(--type-style-5-size);
+            font-weight: var(--type-style-5-weight);
+            line-height: var(--type-style-5-line-height);
+            letter-spacing: var(--type-style-5-letter-spacing);
+            color: var(--text-default);
+            margin-bottom: var(--spacing-16);
+        }
+        
+        .subsection-title::after {
+            content: ":";
+        }
+        
+        /* Advisory Box - Token LED */
+        .advisory-box {
+            padding: var(--spacing-16);
+            background: transparent;
+            border-left: 4px solid var(--color-orange-warning);
+            border-radius: var(--radius-default);
+            margin-bottom: var(--spacing-16);
+        }
+        
+        .advisory-label {
+            font-family: var(--font-family-body);
+            font-size: var(--type-style-7-size);
+            font-weight: var(--font-weight-bold);
+            line-height: var(--type-style-7-line-height);
+            color: var(--text-default);
+            margin-bottom: var(--spacing-04);
+            display: none; /* Hide Advisory: label */
+        }
+        
+        .advisory-text {
+            font-family: var(--font-family-body);
+            font-size: var(--type-style-8-size);
+            font-weight: var(--font-weight-regular);
+            line-height: var(--type-style-8-line-height);
+            color: var(--text-subdued);
+        }
+        
+        .advisory-text::before {
+            font-weight: var(--font-weight-regular);
+        }
+    </style>
+    <link rel="stylesheet" href="../scripts/inline-svg-styles.css">
+</head>
+<body data-theme="dark">
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('cancara-theme-preference') || 'dark';
+            document.body.setAttribute('data-theme', savedTheme);
+                html.setAttribute('data-theme', 'dark');
+        })();
+    </script>
+    <!-- Dark Mode Toggle -->
+    <div class="theme-toggle">
+        <button class="toggle-button" onclick="toggleTheme()">
+            <span id="theme-text">Switch to Light Mode</span>
+        </button>
+    </div>
+
+    <!-- Base Template -->
+    <div class="base-template">
+        <!-- Header - Fixed at top -->
+        <div class="header-wrapper">
+            <div class="custom-header">
+                <!-- Status Bar -->
+                <div class="status-bar status-bar-ios">
+                    <div class="status-bar-time">9:41</div>
+                    <div class="status-bar-levels">
+                        <div class="cellular-signal">
+                            <div class="signal-bar signal-bar-1"></div>
+                            <div class="signal-bar signal-bar-2"></div>
+                            <div class="signal-bar signal-bar-3"></div>
+                            <div class="signal-bar signal-bar-4"></div>
+                            <div class="signal-bar signal-bar-5"></div>
+                        </div>
+                        <div class="wifi-indicator">
+                            <div class="wifi-dot"></div>
+                            <div class="wifi-arc wifi-arc-1"></div>
+                            <div class="wifi-arc wifi-arc-2"></div>
+                            <div class="wifi-arc wifi-arc-3"></div>
+                        </div>
+                        <div class="status-bar-battery">
+                            <div class="battery-border"></div>
+                            <div class="battery-capacity"></div>
+                            <div class="battery-tip"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Header Bar -->
+                <div class="header-bar">
+                    <div class="header-leading">
+                        <div class="hit-target" onclick="navigateBack()" style="cursor: pointer;">
+                            <div class="icon-wrapper icon-18">
+                                <img id="back-icon" src="" alt="Back">
+                            </div>
+                        </div>
+                        <div class="header-gap"></div>
+                        <div class="empty-space"></div>
+                    </div>
+
+                    <div class="header-title-wrapper">
+                        <div class="header-title">Vehicle servicing</div>
+                    </div>
+
+                    <div class="header-trailing">
+                        <div class="empty-space"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Area - Scrollable -->
+        <div class="content-wrapper">
+            <div class="content-container">
+                
+                <!-- ServiceAlert Component - EXACT COPY -->
+                <div class="content-section">
+                    <div class="service-alert">
+                        <div class="service-alert-content">
+                            <!-- Top Row: Clock + Text + X -->
+                            <div class="service-alert-top">
+                                <!-- Clock Icon -->
+                                <div class="service-alert-icon-container">
+                                    <div class="service-alert-icon">
+                                        <img src="../../../assets/icons/date-and-time/clock.svg" alt="">
+                                    </div>
+                                </div>
+                                
+                                <!-- Text Content -->
+                                <div class="service-alert-main">
+                                    <div class="service-alert-title">Your service is due in 30 days</div>
+                                    <div class="service-alert-text">If you've already booked it, let us know when you'd like a reminder.</div>
+                                </div>
+                                
+                                <!-- Close Button -->
+                                <button class="service-alert-close" aria-label="Close alert">
+                                    <img src="../../../assets/icons/navigation/close.svg" alt="">
+                                </button>
+                            </div>
+                            
+                            <!-- Bottom Row: Action Buttons (Full Width) -->
+                            <div class="service-alert-buttons">
+                                <button class="action-button btn-secondary">
+                                    <div class="action-button-inner">
+                                        <span class="action-button-text">Update details</span>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ServiceHeroPanel Component - EXACT COPY -->
+                <div class="content-section">
+                    <div class="service-hero-panel">
+                        <!-- Pictogram (overlaps card) -->
+                        <div class="service-hero-panel-pictogram">
+                            <div class="pictogram pict-default">
+                                <img src="../../../assets/icons/travel/car.svg" alt="">
+                            </div>
+                        </div>
+                        
+                        <!-- Main Card -->
+                        <div class="service-hero-panel-card">
+                            <!-- Registration Row -->
+                            <div class="service-hero-panel-reg-row">
+                                <span class="service-hero-panel-reg-label">Renault Rafale</span>
+                                <span class="service-hero-panel-pips">|</span>
+                                <span class="service-hero-panel-reg-number">VX23 TZB</span>
+                            </div>
+                            
+                            <!-- Service Type -->
+                            <div class="service-hero-panel-service-type">Service due</div>
+                            
+                            <!-- Date Row with Tag -->
+                            <div class="service-hero-panel-date-row">
+                                <div class="service-hero-panel-date">21 Aug 2026</div>
+                                <div class="notification-tag tag-warning">
+                                    <div class="notification-tag-text">38 days</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Notification Hint -->
+                            <div class="service-hero-panel-hint">
+                                <div class="notification-hint type-secondary">
+                                    <div class="notification-hint-content">
+                                        <div class="notification-hint-icon-container">
+                                            <div class="notification-hint-icon">
+                                                <img src="../../../assets/icons/sentiment-system/info.svg" alt="">
+                                            </div>
+                                        </div>
+                                        <div class="notification-hint-text">The AA recommends you get your vehicle serviced once a year.</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Divider -->
+                            <div class="service-hero-panel-divider">
+                                <div class="divider width-fullwidth type-default">
+                                    <div class="divider-line"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Accordion -->
+                            <div class="service-hero-panel-accordion">
+                                <div class="accordion accordion-full accordion-single">
+                                    <div class="accordion-item">
+                                        <div class="accordion-header">
+                                            <div class="accordion-icon-left">
+                                                <img src="../../../assets/icons/navigation/notifications.svg" alt="">
+                                            </div>
+                                            <div class="accordion-label">
+                                                <div class="accordion-label-text">Manage reminder</div>
+                                            </div>
+                                            <div class="accordion-icon">
+                                                <div class="accordion-icon-plus">
+                                                    <img src="../../../assets/icons/action/plus.svg" alt="">
+                                                </div>
+                                                <div class="accordion-icon-minus">
+                                                    <img src="../../../assets/icons/action/minus.svg" alt="">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="accordion-panel">
+                                            <div class="accordion-panel-content">
+                                                <!-- Cost Breakdown Container -->
+                                                <div class="service-hero-panel-cost-container">
+                                                    <!-- Row 1 -->
+                                                    <div class="service-hero-panel-cost-row">
+                                                        <span class="service-hero-panel-cost-label">Serviced until</span>
+                                                        <span class="service-hero-panel-cost-value">21 Aug 2026</span>
+                                                    </div>
+                                                    
+                                                    <!-- Divider -->
+                                                    <div class="divider width-fullwidth type-dash">
+                                                        <div class="divider-line"></div>
+                                                    </div>
+                                                    
+                                                    <!-- Row 2 -->
+                                                    <div class="service-hero-panel-cost-row">
+                                                        <span class="service-hero-panel-cost-label">Reminder</span>
+                                                        <span class="service-hero-panel-cost-value">21 Jul 2026</span>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Secondary Button -->
+                                                <div class="service-hero-panel-button">
+                                                    <button class="action-button btn-secondary">
+                                                        <div class="action-button-inner">
+                                                            <span class="action-button-text">Turn reminder off</span>
+                                                            <div class="action-button-icon">
+                                                                <img src="../../../assets/icons/edit/delete.svg" alt="">
+                                                            </div>
+                                                        </div>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Issues from last MOT Section -->
+                <div class="content-section">
+                    <h2 class="section-title">Issues from last MOT</h2>
+                    
+                    <h3 class="subsection-title">Advisorys</h3>
+                    
+                    <!-- Advisory Box 1 -->
+                    <div class="advisory-box">
+                        <div class="advisory-text">Tyre slightly damaged/cracking or perishing. Both rear (5.2.3 (d) (ii))</div>
+                    </div>
+                    
+                    <!-- Advisory Box 2 -->
+                    <div class="advisory-box">
+                        <div class="advisory-text">Nearside front coil spring corroded</div>
+                    </div>
+                    
+                    <!-- Advisory Box 3 -->
+                    <div class="advisory-box">
+                        <div class="advisory-text">Both front tyres wearing on inner edge.</div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+        <!-- Bottom Navigation - Fixed at bottom -->
+        <div class="nav-wrapper">
+            <div class="bottom-nav" id="bottom-nav">
+                <div class="bottom-nav-active-border">
+                    <div class="active-border-segment active"></div>
+                    <div class="active-border-segment"></div>
+                    <div class="active-border-segment"></div>
+                    <div class="active-border-segment"></div>
+                    <div class="active-border-segment"></div>
+                </div>
+                
+                <div class="bottom-nav-tabs">
+                    <button class="bottom-nav-tab active" onclick="window.location.href='../01-account-summary/account-summary.html'">
+                        <div class="bottom-nav-icon">
+                            <img id="tab-icon-0-inactive" src="" alt="" class="icon-inactive">
+                            <img id="tab-icon-0-active" src="" alt="" class="icon-active">
+                        </div>
+                        <span class="bottom-nav-label">Home</span>
+                    </button>
+                    
+                    <button class="bottom-nav-tab" onclick="setActiveTab(1)">
+                        <div class="bottom-nav-icon">
+                            <img id="tab-icon-1-inactive" src="" alt="" class="icon-inactive">
+                            <img id="tab-icon-1-active" src="" alt="" class="icon-active">
+                        </div>
+                        <span class="bottom-nav-label">Apply</span>
+                    </button>
+                    
+                    <button class="bottom-nav-tab" onclick="setActiveTab(2)">
+                        <div class="bottom-nav-icon">
+                            <img id="tab-icon-2-inactive" src="" alt="" class="icon-inactive">
+                            <img id="tab-icon-2-active" src="" alt="" class="icon-active">
+                        </div>
+                        <span class="bottom-nav-label">Payments</span>
+                    </button>
+                    
+                    <button class="bottom-nav-tab" onclick="setActiveTab(3)">
+                        <div class="bottom-nav-icon">
+                            <img id="tab-icon-3-inactive" src="" alt="" class="icon-inactive">
+                            <img id="tab-icon-3-active" src="" alt="" class="icon-active">
+                        </div>
+                        <span class="bottom-nav-label">Search</span>
+                    </button>
+                    
+                    <button class="bottom-nav-tab" onclick="setActiveTab(4)">
+                        <div class="bottom-nav-icon">
+                            <img id="tab-icon-4-inactive" src="" alt="" class="icon-inactive">
+                            <img id="tab-icon-4-active" src="" alt="" class="icon-active">
+                        </div>
+                        <span class="bottom-nav-label">Cards</span>
+                    </button>
+                </div>
+                
+                <div class="bottom-nav-home-indicator">
+                    <div class="home-indicator-handle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Component JavaScript -->
+    <script src="../../../src/components/custom/mobility-mvp/service-alert/ServiceAlert.vanilla.js"></script>
+    <script src="../../../src/components/custom/mobility-mvp/service-hero-panel/ServiceHeroPanel.vanilla.js"></script>
+    <script src="../../../src/components/content/icon/pictogram/Pictogram.vanilla.js"></script>
+    <script src="../../../src/components/notification/notification-hint/NotificationHint.vanilla.js"></script>
+    <script src="../../../src/components/content/accordion/Accordion.vanilla.js"></script>
+    <script src="../../../src/components/action/button/action-button/ActionButton.vanilla.js"></script>
+
+    <script>
+        const ASSETS_BASE = '../../../assets';
+        
+        const ICONS = {
+            back: `${ASSETS_BASE}/icons/arrows/arrow-left.svg`,
+            tab1: `${ASSETS_BASE}/icons/tabs/tab-1-icon.svg`,
+            tab2: `${ASSETS_BASE}/icons/tabs/tab-2-icon.svg`,
+            tab3: `${ASSETS_BASE}/icons/tabs/tab-3-icon.svg`,
+            tab4: `${ASSETS_BASE}/icons/tabs/tab-4-icon.svg`,
+            tab5: `${ASSETS_BASE}/icons/tabs/tab-5-icon.svg`,
+            tab1Active: `${ASSETS_BASE}/icons/tabs/tab-1-icon-active.svg`,
+            tab2Active: `${ASSETS_BASE}/icons/tabs/tab-2-icon-active.svg`,
+            tab3Active: `${ASSETS_BASE}/icons/tabs/tab-3-icon-active.svg`,
+            tab4Active: `${ASSETS_BASE}/icons/tabs/tab-4-icon-active.svg`,
+            tab5Active: `${ASSETS_BASE}/icons/tabs/tab-5-icon-active.svg`
+        };
+        
+        function initializeIcons() {
+            const backIcon = document.getElementById('back-icon');
+            if (backIcon) backIcon.src = ICONS.back;
+            
+            document.getElementById('tab-icon-0-inactive').src = ICONS.tab1;
+            document.getElementById('tab-icon-1-inactive').src = ICONS.tab2;
+            document.getElementById('tab-icon-2-inactive').src = ICONS.tab3;
+            document.getElementById('tab-icon-3-inactive').src = ICONS.tab4;
+            document.getElementById('tab-icon-4-inactive').src = ICONS.tab5;
+            
+            document.getElementById('tab-icon-0-active').src = ICONS.tab1Active;
+            document.getElementById('tab-icon-1-active').src = ICONS.tab2Active;
+            document.getElementById('tab-icon-2-active').src = ICONS.tab3Active;
+            document.getElementById('tab-icon-3-active').src = ICONS.tab4Active;
+            document.getElementById('tab-icon-4-active').src = ICONS.tab5Active;
+        }
+
+        function setActiveTab(tabIndex) {
+            const nav = document.getElementById('bottom-nav');
+            const tabs = nav.querySelectorAll('.bottom-nav-tab');
+            const segments = nav.querySelectorAll('.active-border-segment');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            segments.forEach(segment => segment.classList.remove('active'));
+            tabs[tabIndex].classList.add('active');
+            segments[tabIndex].classList.add('active');
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            const html = document.documentElement;
+            const themeText = document.getElementById('theme-text');
+            const currentTheme = body.getAttribute('data-theme');
+            if (currentTheme === 'light') {
+                body.setAttribute('data-theme', 'dark');
+                html.setAttribute('data-theme', 'dark');
+                themeText.textContent = 'Switch to Light Mode';
+                localStorage.setItem('cancara-theme-preference', 'dark');
+            } else {
+                body.setAttribute('data-theme', 'light');
+                html.setAttribute('data-theme', 'light');
+                themeText.textContent = 'Switch to Dark Mode';
+                localStorage.setItem('cancara-theme-preference', 'light');
+            }
+        }
+        
+        function navigateBack() {
+            // Get completed tasks from sessionStorage (set by hub page)
+            const completed = sessionStorage.getItem('hubCompleted') || '';
+            // Add a flag to indicate this is a return navigation
+            sessionStorage.setItem('isReturningToHub', 'true');
+            window.location.href = `../02-mobility-hub/mobility-hub.html${completed ? '?completed=' + completed : ''}`;
+        }
+
+        window.addEventListener('DOMContentLoaded', function() {
+            // Update toggle text based on current theme
+            const currentTheme = document.body.getAttribute('data-theme');
+            const themeText = document.getElementById('theme-text');
+            if (themeText) {
+                if (currentTheme === 'dark') {
+                    themeText.textContent = 'Switch to Light Mode';
+                } else {
+                    themeText.textContent = 'Switch to Dark Mode';
+                }
+            }
+            
+            initializeIcons();
+        });
+    </script>
+    <!-- Inline SVG Loader - Firewall Workaround -->
+    <script src="../scripts/inline-svg-loader.js"></script>
+</body>
+</html>

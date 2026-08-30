@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="assets/pwa/icon-192.png">
+<link rel="icon" href="assets/pwa/icon-192.png">
+<meta name="theme-color" content="#00A651">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Lloyds Cancara">
+</head>
+<body>
+<x-dc>
+<!-- @template name="MVP Mobility Journey — Project Index" description="Front page for the MVP Mobility Journey project — one journey card to the mobility onboarding flow." -->
+<helmet>
+  <script src="./ds-base.js"></script>
+  <style>
+    html, body { height: 100%; }
+    html body { margin: 0; background: var(--background-panel-pressed); display: flex; align-items: stretch; justify-content: center; }
+    .pi-frame { scrollbar-width: none; -ms-overflow-style: none; }
+    .pi-frame::-webkit-scrollbar { width: 0; height: 0; }
+    .pi-layout { box-sizing: border-box; height: 100%; display: grid; grid-template-rows: auto 1fr auto; padding: var(--spacing-size48) var(--spacing-size16) var(--spacing-size32); overflow: hidden; }
+    .pi-brand { display: flex; justify-content: center; }
+    .pi-projects { display: flex; flex-direction: column; justify-content: center; gap: var(--spacing-size16); }
+    .pi-projects .cnc-lag { max-width: none; }
+    .pi-foot { display: flex; flex-direction: column; align-items: stretch; gap: var(--spacing-size16); }
+    .pi-foot .cnc-divider { padding-top: var(--spacing-size08); padding-bottom: var(--spacing-size08); }
+    .pi-foottext {
+      text-align: center; text-transform: uppercase; color: var(--text-generic-subdued);
+      font-family: var(--type-style13-family); font-size: var(--type-style13-size);
+      line-height: var(--type-style13-line); font-weight: var(--type-style13-weight);
+      letter-spacing: var(--border-width-02);
+    }
+    .pi-frame .cnc-cpm { position: absolute; inset: 0; width: auto; height: auto; z-index: 50; }
+    @keyframes pi-cpm-fade { from { opacity: 0; } to { opacity: 1; } }
+    .pi-frame .cnc-cpm { animation: pi-cpm-fade 260ms ease; }
+    @media (prefers-reduced-motion: reduce) { .pi-frame .cnc-cpm { animation: none; } }
+  </style>
+  <script>document.documentElement.setAttribute("data-theme", localStorage.getItem("cnc-theme") || "dark");</script>
+  <script>
+    // Home always resets this journey back to "onboard your first car" square one.
+    try {
+      localStorage.removeItem("cnc-mobility-state");
+      localStorage.removeItem("cnc-mobility-vehicles");
+      localStorage.removeItem("cnc-carousel2-seen");
+      localStorage.removeItem("cnc-carousel3-seen");
+    } catch (e) {}
+  </script>
+</helmet>
+
+<button type="button" onClick="{{ toggleTheme }}" aria-label="Toggle light / dark" title="Toggle light / dark" style="position: fixed; top: var(--spacing-size16); right: var(--spacing-size16); z-index: 100; width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center; border: var(--border-width-01) solid var(--border-generic-defaultalt01); border-radius: var(--radius-circle); background: var(--background-panel-default); color: var(--text-generic-default); cursor: pointer; padding: 0;">
+  <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Icon" name="Weather/Sun/Sun" size="{{ iconSize }}" padding="{{ iconPad }}" base-path="_ds/cancara" hint-size="24px,24px"></x-import>
+</button>
+
+<div class="pi-frame" style="position: relative; box-sizing: border-box; width: 430px; max-width: 100vw; height: 100dvh; overflow: hidden; background: var(--background-page-default);">
+
+  <div class="pi-layout" data-screen-label="Project index">
+
+    <div class="pi-brand">
+      <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Icon" size="{{ horseSize }}" color="var(--icon-generic-brand)" title="Lloyds" dc-props="{{ horseProps }}" hint-size="44px,44px"></x-import>
+    </div>
+
+    <div class="pi-projects">
+      <x-import component-from-global-scope="CancaraDesignSystem_4b0109.ListActionGroup" width="compact" base-path="_ds/cancara" items="{{ projectMobility }}" hint-size="100%,96px"></x-import>
+    </div>
+
+    <div class="pi-foot">
+      <sc-if value="{{ showInstallHint }}" hint-placeholder-val="{{ false }}">
+        <x-import component-from-global-scope="CancaraDesignSystem_4b0109.NotificationHint" type="secondary" icon="{{ installIcon }}" text="{{ installText }}" base-path="_ds/cancara" hint-size="100%,48px"></x-import>
+        <sc-if value="{{ showInstallButton }}" hint-placeholder-val="{{ false }}">
+          <x-import component-from-global-scope="CancaraDesignSystem_4b0109.CompactButton" variant="secondary" size="small" icon-position="left" icon="Miscellaneous/Download/Download" on-click="{{ installApp }}" base-path="_ds/cancara" hint-size="auto,36px">Add to home screen</x-import>
+        </sc-if>
+      </sc-if>
+      <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Divider" width="default" type="default" hint-size="100%,32px"></x-import>
+      <div class="pi-foottext">Lloyds Cancara Designs</div>
+    </div>
+
+  </div>
+
+  <sc-if value="{{ pickerMounted }}" hint-placeholder-val="{{ false }}">
+    <x-import component-from-global-scope="CancaraDesignSystem_4b0109.CustomPopupModal"
+              link-stack="2-horizontal"
+              title="Choose your theme"
+              message="View this journey in light or dark mode. You can switch anytime with the sun icon in the header."
+              primary-label="Dark"
+              on-primary="{{ pickDark }}"
+              secondary-label="Light"
+              on-secondary="{{ pickLight }}"
+              base-path="_ds/cancara"
+              hint-size="430px,100%"></x-import>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { pickerMounted: false, pendingUrl: null, deferredPrompt: null, standalone: false };
+
+  componentDidMount() {
+    const isStandalone = window.matchMedia && window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+    this.setState({ standalone: !!isStandalone });
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      this.setState({ deferredPrompt: e });
+    });
+  }
+
+  renderVals() {
+    const askTheme = (url) => this.setState({ pickerMounted: true, pendingUrl: url });
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const applyTheme = (mode) => {
+      try { localStorage.setItem("cnc-theme", mode); } catch (e) {}
+      document.documentElement.setAttribute("data-theme", mode);
+    };
+    const advance = () => { window.location.href = this.state.pendingUrl || "account-summary.dc.html"; };
+
+    return {
+      toggleTheme: () => {
+        const el = document.documentElement;
+        const next = el.getAttribute("data-theme") === "dark" ? "light" : "dark";
+        el.setAttribute("data-theme", next);
+        try { localStorage.setItem("cnc-theme", next); } catch (e) {}
+      },
+
+      pickerMounted: this.state.pickerMounted,
+      pickDark: () => { applyTheme("dark"); advance(); },
+      pickLight: () => { applyTheme("light"); advance(); },
+
+      iconSize: 24,
+      iconPad: true,
+      horseSize: 44,
+      horseProps: { src: "_ds/cancara/assets/components/Bank Logo/Lloyds/Lloyds.svg" },
+
+      projectMobility: [{
+        asset: "pictogram",
+        pictogramIcon: "Travel/Car/Car",
+        pictogramStyle: "primary",
+        title: "Multiple cars - Prototype one",
+        description: "Onboarding multiple cars with tab navigation",
+        showDescription: true,
+        onClick: () => askTheme("splash.dc.html"),
+      }],
+
+      showInstallHint: !this.state.standalone,
+      isIOS,
+      installIcon: isIOS ? "Share/Share/Share" : "Devices/Mobile/Mobile",
+      installText: isIOS
+        ? "Install this app: tap Share, then \"Add to Home Screen\"."
+        : "Install this app for quicker, full-screen access.",
+      showInstallButton: !isIOS && !!this.state.deferredPrompt,
+      installApp: () => {
+        const dp = this.state.deferredPrompt;
+        if (!dp) return;
+        dp.prompt();
+        this.setState({ deferredPrompt: null });
+      },
+    };
+  }
+}
+
+</script>
+</body>
+</html>

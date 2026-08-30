@@ -1,0 +1,18 @@
+/* ============================================================
+   Cancara — Journey stylesheet entry point
+   The single file a JOURNEY PAGE links. It bundles:
+     • styles.css      — the design system (tokens, fonts, base)
+     • layout.css      — layout primitives (container/panel/row/column)
+     • transitions.css — page/content transitions
+
+   Why separate from styles.css? styles.css is the design system's token
+   entry — the compiler reads its @import closure to register tokens.
+   The layout/transition helpers use local --cnc-* CSS variables that are
+   NOT brand tokens, so they are kept OUT of that closure (linking them
+   here, not in styles.css, means they never get registered as tokens).
+   Everything they resolve to is still a var(--…) token from styles.css.
+   ============================================================ */
+
+@import "styles.css";
+@import "layout.css";
+@import "transitions.css";

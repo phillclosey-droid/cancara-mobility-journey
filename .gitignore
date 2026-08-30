@@ -1,0 +1,8 @@
+# macOS
+.DS_Store
+
+# Claude Design canvas working files
+.thumbnail/
+
+# Logs
+*.log

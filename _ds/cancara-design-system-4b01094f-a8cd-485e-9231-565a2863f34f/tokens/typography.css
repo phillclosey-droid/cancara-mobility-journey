@@ -1,0 +1,225 @@
+/* Cancara — Typography tokens + utility classes. iOS text styles, GT Ultra. Generated. */
+
+:root {
+  --type-style0-family: 'GT Ultra Median', 'GT Ultra', system-ui, sans-serif;
+  --type-style0-size: 40px;
+  --type-style0-line: 44px;
+  --type-style0-weight: 800;
+  --type-style0-tracking: 0px;
+  --type-style1-family: 'GT Ultra Median', 'GT Ultra', system-ui, sans-serif;
+  --type-style1-size: 29px;
+  --type-style1-line: 32px;
+  --type-style1-weight: 700;
+  --type-style1-tracking: 0px;
+  --type-style2-family: 'GT Ultra Median', 'GT Ultra', system-ui, sans-serif;
+  --type-style2-size: 23px;
+  --type-style2-line: 26px;
+  --type-style2-weight: 700;
+  --type-style2-tracking: 0px;
+  --type-style3-family: 'GT Ultra Median', 'GT Ultra', system-ui, sans-serif;
+  --type-style3-size: 19px;
+  --type-style3-line: 22px;
+  --type-style3-weight: 700;
+  --type-style3-tracking: -0.20px;
+  --type-style4-family: 'GT Ultra', system-ui, sans-serif;
+  --type-style4-size: 17px;
+  --type-style4-line: 22px;
+  --type-style4-weight: 700;
+  --type-style4-tracking: 0px;
+  --type-style5-family: 'GT Ultra', system-ui, sans-serif;
+  --type-style5-size: 17px;
+  --type-style5-line: 22px;
+  --type-style5-weight: 400;
+  --type-style5-tracking: 0px;
+  --type-style6-family: 'GT Ultra', system-ui, sans-serif;
+  --type-style6-size: 15px;
+  --type-style6-line: 20px;
+  --type-style6-weight: 400;
+  --type-style6-tracking: 0px;
+  --type-style7-family: 'GT Ultra', system-ui, sans-serif;
+  --type-style7-size: 15px;
+  --type-style7-line: 20px;
+  --type-style7-weight: 700;
+  --type-style7-tracking: 0px;
+  --type-style8-family: 'GT Ultra', system-ui, sans-serif;
+  --type-style8-size: 14px;
+  --type-style8-line: 20px;
+  --type-style8-weight: 400;
+  --type-style8-tracking: 0px;
+  --type-style9-family: 'GT Ultra', system-ui, sans-serif;
+  --type-style9-size: 12px;
+  --type-style9-line: 18px;
+  --type-style9-weight: 400;
+  --type-style9-tracking: 0px;
+  --type-style10-family: 'GT Ultra', system-ui, sans-serif;
+  --type-style10-size: 12px;
+  --type-style10-line: 18px;
+  --type-style10-weight: 700;
+  --type-style10-tracking: 0px;
+  --type-style11-family: 'GT Ultra', system-ui, sans-serif;
+  --type-style11-size: 14px;
+  --type-style11-line: 20px;
+  --type-style11-weight: 700;
+  --type-style11-tracking: 0px;
+  --type-style12-family: 'GT Ultra', system-ui, sans-serif;
+  --type-style12-size: 11px;
+  --type-style12-line: 16px;
+  --type-style12-weight: 700;
+  --type-style12-tracking: 0px;
+  --type-style13-family: 'GT Ultra', system-ui, sans-serif;
+  --type-style13-size: 11px;
+  --type-style13-line: 16px;
+  --type-style13-weight: 400;
+  --type-style13-tracking: 0px;
+  --type-style1b-family: 'GT Ultra', system-ui, sans-serif;
+  --type-style1b-size: 29px;
+  --type-style1b-line: 32px;
+  --type-style1b-weight: 400;
+  --type-style1b-tracking: 0px;
+  --type-style2b-family: 'GT Ultra', system-ui, sans-serif;
+  --type-style2b-size: 23px;
+  --type-style2b-line: 26px;
+  --type-style2b-weight: 400;
+  --type-style2b-tracking: 0px;
+  --type-style3b-family: 'GT Ultra', system-ui, sans-serif;
+  --type-style3b-size: 19px;
+  --type-style3b-line: 22px;
+  --type-style3b-weight: 400;
+  --type-style3b-tracking: -0.20px;
+}
+
+.type-style0 {
+  font-family: var(--type-style0-family);
+  font-size: var(--type-style0-size);
+  line-height: var(--type-style0-line);
+  font-weight: var(--type-style0-weight);
+  letter-spacing: var(--type-style0-tracking);
+}
+
+.type-style1 {
+  font-family: var(--type-style1-family);
+  font-size: var(--type-style1-size);
+  line-height: var(--type-style1-line);
+  font-weight: var(--type-style1-weight);
+  letter-spacing: var(--type-style1-tracking);
+}
+
+.type-style2 {
+  font-family: var(--type-style2-family);
+  font-size: var(--type-style2-size);
+  line-height: var(--type-style2-line);
+  font-weight: var(--type-style2-weight);
+  letter-spacing: var(--type-style2-tracking);
+}
+
+.type-style3 {
+  font-family: var(--type-style3-family);
+  font-size: var(--type-style3-size);
+  line-height: var(--type-style3-line);
+  font-weight: var(--type-style3-weight);
+  letter-spacing: var(--type-style3-tracking);
+}
+
+.type-style4 {
+  font-family: var(--type-style4-family);
+  font-size: var(--type-style4-size);
+  line-height: var(--type-style4-line);
+  font-weight: var(--type-style4-weight);
+  letter-spacing: var(--type-style4-tracking);
+}
+
+.type-style5 {
+  font-family: var(--type-style5-family);
+  font-size: var(--type-style5-size);
+  line-height: var(--type-style5-line);
+  font-weight: var(--type-style5-weight);
+  letter-spacing: var(--type-style5-tracking);
+}
+
+.type-style6 {
+  font-family: var(--type-style6-family);
+  font-size: var(--type-style6-size);
+  line-height: var(--type-style6-line);
+  font-weight: var(--type-style6-weight);
+  letter-spacing: var(--type-style6-tracking);
+}
+
+.type-style7 {
+  font-family: var(--type-style7-family);
+  font-size: var(--type-style7-size);
+  line-height: var(--type-style7-line);
+  font-weight: var(--type-style7-weight);
+  letter-spacing: var(--type-style7-tracking);
+}
+
+.type-style8 {
+  font-family: var(--type-style8-family);
+  font-size: var(--type-style8-size);
+  line-height: var(--type-style8-line);
+  font-weight: var(--type-style8-weight);
+  letter-spacing: var(--type-style8-tracking);
+}
+
+.type-style9 {
+  font-family: var(--type-style9-family);
+  font-size: var(--type-style9-size);
+  line-height: var(--type-style9-line);
+  font-weight: var(--type-style9-weight);
+  letter-spacing: var(--type-style9-tracking);
+}
+
+.type-style10 {
+  font-family: var(--type-style10-family);
+  font-size: var(--type-style10-size);
+  line-height: var(--type-style10-line);
+  font-weight: var(--type-style10-weight);
+  letter-spacing: var(--type-style10-tracking);
+}
+
+.type-style11 {
+  font-family: var(--type-style11-family);
+  font-size: var(--type-style11-size);
+  line-height: var(--type-style11-line);
+  font-weight: var(--type-style11-weight);
+  letter-spacing: var(--type-style11-tracking);
+}
+
+.type-style12 {
+  font-family: var(--type-style12-family);
+  font-size: var(--type-style12-size);
+  line-height: var(--type-style12-line);
+  font-weight: var(--type-style12-weight);
+  letter-spacing: var(--type-style12-tracking);
+}
+
+.type-style13 {
+  font-family: var(--type-style13-family);
+  font-size: var(--type-style13-size);
+  line-height: var(--type-style13-line);
+  font-weight: var(--type-style13-weight);
+  letter-spacing: var(--type-style13-tracking);
+}
+
+.type-style1b {
+  font-family: var(--type-style1b-family);
+  font-size: var(--type-style1b-size);
+  line-height: var(--type-style1b-line);
+  font-weight: var(--type-style1b-weight);
+  letter-spacing: var(--type-style1b-tracking);
+}
+
+.type-style2b {
+  font-family: var(--type-style2b-family);
+  font-size: var(--type-style2b-size);
+  line-height: var(--type-style2b-line);
+  font-weight: var(--type-style2b-weight);
+  letter-spacing: var(--type-style2b-tracking);
+}
+
+.type-style3b {
+  font-family: var(--type-style3b-family);
+  font-size: var(--type-style3b-size);
+  line-height: var(--type-style3b-line);
+  font-weight: var(--type-style3b-weight);
+  letter-spacing: var(--type-style3b-tracking);
+}

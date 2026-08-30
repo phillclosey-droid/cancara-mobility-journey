@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- @template name="Mobility Hub" description="Hero panel (vehicle row + car-spin video + progress + ghost tiles), reminders list, Plan and prepare section, manage-vehicle tray. Recreates the OLD journey's 02-mobility-hub content/sequence in Cancara components; reads/writes localStorage('cnc-mobility-state')." -->
+<helmet>
+  <script src="./ds-base.js"></script>
+  <style>
+    html, body { height: 100%; }
+    html, body { overflow: hidden; }
+    html body { margin: 0; background: var(--background-panel-pressed); display: flex; align-items: stretch; justify-content: center; }
+    .hb-frame .cnc-tpl-base__container { scrollbar-width: none; -ms-overflow-style: none; -webkit-overflow-scrolling: touch; touch-action: pan-y; padding-top: var(--spacing-size08); }
+    .hb-frame .cnc-tpl-base__container::-webkit-scrollbar { width: 0; height: 0; }
+
+    .hb-hero { display: flex; flex-direction: column; gap: var(--spacing-size16); background: var(--background-panel-default); border-radius: var(--radius-default); padding: var(--spacing-size16); overflow: hidden; }
+    .hb-hero__toprow { display: flex; align-items: flex-start; gap: var(--spacing-size12); }
+    .hb-hero__vehicletext { flex: 1 1 auto; min-width: 0; }
+    .hb-hero__vehicletext span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .hb-hero__edit { flex: 0 0 auto; display: flex; align-items: center; gap: var(--spacing-size04); background: transparent; border: 0; padding: 0; cursor: pointer; color: var(--text-action-default); }
+    .hb-carrow { position: relative; width: calc(100% + var(--spacing-size32)); margin: calc(-1 * var(--spacing-size16) - 16px) calc(-1 * var(--spacing-size16)) -16px; aspect-ratio: 16 / 9; height: calc((100% + var(--spacing-size32)) * 9 / 16 - 24px); overflow: hidden; background: linear-gradient(to top, var(--background-panel-default) 0, var(--background-panel-default) 88px, #383838 88px, var(--background-panel-default) 100%); }
+    .hb-carrow__img { position: absolute; top: 50%; transition: left 0.45s ease, transform 0.45s ease, height 0.45s ease; z-index: 1; }
+    .hb-carrow__img--notransition { transition: none; }
+    .hb-carrow__img--left { left: 0%; height: 148px; transform: translate(-55%, calc(-50% + 16px)); }
+    .hb-carrow__img--right { left: 100%; height: 148px; transform: translate(-45%, calc(-50% + 16px)); }
+    .hb-carrow__img--offleft { left: 0%; height: 98px; transform: translate(-220%, calc(-50% + 16px)); }
+    .hb-carrow__img--offright { left: 100%; height: 98px; transform: translate(220%, calc(-50% + 16px)); }
+    .hb-carrow__img--center { left: 50%; height: 188px; transform: translate(-50%, calc(-50% + 24px)); z-index: 2; }
+    .hb-carrow__img img { display: block; height: 100%; width: auto; transform: scale(var(--car-scale, 1)); transform-origin: center; transition: transform 0.45s ease; }
+    @keyframes hb-item-fade { from { opacity: 0; } to { opacity: 1; } }
+    .hb-item-reveal { animation: hb-item-fade 0.3s ease 0.25s both; }
+    @media (prefers-reduced-motion: reduce) { .hb-item-reveal { animation: none; } }
+    .hb-ghostrow .cnc-ghostpanel__lead { display: none; }
+    .hb-ghostrow .cnc-ghostpanel { padding: var(--spacing-size12); gap: var(--spacing-size08); }
+    .hb-ghostrow .cnc-ghostpanel__heading,
+    .hb-ghostrow .cnc-ghostpanel__desc { white-space: nowrap; }
+
+    /* ListActionGroup ships a Figma FIXED 375px max-width; override so it fills the
+       section's available width instead of falling short inside the 430 frame. */
+    .hb-frame .cnc-lag { max-width: none; width: 100%; }
+    .hb-hero-panel { padding-bottom: var(--spacing-size16) !important; }
+    .hb-hero-panel .cnc-lia__row { background: var(--background-panel-secondary); }
+    /* No group heading wanted on these lists; an empty heading string still renders
+       the heading div (with its 16px padding-bottom), so suppress it outright. */
+    .hb-frame .cnc-lia__heading { display: none; }
+
+    /* ListItemAction's tag is hardcoded to the brand-green "new" variant (no sentiment
+       prop) — page-scoped override so the Tax row's "Due in 28 days" tag reads as a
+       warning, per the sentiment tokens NotificationTag already ships (owner-approved
+       styling override; the component itself is untouched). */
+    .hb-frame .cnc-lia__tag .cnc-notiftag--new {
+      background: var(--background-sentiment-warning);
+      border-color: var(--border-sentiment-warning);
+      color: var(--text-sentiment-warning);
+      padding-left: var(--spacing-size12);
+      padding-right: var(--spacing-size12);
+    }
+
+    .hb-progress-track { width: 100%; height: 12px; border-radius: var(--radius-full); background: var(--background-panel-secondary); overflow: hidden; }
+    .hb-progress-fill { height: 100%; border-radius: var(--radius-full); background: var(--border-generic-brand); width: 0%; transition: width 1s ease; }
+    @media (prefers-reduced-motion: reduce) { .hb-progress-fill { transition: none; } }
+
+    .hb-ghostrow { display: flex; gap: var(--spacing-size12); align-items: stretch; }
+    .hb-ghostrow > div { flex: 1 1 0; min-width: 0; transition: flex-basis 0.4s ease, opacity 0.4s ease; }
+    .hb-ghostrow > div.hb-ghost--expanded { flex: 1 1 100%; }
+    .hb-ghostrow .cnc-ghostpanel-wrap { padding: 0; }
+    .hb-ghostrow > div.hb-ghost-fade { opacity: 0; }
+    .hb-ghostrow > div.hb-ghost-collapsed { flex: 0 0 0% !important; opacity: 0; overflow: hidden; pointer-events: none; }
+    .hb-ghostrow > div.hb-ghost-added .cnc-ghostpanel__trail { transform: rotateY(180deg); transition: transform 0.6s ease; transform-style: preserve-3d; }
+    .hb-ghostrow > div.hb-ghost-added .cnc-ghostpanel__trail .cnc-icon > span { transform: scaleX(-1); }
+    @media (prefers-reduced-motion: reduce) {
+      .hb-ghostrow > div.hb-ghost-added .cnc-ghostpanel__trail { transition: none; }
+    }
+
+    .cnc-tpl-tray.cnc-tray-overlay { position: absolute; inset: 0; background: transparent; }
+    .cnc-tray-overlay .cnc-tpl-tray__page { background: transparent; }
+    .cnc-tray-overlay .cnc-tpl-tray__scrim { opacity: 0; transition: opacity 260ms ease; }
+    .cnc-tray-overlay .cnc-tpl-tray__tray { transform: translateY(100%); transition: transform 380ms cubic-bezier(0.22, 1, 0.36, 1); will-change: transform; }
+    .cnc-tray-overlay.cnc-tray-overlay--open .cnc-tpl-tray__scrim { opacity: 1; }
+    .cnc-tray-overlay.cnc-tray-overlay--open .cnc-tpl-tray__tray { transform: translateY(0); }
+    @media (prefers-reduced-motion: reduce) {
+      .cnc-tray-overlay .cnc-tpl-tray__scrim, .cnc-tray-overlay .cnc-tpl-tray__tray { transition: none; }
+    }
+  </style>
+  <script>document.documentElement.setAttribute("data-theme", localStorage.getItem("cnc-theme") || "dark");</script>
+</helmet>
+
+<div class="hb-frame" style="position: relative; box-sizing: border-box; width: 430px; max-width: 100vw; height: 100dvh; overflow: hidden; background: var(--background-page-default);">
+
+  <x-import component-from-global-scope="CancaraDesignSystem_4b0109.BaseTemplate"
+            title="Manage vehicle"
+            leading-icon="{{ hasLeading }}"
+            leading-icon-name="Arrows/Arrow Left/Arrow Left"
+            on-leading="{{ goBack }}"
+            trailing="{{ headerTrailing }}"
+            on-trailing="{{ toggleTheme }}"
+            active="{{ homeTab }}"
+            on-tab-change="{{ onTab }}"
+            base-path="_ds/cancara"
+            width="{{ frameW }}" height="100%" hint-size="430px,100%">
+
+    <div class="cnc-l-page-end" data-screen-label="Mobility hub">
+
+      <section class="cnc-l-container" style="margin-bottom: var(--spacing-size08);">
+        <div class="cnc-l-flush">
+          <x-import component-from-global-scope="CancaraDesignSystem_4b0109.TwoTabsFixed" tab1-label="Overview" tab2-label="Your cars" value="{{ navTabValue }}" on-change="{{ onNavTabChange }}" width="100%" base-path="_ds/cancara" hint-size="100%,48px"></x-import>
+        </div>
+      </section>
+
+      <section class="cnc-l-container" style="margin-bottom: var(--spacing-size16);">
+        <div class="hb-hero">
+
+            <div class="hb-hero__toprow">
+              <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Pictogram" asset="pictogram" style="default" icon="Travel/Car/Car" base-path="_ds/cancara" hint-size="40px,40px"></x-import>
+              <div class="hb-hero__vehicletext cnc-l-col" style="--cnc-col-gap: var(--spacing-size04);">
+                <span class="type-style5" style="color: var(--text-generic-default);">{{ vehicleName }}</span>
+                <span class="type-style8" style="color: var(--text-generic-subdued);">{{ regValue }}</span>
+              </div>
+              <button type="button" class="hb-hero__edit" onClick="{{ openManageTray }}">
+                <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Icon" name="Edit/Edit/Edit" size="16" base-path="_ds/cancara" hint-size="16px,16px"></x-import>
+                <span class="type-style8">Edit</span>
+              </button>
+            </div>
+
+            <div class="hb-carrow" onTouchStart="{{ onCarrowTouchStart }}" onTouchEnd="{{ onCarrowTouchEnd }}">
+              <sc-for list="{{ carsRender }}" as="car">
+                <div class="{{ car.cls }}" style="--car-scale: {{ car.scale }}; opacity: {{ car.opacity }};">
+                  <img src="{{ car.src }}" alt="{{ car.alt }}">
+                </div>
+              </sc-for>
+            </div>
+
+            <div class="cnc-l-row" style="align-items: center; justify-content: space-between;">
+              <div style="{{ leftArrowStyle }}">
+                <x-import component-from-global-scope="CancaraDesignSystem_4b0109.IconButton"
+                          size="default" variant="secondary" icon="Arrows/Arrow Left/Arrow Left" label="Previous car" disabled="{{ leftArrowDisabled }}"
+                          on-click="{{ onCarPrev }}" base-path="_ds/cancara" hint-size="48px,48px"></x-import>
+              </div>
+              <x-import component-from-global-scope="CancaraDesignSystem_4b0109.PaginationDots"
+                        total="{{ carTotal }}" active="{{ carActive }}" hint-size="auto,48px"></x-import>
+              <div style="{{ rightArrowStyle }}">
+                <x-import component-from-global-scope="CancaraDesignSystem_4b0109.IconButton"
+                          size="default" variant="secondary" icon="Arrows/Arrow Right/Arrow Right" label="Next car" disabled="{{ rightArrowDisabled }}"
+                          on-click="{{ onCarNext }}" base-path="_ds/cancara" hint-size="48px,48px"></x-import>
+              </div>
+            </div>
+
+          </div>
+      </section>
+
+      <section class="cnc-l-container" style="margin-bottom: var(--spacing-size48);">
+        <div class="cnc-l-panel hb-hero-panel" ref="{{ heroRef }}" style="{{ heroStyle }}">
+
+          <sc-if value="{{ showProgress }}" hint-placeholder-val="{{ true }}">
+            <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size08); opacity: {{ completionFadeOpacity }}; transition: opacity 0.4s ease; width: 100%;">
+              <span class="type-style3" style="color: var(--text-generic-default); margin-bottom: var(--spacing-size04);">{{ progressHeadline }}</span>
+              <div class="hb-progress-track"><div class="hb-progress-fill" style="width: {{ progressWidth }};"></div></div>
+              <span class="type-style8" style="color: var(--text-generic-subdued);">{{ progressSubtext }}</span>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ showGhostRow }}" hint-placeholder-val="{{ true }}">
+            <div class="hb-ghostrow" style="opacity: {{ completionFadeOpacity }}; transition: opacity 0.4s ease; width: 100%; margin-top: var(--spacing-size04); margin-bottom: var(--spacing-size04);">
+              <sc-if value="{{ showInsuranceGhost }}" hint-placeholder-val="{{ true }}">
+                <div class="{{ insuranceGhostClass }}" onClick="{{ goInsurance }}" style="cursor: pointer;">
+                  <x-import component-from-global-scope="CancaraDesignSystem_4b0109.GhostPanel"
+                            heading="Insurance" description="{{ insuranceDesc }}"
+                            illustration="Default/Insure/Insure"
+                            action-icon="{{ insuranceActionIcon }}"
+                            action-label="Add insurance reminder"
+                            on-action="{{ goInsurance }}"
+                            base-path="_ds/cancara"
+                            hint-size="100%,96px"></x-import>
+                </div>
+              </sc-if>
+              <sc-if value="{{ showServicingGhost }}" hint-placeholder-val="{{ true }}">
+                <div class="{{ servicingGhostClass }}" onClick="{{ goServicing }}" style="cursor: pointer;">
+                  <x-import component-from-global-scope="CancaraDesignSystem_4b0109.GhostPanel"
+                            heading="Servicing" description="{{ servicingDesc }}"
+                            illustration="Default/Repair/Repair"
+                            action-icon="{{ servicingActionIcon }}"
+                            action-label="Add servicing reminder"
+                            on-action="{{ goServicing }}"
+                            base-path="_ds/cancara"
+                            hint-size="100%,96px"></x-import>
+                </div>
+              </sc-if>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ showCompletion }}" hint-placeholder-val="{{ false }}">
+            <div style="{{ notifWrapStyle }}">
+              <x-import component-from-global-scope="CancaraDesignSystem_4b0109.NotificationPanel"
+                        type="primary" sentiment="success" layout="message-only"
+                        message="You're up to date. We'll email you 30 days before your next due date."
+                        base-path="_ds/cancara"
+                        hint-size="100%,56px"></x-import>
+            </div>
+          </sc-if>
+
+          <div class="cnc-l-flush" ref="{{ listRef }}" style="{{ listWrapStyle }}">
+            <x-import component-from-global-scope="CancaraDesignSystem_4b0109.ListActionGroup"
+                      width="compact"
+                      items="{{ reminderItems }}"
+                      base-path="_ds/cancara"
+                      hint-size="100%,280px"></x-import>
+          </div>
+
+        </div>
+      </section>
+
+      <section class="cnc-l-container">
+        <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size16); align-items: center;">
+          <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Icon" size="44" color="var(--icon-generic-brand)" title="Lloyds" dc-props="{{ horseProps }}" hint-size="44px,44px"></x-import>
+          <span class="type-style5" style="color: var(--text-generic-default);">All caught up</span>
+        </div>
+      </section>
+
+    </div>
+  </x-import>
+
+  <!-- ===================== MANAGE VEHICLE TRAY ===================== -->
+  <sc-if value="{{ trayMounted }}" hint-placeholder-val="{{ false }}">
+    <x-import component-from-global-scope="CancaraDesignSystem_4b0109.TrayTemplate"
+              data-screen-label="Manage vehicle"
+              class-name="{{ trayClass }}"
+              title="Manage vehicle"
+              leading-icon="{{ noLeading }}"
+              trailing-icon-name="Navigation/Close/Close"
+              on-trailing="{{ closeTray }}"
+              page-content="{{ emptyPage }}"
+              base-path="_ds/cancara"
+              width="100%" height="100%"
+              hint-size="430px,100%">
+
+      <sc-if value="{{ trayShowMenu }}" hint-placeholder-val="{{ true }}">
+        <div style="padding-bottom: var(--spacing-size24);">
+          <div class="cnc-l-flush">
+            <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Panel" asset="icon" icon="Action/Minus Alt 01/Minus Alt 01" heading="Remove vehicle" on-click="{{ showRemoveVehicle }}" base-path="_ds/cancara" hint-size="100%,64px"></x-import>
+            <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Panel" asset="icon" icon="Travel/Car/Car" heading="Connect a different vehicle" base-path="_ds/cancara" hint-size="100%,64px"></x-import>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ trayShowRemove }}" hint-placeholder-val="{{ false }}">
+        <div style="padding-bottom: var(--spacing-size24);">
+          <section class="cnc-l-container">
+            <div class="cnc-l-panel" style="align-items: center; text-align: center;">
+              <x-import component-from-global-scope="CancaraDesignSystem_4b0109.SpotIllustration" illustration="Default/Car Finance/Car Finance" size="100" base-path="_ds/cancara" title="Remove vehicle" hint-size="96px,96px"></x-import>
+              <span class="type-style4" style="color: var(--text-generic-default);">Are you sure you want to remove this vehicle?</span>
+              <span class="type-style6" style="color: var(--text-generic-subdued);">This will remove all vehicle information and service reminders from your account. You can always add it back later.</span>
+            </div>
+          </section>
+          <section class="cnc-l-container">
+            <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size12);">
+              <x-import component-from-global-scope="CancaraDesignSystem_4b0109.ActionButton" variant="primary" on-click="{{ disconnectVehicle }}" base-path="_ds/cancara" hint-size="100%,48px">Yes, remove vehicle</x-import>
+              <x-import component-from-global-scope="CancaraDesignSystem_4b0109.ActionButton" variant="secondary" on-click="{{ showMenu }}" base-path="_ds/cancara" hint-size="100%,48px">Cancel</x-import>
+            </div>
+          </section>
+        </div>
+      </sc-if>
+
+    </x-import>
+  </sc-if>
+  <!-- ===================== /MANAGE VEHICLE TRAY ===================== -->
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const STATE_KEY = "cnc-mobility-state";
+const DEFAULT_STATE = { isConnected: true, completedTasks: [], hasSeenInitialAnimation: false, lastCompletedTask: null };
+
+function readState() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(STATE_KEY) || "null");
+    if (raw && typeof raw === "object") return Object.assign({}, DEFAULT_STATE, raw, { completedTasks: Array.isArray(raw.completedTasks) ? raw.completedTasks : [] });
+  } catch (e) {}
+  return Object.assign({}, DEFAULT_STATE);
+}
+function writeState(s) { try { localStorage.setItem(STATE_KEY, JSON.stringify(s)); } catch (e) {} }
+function reducedMotion() { try { return window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) { return false; } }
+function doneCountOf(mob) { return 2 + mob.completedTasks.length; }
+function pctOf(doneCount) { return Math.round((doneCount / 4) * 100); }
+const CARS = [
+  { id: "cadillac", src: "assets/images/cadillac-lyriq-carousel.png", alt: "Cadillac Lyriq", name: "Cadillac", scale: { center: 1, side: 1, off: 1 } },
+  { id: "renault", src: "assets/images/renault-rafale-front-trimmed.png", alt: "Renault Rafale", name: "Renault", scale: { center: 0.85, side: 0.7, off: 0.7 } },
+  { id: "byd", src: "assets/images/byd-seal-carousel.png", alt: "BYD Seal", name: "BYD", scale: { center: 1, side: 1, off: 1 } },
+];
+const DEFAULT_SLOTS = { cadillac: "left", renault: "center", byd: "right" };
+const ROTATED_SLOTS = { renault: "left", byd: "center", cadillac: "right" };
+const SEEN_KEY = "cnc-carousel2-seen";
+// Content is keyed per-car (not to the persisted global mobility state) — each car in the
+// carousel shows its own reminder/progress data, switching instantly when it's centred.
+const CAR_CONTENT = {
+  renault: { completedTasks: [], reg: "VG23 TZM" },
+  byd: { completedTasks: ["insurance"], reg: "BY24 SDX" },
+  cadillac: { completedTasks: [], reg: "" },
+};
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.heroRef = React.createRef();
+    this.listRef = React.createRef();
+    this.mob = readState();
+    const mob = this.mob;
+    // Seed the FIRST paint with the correct resting value (no 0% flash while the video loads):
+    // a true first-ever visit starts at 0 (waiting to tween to 50); every other visit rests at its
+    // already-reached % (the previous one, if a task-completion tween is about to run).
+    let initialPct = 0, initialPhase = 0;
+    if (mob.hasSeenInitialAnimation) {
+      if (mob.lastCompletedTask) {
+        initialPct = pctOf(Math.max(2, doneCountOf(mob) - 1));
+        initialPhase = 1;
+      } else {
+        initialPct = pctOf(doneCountOf(mob));
+        initialPhase = 6;
+      }
+    }
+    this.state = {
+      theme: document.documentElement.getAttribute("data-theme") || "dark",
+      pct: initialPct,
+      animPhase: initialPhase, animTask: mob.lastCompletedTask || null,
+      noBarTransition: true,
+      heroLockedHeight: null, heroAnimating: false, notifVisible: false, ghostDomGone: false,
+      listLockedHeight: null, listAnimating: false, completionFading: false,
+      trayMounted: false, trayOpen: false, trayView: "menu",
+      slots: localStorage.getItem(SEEN_KEY) ? ROTATED_SLOTS : DEFAULT_SLOTS, rotating: false, ghost: null, noTransitionCar: null,
+    };
+  }
+
+  componentDidMount() {
+    const firstEverVisit = !this.mob.hasSeenInitialAnimation;
+    if (firstEverVisit && !reducedMotion()) {
+      this.runInitialAnimation();
+    } else if (this.mob.lastCompletedTask) {
+      this.runReturnAnimation();
+    } else {
+      this.settleProgress();
+    }
+    if (!reducedMotion() && !localStorage.getItem(SEEN_KEY)) {
+      setTimeout(() => { this.rotateCars("left"); try { localStorage.setItem(SEEN_KEY, "1"); } catch (e) {} }, 2600);
+    }
+  }
+
+  rotateCars(dir) {
+    if (this.state.rotating) return;
+    // Simplified 2-position toggle: renault only ever sits centre/left, byd only ever sits
+    // centre/right — no off-screen wraparound in this version of the carousel.
+    const slots = this.state.slots;
+    this.setState({ rotating: true });
+    const newSlots = slots.renault === "center"
+      ? Object.assign({}, slots, { renault: "left", byd: "center" })
+      : Object.assign({}, slots, { renault: "center", byd: "right" });
+    this.setState({ slots: newSlots });
+    setTimeout(() => this.setState({ rotating: false }), 460);
+  }
+
+  // Static return visit (no new task, or reduced motion): jump straight to final state, no tween.
+  settleProgress() {
+    const mob = this.mob;
+    const target = pctOf(doneCountOf(mob));
+    this.setState({ pct: target, animPhase: 6, animTask: null, noBarTransition: true });
+  }
+
+  // First-ever arrival: car spins once, then bar tweens 0→50 and completedTasks seeds tax+mot.
+  runInitialAnimation() {
+    setTimeout(() => {
+      this.setState({ pct: 50 });
+      const next = Object.assign({}, this.mob, { hasSeenInitialAnimation: true });
+      this.mob = next; writeState(next);
+      setTimeout(() => this.setState({ animPhase: 6 }), 1050);
+    }, 40);
+  }
+
+  // Returning from a capture-success: car stays static, only the hero choreography runs —
+  // bar tween → ghost "Added" + tick flip → ghost fade → hide/expand (+ 100% swap) → list reveal.
+  runReturnAnimation() {
+    const mob = this.mob;
+    const task = mob.lastCompletedTask;
+    const target = pctOf(doneCountOf(mob));
+    const prevPct = pctOf(Math.max(2, doneCountOf(mob) - 1));
+    const is100 = target >= 100;
+    if (reducedMotion()) {
+      this.setState({ pct: target, animPhase: 6, animTask: null });
+      const next = Object.assign({}, mob, { lastCompletedTask: null });
+      this.mob = next; writeState(next);
+      return;
+    }
+    // Rest at the previous % with NO transition (avoids a spurious tween from the mount default),
+    // then re-enable the transition a couple of frames later before the real tween kicks off.
+    this.setState({ pct: prevPct, animPhase: 1, animTask: task, noBarTransition: true });
+    requestAnimationFrame(() => requestAnimationFrame(() => this.setState({ noBarTransition: false })));
+    const t = (ms, fn) => setTimeout(fn, ms);
+    t(450, () => this.setState({ pct: target }));           // bar tween starts (1s)
+    t(1700, () => this.setState({ animPhase: 2 }));          // "Added" + tick flip (0.6s)
+    t(is100 ? 2450 : 2600, () => this.setState({ animPhase: 3 })); // ghost fade (0.4s)
+    t(is100 ? 2850 : 3000, () => {
+      if (is100) this.swapToCompletion();
+      else {
+        // Sibling expands to 100% AND the completed tile collapses to 0% width at the same time
+        // (both flex-basis transitions, 0.4s) — only once that finishes is it removed from the DOM.
+        this.setState({ animPhase: 4 });
+        setTimeout(() => this.setState({ ghostDomGone: true }), 400);
+      }
+    });
+    t(is100 ? 2450 : 3400, () => this.animateListReveal()); // reminder row reveal — height tween
+    t(3800, () => {
+      const next = Object.assign({}, this.mob, { lastCompletedTask: null });
+      this.mob = next; writeState(next);
+      this.setState({ animPhase: 6, animTask: null });
+    });
+  }
+
+  // 100%-completion swap: lock the hero panel at its current height BEFORE the ghost
+  // row/progress bar are replaced by the completion notification, then animate the box to its
+  // new natural height while the notification fades in — instead of an instant jump.
+  swapToCompletion() {
+    const el = this.heroRef.current;
+    // Step 1: fade the ghost row + progress bar out IN PLACE — still mounted, so the panel
+    // keeps their full height throughout (nothing shrinks yet).
+    this.setState({ completionFading: true });
+    setTimeout(() => {
+      // Step 2: they're now invisible. Lock the panel at that SAME height explicitly (the
+      // "ghost tile space" is preserved), then swap in the completion notification, still
+      // invisible, and drop the now-fully-faded ghost row/progress bar from the DOM.
+      const lockedH = el ? el.getBoundingClientRect().height : null;
+      this.setState({ animPhase: 4, heroLockedHeight: lockedH, heroAnimating: false, notifVisible: false, completionFading: false });
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        // Step 3: fade the notification in WHILE still locked at the preserved height.
+        this.setState({ notifVisible: true });
+        // Step 4: only once that fade-in has fully played does the panel shrink to its true
+        // natural (smaller) height.
+        setTimeout(() => {
+          // getBoundingClientRect/scrollHeight can't reveal a SMALLER natural height while the
+          // panel is still pinned to the old (larger) height — measure by briefly clearing the
+          // fixed height, then restore before paint (no flash).
+          let naturalH = null;
+          if (el) {
+            const prevHeight = el.style.height;
+            el.style.height = "auto";
+            naturalH = el.getBoundingClientRect().height;
+            el.style.height = prevHeight;
+          }
+          this.setState({ heroLockedHeight: naturalH, heroAnimating: true });
+          setTimeout(() => this.setState({ heroLockedHeight: null, heroAnimating: false }), 550);
+        }, 550);
+      }));
+    }, 420);
+  }
+
+  // Reminder-list reveal: lock the list's current height, add the new row (still clipped at the
+  // old height), then measure its new natural height and tween the wrapper open — instead of the
+  // row just popping into an instantly-taller list.
+  animateListReveal() {
+    const el = this.listRef.current;
+    const oldH = el ? el.getBoundingClientRect().height : null;
+    this.setState({ listLockedHeight: oldH, listAnimating: false });
+    requestAnimationFrame(() => {
+      this.setState({ animPhase: 5 });
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        let newH = null;
+        if (el) {
+          const prevHeight = el.style.height;
+          el.style.height = "auto";
+          newH = el.getBoundingClientRect().height;
+          el.style.height = prevHeight;
+        }
+        this.setState({ listLockedHeight: newH, listAnimating: true });
+        setTimeout(() => this.setState({ listLockedHeight: null, listAnimating: false }), 450);
+      }));
+    });
+  }
+
+  renderVals() {
+    const s = this.state;
+    const centeredId = Object.keys(s.slots).find((id) => s.slots[id] === "center") || "renault";
+    const centeredCar = CARS.find((c) => c.id === centeredId) || CARS[1];
+    const VISIBLE_CARS = CARS.filter((c) => c.id !== "cadillac");
+    const mob = Object.assign({}, DEFAULT_STATE, CAR_CONTENT[centeredId] || {});
+    const doneCount = doneCountOf(mob);
+    const hasInsurance = mob.completedTasks.indexOf("insurance") !== -1;
+    const hasServicing = mob.completedTasks.indexOf("servicing") !== -1;
+    const bothAdded = hasInsurance && hasServicing;
+    const animTask = s.animTask, animPhase = s.animPhase;
+
+    // Per-tile animation state: stays visible + shows "Added"/tick between phase 2–3, fades at
+    // phase 3, is removed (and the sibling expands) from phase 4 on.
+    const tileState = (name, done) => {
+      const animating = animTask === name && animPhase < 6;
+      const collapsing = animating && animPhase >= 4 && !s.ghostDomGone;
+      const goneFromDom = animating && animPhase >= 4 && s.ghostDomGone;
+      // Hidden once resolved — UNLESS it's this visit's just-completed tile still mid-animation
+      // (added/fading/collapsing) and not yet actually removed from the DOM.
+      const visible = !done || (animating && !goneFromDom);
+      const added = animating && animPhase >= 2 && animPhase < 4;
+      const fading = animating && (animPhase === 3 || s.completionFading);
+      return { visible, added, fading, collapsed: collapsing };
+    };
+    const insT = tileState("insurance", hasInsurance);
+    const servT = tileState("servicing", hasServicing);
+    const insExpand = hasServicing && !(animTask === "servicing" && animPhase < 4);
+    const servExpand = hasInsurance && !(animTask === "insurance" && animPhase < 4);
+    const insListReady = hasInsurance && !(animTask === "insurance" && animPhase < 5);
+    const servListReady = hasServicing && !(animTask === "servicing" && animPhase < 5);
+    // 100%-completion swap (progress → completion notification) waits for the ghost tiles to
+    // finish resolving (phase >= 4) rather than firing the instant the bar hits 100.
+    const completionReady = !animTask || animPhase >= 4;
+    const heroStyle = s.heroLockedHeight != null
+      ? { height: s.heroLockedHeight + "px", overflow: "hidden", transition: s.heroAnimating ? "height 0.5s ease" : "none" }
+      : {};
+    const notifWrapStyle = { opacity: (!animTask || s.notifVisible) ? 1 : 0, transition: "opacity 0.5s ease", width: "100%" };
+    const listWrapStyle = s.listLockedHeight != null
+      ? { height: s.listLockedHeight + "px", overflow: "hidden", transition: s.listAnimating ? "height 0.4s ease" : "none" }
+      : {};
+
+    // Description toggled off; the date moves onto the title line instead ("Name - date"),
+    // the date segment kept in the subdued grey it had as a standalone description.
+    const titleWithDate = (name, date) => React.createElement(React.Fragment, null, name, " - ", React.createElement("span", { style: { color: "var(--text-generic-subdued)" } }, date));
+    const CAR_LINKS = {
+      renault: { tax: "renault-tax-detail.dc.html", mot: "renault-mot-detail.dc.html", insuranceDetail: "renault-insurance-detail.dc.html", insuranceCapture: "renault-insurance-capture.dc.html", serviceCapture: "renault-service-capture.dc.html" },
+      byd: { tax: "byd-tax-detail.dc.html", mot: "byd-mot-detail.dc.html", insuranceDetail: "byd-insurance-detail.dc.html", insuranceCapture: "byd-insurance-capture.dc.html", serviceCapture: "byd-service-capture.dc.html" },
+      cadillac: { tax: "cadillac-tax-detail.dc.html", mot: "cadillac-mot-detail.dc.html", insuranceDetail: "cadillac-insurance-detail.dc.html", insuranceCapture: "cadillac-insurance-capture.dc.html", serviceCapture: "cadillac-service-capture.dc.html" },
+    };
+    const links = CAR_LINKS[centeredId] || CAR_LINKS.renault;
+    const items = [
+      { asset: "icon", icon: "Date & time/Calendar/Calendar", heading: "", title: titleWithDate("Tax", "06 Aug 25"), showDescription: false, tag: true, tagLabel: "Due in 28 days", onClick: () => { window.location.href = links.tax; } },
+    ];
+    // The row for whichever task JUST finished revealing gets a fade-in (space opens first via
+    // the height tween, then this animation — delayed to start after — fades its content in).
+    const justRevealed = animPhase === 5;
+    if (insListReady) items.push({ asset: "icon", icon: "Security/Shield/Shield", title: titleWithDate("Insurance", "09 Nov 25"), showDescription: false, className: (justRevealed && animTask === "insurance") ? "hb-item-reveal" : "", onClick: () => { window.location.href = links.insuranceDetail; } });
+    if (servListReady) items.push({ asset: "icon", icon: "Miscellaneous/Spanner/Spanner", title: titleWithDate("Servicing", "01 Dec 25"), showDescription: false, className: (justRevealed && animTask === "servicing") ? "hb-item-reveal" : "", onClick: () => { window.location.href = links.mot; } });
+    items.push({ asset: "icon", icon: "Documents/Document Success 1/Document Success 1", title: titleWithDate("MOT", "11 Dec 25"), showDescription: false, onClick: () => { window.location.href = links.mot; } });
+
+    const planItems = [
+      { asset: "pictogram", pictogramIcon: "Finance/Piggy Bank/Piggy Bank", heading: "", title: "Set savings goals" },
+      { asset: "pictogram", pictogramIcon: "Security/Shield/Shield", title: "Get a motor insurance quote" },
+    ];
+
+    const openManageTray = () => { this.setState({ trayMounted: true, trayView: "menu" }); setTimeout(() => this.setState({ trayOpen: true }), 30); };
+    const closeTray = () => { this.setState({ trayOpen: false }); setTimeout(() => this.setState({ trayMounted: false }), 420); };
+    const disconnectVehicle = () => {
+      const next = Object.assign({}, mob, { isConnected: false });
+      this.mob = next; writeState(next);
+      window.location.href = "account-summary.dc.html";
+    };
+
+    return {
+      navTabValue: 1,
+      onNavTabChange: (i) => { window.location.href = i === 0 ? "overview.dc.html" : "your-cars-single.dc.html"; },
+      toggleTheme: () => {
+        const el = document.documentElement;
+        const next = el.getAttribute("data-theme") === "dark" ? "light" : "dark";
+        el.setAttribute("data-theme", next);
+        try { localStorage.setItem("cnc-theme", next); } catch (e) {}
+        this.setState({ theme: next });
+      },
+      headerTrailing: ["Weather/Sun/Sun"],
+      hasLeading: true,
+      goBack: () => { window.location.href = "account-summary.dc.html"; },
+      homeTab: null,
+      onTab: (i) => { if (i === 0) window.location.href = "index.dc.html"; },
+      frameW: 430,
+
+      regValue: mob.reg,
+      vehicleName: centeredCar.alt,
+
+      carsRender: CARS.map((c) => {
+        const slot = s.slots[c.id];
+        const cls = ["hb-carrow__img", "hb-carrow__img--" + slot];
+        if (s.noTransitionCar === c.id) cls.push("hb-carrow__img--notransition");
+        const scaleKey = slot === "center" ? "center" : (slot === "left" || slot === "right") ? "side" : "off";
+        return { id: c.id, src: c.src, alt: c.alt, cls: cls.join(" "), scale: c.scale[scaleKey], opacity: c.id === "cadillac" ? 0 : 1 };
+      }).concat(s.ghost ? (() => {
+        const gc = CARS.find((c) => c.id === s.ghost.carId);
+        const slot = s.ghost.slot;
+        const scaleKey = slot === "center" ? "center" : (slot === "left" || slot === "right") ? "side" : "off";
+        const cls = slot === "offleft" || slot === "offright"
+          ? ["hb-carrow__img", "hb-carrow__img--" + slot, "hb-carrow__img--notransition"]
+          : ["hb-carrow__img", "hb-carrow__img--" + slot];
+        return [{ id: gc.id + "-ghost", src: gc.src, alt: gc.alt, cls: cls.join(" "), scale: gc.scale[scaleKey], opacity: gc.id === "cadillac" ? 0 : 1 }];
+      })() : []),
+      carTotal: 2,
+      carActive: (VISIBLE_CARS.findIndex((c) => c.id === centeredId) + 1) || 1,
+      leftArrowDisabled: centeredId === "byd",
+      rightArrowDisabled: centeredId === "renault",
+      leftArrowStyle: { opacity: centeredId === "byd" ? 0 : 1, transition: "opacity 0.3s ease" },
+      rightArrowStyle: { opacity: centeredId === "renault" ? 0 : 1, transition: "opacity 0.3s ease" },
+      onCarPrev: () => this.rotateCars("left"),
+      onCarNext: () => this.rotateCars("right"),
+      onCarrowTouchStart: (e) => { this.touchStartX = e.touches[0].clientX; },
+      onCarrowTouchEnd: (e) => {
+        if (this.touchStartX == null) return;
+        const dx = e.changedTouches[0].clientX - this.touchStartX;
+        this.touchStartX = null;
+        if (Math.abs(dx) < 30) return;
+        this.rotateCars(dx < 0 ? "right" : "left");
+      },
+
+      heroRef: this.heroRef,
+      heroStyle,
+      notifWrapStyle,
+      listRef: this.listRef,
+      listWrapStyle,
+      completionFadeOpacity: s.completionFading ? 0 : 1,
+      showProgress: !(s.pct >= 100 && completionReady),
+      progressHeadline: "Your " + centeredCar.name + " profile is " + doneCount / 4 * 100 + "% complete",
+      progressWidth: (doneCount / 4 * 100) + "%",
+      progressSubtext: doneCount + " of 4 tasks completed",
+      showCompletion: s.pct >= 100 && completionReady,
+
+      showGhostRow: !bothAdded || (animTask && animPhase < 4),
+      showInsuranceGhost: insT.visible,
+      showServicingGhost: servT.visible,
+      insuranceGhostClass: [insExpand ? "hb-ghost--expanded" : "", insT.added ? "hb-ghost-added" : "", insT.fading ? "hb-ghost-fade" : "", insT.collapsed ? "hb-ghost-collapsed" : ""].filter(Boolean).join(" "),
+      servicingGhostClass: [servExpand ? "hb-ghost--expanded" : "", servT.added ? "hb-ghost-added" : "", servT.fading ? "hb-ghost-fade" : "", servT.collapsed ? "hb-ghost-collapsed" : ""].filter(Boolean).join(" "),
+      insuranceDesc: insT.added ? "Added" : "Get reminder",
+      servicingDesc: servT.added ? "Added" : "Keep track",
+      insuranceActionIcon: insT.added ? "Action/Tick/Tick" : "Action/Plus/Plus",
+      servicingActionIcon: servT.added ? "Action/Tick/Tick" : "Action/Plus/Plus",
+      goInsurance: () => { window.location.href = links.insuranceCapture; },
+      goServicing: () => { window.location.href = links.serviceCapture; },
+
+      reminderItems: items,
+      planItems: planItems,
+
+      horseProps: { src: "_ds/cancara/assets/components/Bank Logo/Lloyds/Lloyds.svg" },
+
+      trayMounted: s.trayMounted,
+      trayClass: s.trayOpen ? "cnc-tray-overlay cnc-tray-overlay--open" : "cnc-tray-overlay",
+      emptyPage: React.createElement("span", { "aria-hidden": "true" }),
+      openManageTray, closeTray, disconnectVehicle,
+      trayShowMenu: s.trayView === "menu",
+      trayShowRemove: s.trayView === "remove",
+      showRemoveVehicle: () => this.setState({ trayView: "remove" }),
+      showMenu: () => this.setState({ trayView: "menu" }),
+      noLeading: false,
+    };
+  }
+}
+</script>
+</body>
+</html>

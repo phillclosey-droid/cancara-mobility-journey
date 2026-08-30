@@ -1,0 +1,73 @@
+/* Cancara — GT Ultra web fonts. Median (display) + Standard (text). */
+
+@font-face {
+  font-family: 'GT Ultra Median';
+  src: url('../assets/fonts/GT-Ultra-Median-Thin.otf') format('opentype');
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'GT Ultra Median';
+  src: url('../assets/fonts/GT-Ultra-Median-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'GT Ultra Median';
+  src: url('../assets/fonts/GT-Ultra-Median-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'GT Ultra Median';
+  src: url('../assets/fonts/GT-Ultra-Median-Black.otf') format('opentype');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'GT Ultra Median';
+  src: url('../assets/fonts/GT-Ultra-Median-Ultra.otf') format('opentype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'GT Ultra';
+  src: url('../assets/fonts/GT-Ultra-Standard-Thin.otf') format('opentype');
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'GT Ultra';
+  src: url('../assets/fonts/GT-Ultra-Standard-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'GT Ultra';
+  src: url('../assets/fonts/GT-Ultra-Standard-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'GT Ultra Median Lloyds';
+  src: url('../assets/fonts/GT-Ultra-Median-Lloyds-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}

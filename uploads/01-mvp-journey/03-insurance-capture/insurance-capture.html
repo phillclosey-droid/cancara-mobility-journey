@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <!-- PWA Meta Tags for Full Screen -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    
+        <!-- CRITICAL: Set theme BEFORE any CSS loads to prevent flicker -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('cancara-theme-preference') || 'dark';
+            // Set on html first for immediate effect
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            // Then set on body when it's available
+            if (document.body) {
+                document.body.setAttribute('data-theme', savedTheme);
+            } else {
+                document.addEventListener('DOMContentLoaded', function() {
+                    document.body.setAttribute('data-theme', savedTheme);
+                });
+            }
+        })();
+    </script>
+    
+<title>Insurance Capture - MVP Journey</title>
+    
+    <!-- Design Tokens (ALWAYS REQUIRED) -->
+    <link rel="stylesheet" href="../../../src/css/cancara-tokens.css">
+    
+    <!-- Component Styles -->
+    <link rel="stylesheet" href="../../../src/components/navigation/status-bar/StatusBar.vanilla.css">
+    <link rel="stylesheet" href="../../../src/components/navigation/header/custom-header/CustomHeader.vanilla.css">
+    <link rel="stylesheet" href="../../../src/components/forms/text-field/calendar-picker/CalendarPicker.vanilla.css">
+    <link rel="stylesheet" href="../../../src/components/action/button/action-button/ActionButton.vanilla.css">
+    <link rel="stylesheet" href="../../../src/components/navigation/bottom-nav/BottomNav.vanilla.css">
+    
+    <!-- Template Styles -->
+    <link rel="stylesheet" href="../../../src/templates/base-template/base-template.css">
+    
+    <style>
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        html {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            font-family: var(--font-family-body);
+            background: var(--color-gray-800);
+            color: var(--text-default);
+            transition: background-color 0.3s, color 0.3s;
+            overflow: hidden;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .base-template {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            max-width: 100%;
+            margin: 0;
+        }
+        
+        @media (min-width: 431px) {
+            .base-template {
+                max-width: 430px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+        }
+        
+        @media (max-width: 430px) {
+            .theme-toggle {
+                display: none;
+            }
+        }
+        
+        /* Remove bottom padding from content-container to position buttons above bottom-nav */
+        .content-container {
+            padding-bottom: 0 !important;
+        }
+        
+        /* Content sections with background */
+        .content-intro {
+            padding: var(--spacing-08) var(--spacing-16) var(--spacing-16) var(--spacing-16);
+        }
+        
+        .intro-text {
+            font-family: var(--font-family-body);
+            font-size: 15px;
+            line-height: 20px;
+            color: var(--text-default);
+        }
+        
+        .form-section {
+            padding: 0;
+            margin-bottom: var(--spacing-24);
+        }
+        
+        /* Override calendar picker component default styles */
+        .calendar-picker {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: var(--spacing-08) !important;
+            padding: 0 !important;
+        }
+        
+        /* Add padding to calendar picker internals only */
+        .calendar-picker-label {
+            padding-left: var(--spacing-16);
+            padding-right: var(--spacing-16);
+        }
+        
+        .calendar-picker-input-wrapper {
+            padding-left: var(--spacing-16);
+            padding-right: var(--spacing-16);
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .calendar-picker-hint {
+            padding-left: var(--spacing-16);
+            padding-right: var(--spacing-16);
+            box-sizing: border-box;
+        }
+        
+        /* Make calendar icon bright green using CSS variable */
+        .calendar-picker-icon img {
+            filter: brightness(0) saturate(100%) invert(80%) sepia(61%) saturate(3513%) hue-rotate(85deg) brightness(98%) contrast(96%);
+        }
+        
+        [data-theme="dark"] .calendar-picker-icon img {
+            filter: brightness(0) saturate(100%) invert(80%) sepia(61%) saturate(3513%) hue-rotate(85deg) brightness(98%) contrast(96%);
+        }
+        
+        /* Action buttons positioned just above bottom-nav - FULL WIDTH */
+        .action-button-stack {
+            position: fixed;
+            bottom: 98px;
+            left: 0;
+            right: 0;
+            display: flex !important;
+            flex-direction: column;
+            gap: var(--spacing-16);
+            padding: 0 !important;
+            max-width: 100%;
+            width: 100%;
+            z-index: 10;
+        }
+        
+        @media (min-width: 431px) {
+            .action-button-stack {
+                max-width: 430px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+        }
+        
+        /* Make action buttons full width with margin spacing */
+        .action-button-stack .action-button {
+            width: calc(100% - 32px) !important;
+            margin-left: 16px;
+            margin-right: 16px;
+        }
+        
+        /* Prevent page sliding behind bottom nav on mobile */
+        @media (max-width: 430px) {
+            body {
+                padding-bottom: env(safe-area-inset-bottom, 0px);
+            }
+            
+            .content-wrapper {
+                padding-bottom: 180px; /* Space for buttons + bottom nav */
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="../scripts/inline-svg-styles.css">
+</head>
+<body data-theme="dark">
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('cancara-theme-preference') || 'dark';
+            document.body.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
+    <!-- Dark Mode Toggle -->
+    <div class="theme-toggle">
+        <button class="toggle-button" onclick="toggleTheme()">
+            <span id="theme-text">Switch to Dark Mode</span>
+        </button>
+    </div>
+
+    <!-- Base Template -->
+    <div class="base-template">
+        <!-- Header - Fixed at top -->
+        <div class="header-wrapper">
+            <!-- CustomHeader Component -->
+            <div class="custom-header">
+                <!-- Status Bar (iOS) -->
+                <div class="status-bar status-bar-ios">
+                    <div class="status-bar-time">9:41</div>
+                    <div class="status-bar-levels">
+                        <div class="cellular-signal">
+                            <div class="signal-bar signal-bar-1"></div>
+                            <div class="signal-bar signal-bar-2"></div>
+                            <div class="signal-bar signal-bar-3"></div>
+                            <div class="signal-bar signal-bar-4"></div>
+                            <div class="signal-bar signal-bar-5"></div>
+                        </div>
+                        <div class="wifi-indicator">
+                            <div class="wifi-dot"></div>
+                            <div class="wifi-arc wifi-arc-1"></div>
+                            <div class="wifi-arc wifi-arc-2"></div>
+                            <div class="wifi-arc wifi-arc-3"></div>
+                        </div>
+                        <div class="status-bar-battery">
+                            <div class="battery-border"></div>
+                            <div class="battery-capacity"></div>
+                            <div class="battery-tip"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Header Bar -->
+                <div class="header-bar">
+                    <!-- Leading Section with Back Button -->
+                    <div class="header-leading">
+                        <div class="hit-target" onclick="window.history.back()" style="cursor: pointer;">
+                            <div class="icon-wrapper icon-18">
+                                <img data-icon="arrow-left" data-icon-category="arrows" alt="Back">
+                            </div>
+                        </div>
+                        <div class="header-gap"></div>
+                        <div class="empty-space"></div>
+                    </div>
+
+                    <!-- Title (Centered) -->
+                    <div class="header-title-wrapper">
+                        <div class="header-title">Set insurance reminder</div>
+                    </div>
+
+                    <!-- Trailing Section (empty per Figma) -->
+                    <div class="header-trailing">
+                        <div class="hit-target"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Area - Scrollable -->
+        <div class="content-wrapper">
+            <div class="content-container">
+                <!-- Intro Text -->
+                <div class="content-intro">
+                    <p class="intro-text">Tell us when your insurance expires, and we'll send a reminder 30 days before.</p>
+                </div>
+
+                <!-- Form Section -->
+                <div class="form-section">
+                    <!-- Calendar Picker Component -->
+                    <div class="calendar-picker">
+                        <label class="calendar-picker-label">Insurance due date</label>
+                        <div class="calendar-picker-input-wrapper">
+                            <div class="calendar-picker-input">
+                                <span class="calendar-picker-value"></span>
+                                <div class="calendar-picker-icon">
+                                    <img src="../../../assets/icons/date-and-time/calendar.svg" alt="Calendar">
+                                </div>
+                            </div>
+                            <input type="date" class="calendar-picker-native-input">
+                        </div>
+                        <!-- Hint Message -->
+                        <div class="calendar-picker-hint">
+                            <span class="calendar-picker-hint-text">Not sure of the exact date? You can put an estimate for now. Just make sure you know the right date before you take out new insurance.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Button Stack - Fixed above bottom-nav -->
+        <div class="action-button-stack">
+            <!-- Primary Button -->
+            <button class="action-button btn-primary" onclick="handleInsuranceComplete()">
+                <div class="action-button-inner">
+                    <span class="action-button-text">Set reminder</span>
+                    <div class="action-button-icon">
+                        <img data-icon="arrow-right" data-icon-category="arrows" alt="">
+                    </div>
+                </div>
+            </button>
+
+            <!-- Tertiary Button -->
+            <button class="action-button btn-tertiary">
+                <div class="action-button-inner">
+                    <span class="action-button-text">Skip this step</span>
+                </div>
+            </button>
+        </div>
+
+        <!-- Bottom Nav - Fixed at bottom -->
+        <div class="bottom-nav-wrapper">
+            <!-- BottomNav Component -->
+            <div class="bottom-nav" id="bottom-nav">
+                <div class="bottom-nav-active-border">
+                    <div class="active-border-segment active"></div>
+                    <div class="active-border-segment"></div>
+                    <div class="active-border-segment"></div>
+                    <div class="active-border-segment"></div>
+                    <div class="active-border-segment"></div>
+                </div>
+                
+                <div class="bottom-nav-tabs">
+                    <button class="bottom-nav-tab active" onclick="window.location.href='../01-account-summary/account-summary.html'">
+                        <div class="bottom-nav-icon">
+                            <img id="tab-icon-0-inactive" data-icon="tab-1-icon" data-icon-category="tabs" alt="" class="icon-inactive">
+                            <img id="tab-icon-0-active" data-icon="tab-1-icon-active" data-icon-category="tabs" alt="" class="icon-active">
+                        </div>
+                        <span class="bottom-nav-label">Home</span>
+                    </button>
+                    
+                    <button class="bottom-nav-tab" onclick="setActiveTab(1)">
+                        <div class="bottom-nav-icon">
+                            <img id="tab-icon-1-inactive" data-icon="tab-2-icon" data-icon-category="tabs" alt="" class="icon-inactive">
+                            <img id="tab-icon-1-active" data-icon="tab-2-icon-active" data-icon-category="tabs" alt="" class="icon-active">
+                        </div>
+                        <span class="bottom-nav-label">Apply</span>
+                    </button>
+                    
+                    <button class="bottom-nav-tab" onclick="setActiveTab(2)">
+                        <div class="bottom-nav-icon">
+                            <img id="tab-icon-2-inactive" data-icon="tab-3-icon" data-icon-category="tabs" alt="" class="icon-inactive">
+                            <img id="tab-icon-2-active" data-icon="tab-3-icon-active" data-icon-category="tabs" alt="" class="icon-active">
+                        </div>
+                        <span class="bottom-nav-label">Payments</span>
+                    </button>
+                    
+                    <button class="bottom-nav-tab" onclick="setActiveTab(3)">
+                        <div class="bottom-nav-icon">
+                            <img id="tab-icon-3-inactive" data-icon="tab-4-icon" data-icon-category="tabs" alt="" class="icon-inactive">
+                            <img id="tab-icon-3-active" data-icon="tab-4-icon-active" data-icon-category="tabs" alt="" class="icon-active">
+                        </div>
+                        <span class="bottom-nav-label">Search</span>
+                    </button>
+                    
+                    <button class="bottom-nav-tab" onclick="setActiveTab(4)">
+                        <div class="bottom-nav-icon">
+                            <img id="tab-icon-4-inactive" data-icon="tab-5-icon" data-icon-category="tabs" alt="" class="icon-inactive">
+                            <img id="tab-icon-4-active" data-icon="tab-5-icon-active" data-icon-category="tabs" alt="" class="icon-active">
+                        </div>
+                        <span class="bottom-nav-label">Cards</span>
+                    </button>
+                </div>
+                
+                <!-- iOS Home Indicator -->
+                <div class="bottom-nav-home-indicator">
+                    <div class="home-indicator-handle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Component JavaScript -->
+    <script src="../../../src/components/navigation/header/custom-header/CustomHeader.vanilla.js"></script>
+    <script src="../../../src/components/action/button/action-button/ActionButton.vanilla.js"></script>
+    <script src="../../../src/components/navigation/bottom-nav/BottomNav.vanilla.js"></script>
+    
+    <!-- Calendar Picker JS loads icons incorrectly, so we override after it loads -->
+    <script src="../../../src/components/forms/text-field/calendar-picker/CalendarPicker.vanilla.js"></script>
+    <script>
+        // Fix calendar icon path (CalendarPicker.vanilla.js calculates wrong path for nested journeys)
+        window.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                const calendarIcons = document.querySelectorAll('.calendar-picker-icon img');
+                calendarIcons.forEach(img => {
+                    img.src = '../../../assets/icons/date-and-time/calendar.svg';
+                });
+            }, 50);
+        });
+    </script>
+
+    <script>
+        // Detect system dark mode preference and apply automatically
+        // Toggle theme
+        function toggleTheme() {
+            const html = document.documentElement;
+            const themeText = document.getElementById('theme-text');
+            const currentTheme = html.getAttribute('data-theme');
+            
+            if (currentTheme === 'light') {
+                html.setAttribute('data-theme', 'dark');
+                themeText.textContent = 'Switch to Light Mode';
+                localStorage.setItem('cancara-theme-preference', 'dark');
+            } else {
+                html.setAttribute('data-theme', 'light');
+                themeText.textContent = 'Switch to Dark Mode';
+                localStorage.setItem('cancara-theme-preference', 'light');
+            }
+        }
+
+        // Set active tab
+        function setActiveTab(tabIndex) {
+            const nav = document.getElementById('bottom-nav');
+            const tabs = nav.querySelectorAll('.bottom-nav-tab');
+            const segments = nav.querySelectorAll('.active-border-segment');
+
+            // Remove active class from all
+            tabs.forEach(tab => tab.classList.remove('active'));
+            segments.forEach(segment => segment.classList.remove('active'));
+
+            // Add active class to selected
+            tabs[tabIndex].classList.add('active');
+            segments[tabIndex].classList.add('active');
+        }
+
+        // Handle insurance completion
+        function handleInsuranceComplete() {
+            // Navigate to success page (no URL params needed)
+            window.location.href = '../03-insurance-capture-success/insurance-capture-success.html';
+        }
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            // Update toggle text based on current theme
+            const currentTheme = document.body.getAttribute('data-theme');
+            const themeText = document.getElementById('theme-text');
+            if (themeText) {
+                if (currentTheme === 'dark') {
+                    themeText.textContent = 'Switch to Light Mode';
+                } else {
+                    themeText.textContent = 'Switch to Dark Mode';
+                }
+            }
+        });
+    </script>
+    <!-- Inline SVG Loader - Firewall Workaround -->
+    <script src="../scripts/inline-svg-loader.js"></script>
+</body>
+</html>

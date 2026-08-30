@@ -1,0 +1,920 @@
+/* ========================================
+   MOBILITY HUB - PAGE-SPECIFIC STYLES
+   Extracted from inline <style> block
+   ======================================== */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    width: 100%;
+    height: 100%;
+    font-family: var(--font-family-body);
+    background: var(--color-gray-800);
+    color: var(--text-default);
+    transition: background-color 0.3s, color 0.3s;
+    -webkit-overflow-scrolling: touch;
+}
+
+.base-template {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    margin: 0;
+}
+
+@media (min-width: 431px) {
+    .base-template {
+        max-width: 430px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+}
+
+@media (max-width: 430px) {
+    .theme-toggle {
+        display: none;
+    }
+}
+
+/* Hero Panel with margin and proper width */
+.hero-panel-container {
+    margin-left: var(--spacing-16);
+    margin-right: var(--spacing-16);
+    width: calc(100% - var(--spacing-32));
+}
+
+/* Empty State Hero Panel with same margin and width */
+.empty-state-container {
+    margin-left: var(--spacing-16);
+    margin-right: var(--spacing-16);
+    width: calc(100% - var(--spacing-32));
+}
+
+/* Section Title Style 3 */
+.section-title {
+    font-family: var(--font-family-heading);
+    font-size: var(--type-style-3-size);
+    font-weight: var(--type-style-3-weight);
+    line-height: var(--type-style-3-line-height);
+    letter-spacing: var(--type-style-3-letter-spacing);
+    color: var(--text-default);
+    padding: 0 var(--spacing-16);
+    margin-bottom: 0 !important;
+    margin-top: var(--spacing-24) !important;
+}
+
+/* Flip Animation for Ghost Panels */
+.flip-container {
+    position: relative;
+    width: 100%;
+    height: 80px;
+    perspective: 1000px;
+}
+
+.flip-front,
+.flip-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    transition: transform 0.8s ease;
+}
+
+/* Disable transition for pre-flipped cards */
+.flip-container.preflipped .flip-front,
+.flip-container.preflipped .flip-back {
+    transition: none;
+}
+
+.flip-front {
+    transform: rotateY(0deg);
+}
+
+.flip-back {
+    transform: rotateY(180deg);
+}
+
+.flip-container.flipped .flip-front {
+    transform: rotateY(-180deg);
+}
+
+.flip-container.flipped .flip-back {
+    transform: rotateY(0deg);
+}
+
+/* Illustration Panel with token border radius */
+.illustration-panel {
+    background-color: var(--bg-panel-default);
+    border-radius: var(--radius-default);
+    padding: var(--spacing-24);
+    margin: var(--spacing-24) var(--spacing-16) var(--spacing-16);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-16);
+    align-items: center;
+}
+
+.illustration-panel .illustration {
+    margin-bottom: var(--spacing-08);
+}
+
+.panel-title {
+    font-family: var(--font-family-body);
+    font-size: var(--type-style-5-size);
+    font-weight: var(--type-style-5-weight);
+    line-height: var(--type-style-5-line-height);
+    color: var(--text-default);
+    text-align: center;
+}
+
+.panel-description {
+    font-family: var(--font-family-body);
+    font-size: var(--type-style-6-size);
+    line-height: var(--type-style-6-line-height);
+    color: var(--text-subdued);
+    text-align: center;
+}
+
+/* List Item Action Style Panels */
+.action-list-panel {
+    background-color: var(--bg-panel-default);
+    border-radius: var(--radius-panel);
+    overflow: hidden;
+    margin: 0 var(--spacing-16) var(--spacing-16);
+}
+
+.action-list-item {
+    padding: var(--spacing-16);
+    display: flex;
+    flex-direction: row;
+    gap: var(--spacing-16);
+    align-items: center;
+    border-bottom: 1px solid var(--border-divider);
+}
+
+.action-list-item:last-child {
+    border-bottom: none;
+}
+
+.action-list-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-04);
+}
+
+.action-list-title {
+    font-family: var(--font-family-body);
+    font-size: var(--type-style-5-size);
+    font-weight: var(--type-style-5-weight);
+    line-height: var(--type-style-5-line-height);
+    color: var(--text-default);
+}
+
+.action-list-chevron {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+}
+
+/* Feedback Section */
+.feedback-section {
+    padding: 0 var(--spacing-16) var(--spacing-24);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-16);
+    align-items: center;
+}
+
+.feedback-heading {
+    font-family: var(--font-family-body);
+    font-size: var(--type-style-5-size);
+    font-weight: var(--type-style-5-weight);
+    line-height: var(--type-style-5-line-height);
+    color: var(--text-default);
+    text-align: center;
+}
+
+.feedback-description {
+    font-family: var(--font-family-body);
+    font-size: var(--type-style-6-size);
+    line-height: var(--type-style-6-line-height);
+    color: var(--text-subdued);
+    text-align: center;
+}
+
+/* List Item Action Overrides */
+.list-item-action {
+    margin-left: var(--spacing-16) !important;
+    margin-right: var(--spacing-16) !important;
+    border-radius: var(--radius-default) !important;
+    width: calc(100% - var(--spacing-32)) !important;
+}
+
+.list-item-action.position-top {
+    border-radius: var(--radius-default) var(--radius-default) 0 0 !important;
+    margin-bottom: 0 !important;
+}
+
+.list-item-action.position-bottom {
+    border-radius: 0 0 var(--radius-default) var(--radius-default) !important;
+    margin-bottom: var(--spacing-24) !important;
+    margin-top: -1px !important;
+}
+
+/* Mobile fixes */
+@media (max-width: 768px) {
+    /* Hide theme toggle on mobile */
+    .theme-toggle {
+        display: none !important;
+    }
+    
+    /* Fix bottom nav z-index above native browser UI */
+    .bottom-nav {
+        z-index: 9999 !important;
+    }
+}
+
+/* Increase progress bar padding */
+.hero-panel-progress-bar {
+    padding: 4px !important;
+}
+
+/* Lighten gradient to 20% opacity */
+.hero-panel-car-gradient {
+    background: linear-gradient(
+        to top,
+        transparent 0%,
+        transparent 20%,
+        rgba(99, 99, 99, 0.2) 20.01%,
+        transparent 100%
+    ) !important;
+}
+
+/* Remove left/right padding from list items */
+.list-item-action {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+}
+
+/* Remove gap between list items */
+.list-item-action.position-top {
+    margin-bottom: 0 !important;
+}
+
+/* Remove gap from content container */
+.content-container {
+    gap: 0 !important;
+}
+
+/* Add spacing after specific components */
+.hero-panel-container {
+    margin-bottom: var(--spacing-24) !important;
+}
+
+.empty-state-container {
+    margin-bottom: var(--spacing-24) !important;
+}
+
+.list-item-action.position-bottom {
+    margin-bottom: var(--spacing-24) !important;
+}
+
+/* Add space above feedback section */
+.feedback-section {
+    margin-top: var(--spacing-32) !important;
+}
+
+/* Dividers now work naturally - no overrides needed */
+
+/* Tray overlay - hidden by default */
+.tray-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--color-overlay-default);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.tray-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+/* Tray container - slides up from bottom */
+.tray-container {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%) translateY(100%);
+    max-width: 430px;
+    width: 100%;
+    padding-top: 0 !important;
+    transition: transform 0.3s ease;
+    z-index: 1001;
+    pointer-events: auto;
+}
+
+.tray-container.visible {
+    transform: translateX(-50%) translateY(0);
+}
+
+/* Tray panel */
+.tray {
+    background: var(--bg-panel-default);
+    border-radius: var(--radius-default) var(--radius-default) 0 0;
+}
+
+.tray-content {
+    padding-bottom: var(--spacing-24);
+}
+
+/* Tray handlebar */
+.tray-handlebar {
+    display: flex;
+    justify-content: center;
+    padding: var(--spacing-12) 0;
+}
+
+.tray-grabber {
+    width: 36px;
+    height: 5px;
+    background: var(--border-default);
+    border-radius: var(--radius-full);
+}
+
+/* Dark mode handlebar */
+[data-theme="dark"] .tray-grabber {
+    background-color: var(--color-white) !important;
+}
+
+/* Tray header */
+.tray-header {
+    display: grid;
+    grid-template-columns: 44px 1fr 44px;
+    align-items: center;
+    padding: 0 var(--spacing-16);
+    margin-bottom: var(--spacing-16);
+}
+
+.tray-header-leading {
+    grid-column: 1;
+}
+
+.tray-header-title-wrapper {
+    grid-column: 2;
+    display: flex;
+    justify-content: center;
+}
+
+.tray-header-title {
+    font-family: var(--font-family-heading);
+    font-size: var(--type-style-4-size);
+    font-weight: var(--type-style-4-weight);
+    line-height: var(--type-style-4-line-height);
+    color: var(--text-default);
+}
+
+.tray-header-trailing {
+    grid-column: 3;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.tray-header-trailing .hit-target {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.tray-header-trailing .hit-target:active {
+    opacity: 0.6;
+}
+
+.tray-header-trailing .icon-wrapper {
+    width: 24px;
+    height: 24px;
+}
+
+.tray-header-trailing .icon-wrapper img {
+    width: 100%;
+    height: 100%;
+}
+
+/* Tray close button padding */
+.tray-header-trailing .hit-target {
+    padding: var(--spacing-08);
+}
+
+/* Tray content area */
+.tray-content-area {
+    padding: 0 var(--spacing-16);
+}
+
+/* Manage vehicle action row */
+.manage-action-row {
+    display: flex;
+    align-items: center;
+    padding: 0;
+    min-height: 48px;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+}
+
+.manage-action-row:active {
+    opacity: 0.6;
+}
+
+.manage-action-icon {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    margin-right: var(--spacing-12);
+}
+
+.manage-action-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.manage-action-text {
+    flex: 1;
+    font-family: var(--font-family-body);
+    font-size: 15px;
+    line-height: 20px;
+    color: var(--text-default);
+}
+
+.manage-action-chevron {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+}
+
+.manage-action-chevron img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Divider in tray */
+.tray-divider {
+    height: 1px;
+    background: var(--border-default);
+    width: 100%;
+}
+
+/* Dark mode icon support */
+[data-theme="dark"] .manage-action-icon img,
+[data-theme="dark"] .manage-action-chevron img,
+[data-theme="dark"] .tray-header-trailing .icon-wrapper img,
+[data-theme="dark"] .list-item-icon img {
+    filter: invert(1);
+}
+
+/* Remove white background from illustration - make fully transparent */
+.illustration-panel .ill-default-alt-01 {
+    background-color: transparent !important;
+}
+
+/* Hero panel car placement - adjust for video */
+.hero-panel-car-placement {
+    aspect-ratio: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+    height: auto !important;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Car video styling - make slightly wider to hide dark edges on light mode video */
+.hero-panel-car-video {
+    width: 110%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+    aspect-ratio: 16 / 9;
+    min-height: 200px;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* Prevent FOUC (Flash of Unstyled Content) for images loaded by JS */
+img[data-pictogram]:not([src]),
+img[data-icon]:not([src]),
+img[data-illustration]:not([src]),
+img[data-action-icon]:not([src]) {
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+img[data-pictogram][src],
+img[data-icon][src],
+img[data-illustration][src],
+img[data-action-icon][src] {
+    opacity: 1;
+}
+
+/* ========== CONNECT CAR TRAY STYLES (NAMESPACED) ========== */
+
+.connect-tray-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.connect-tray-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.connect-tray-container {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%) translateY(100%);
+    max-width: 430px;
+    width: 100%;
+    padding-top: 0 !important;
+    transition: transform 0.3s ease;
+    z-index: 1001;
+    pointer-events: auto;
+}
+
+.connect-tray-container.visible {
+    transform: translateX(-50%) translateY(0);
+}
+
+@media (max-width: 768px) {
+    .connect-tray-container.keyboard-active {
+        transform: translateX(-50%) translateY(0) !important;
+    }
+}
+
+.connect-tray-container.sliding-to-bottom {
+    transition: transform 0.4s ease !important;
+}
+
+.connect-tray-handlebar {
+    margin-top: var(--spacing-12) !important;
+    margin-bottom: var(--spacing-12) !important;
+}
+
+[data-theme="dark"] .connect-tray-grabber {
+    background-color: var(--color-white) !important;
+}
+
+.connect-tray-header-trailing .hit-target {
+    padding: var(--spacing-08);
+}
+
+.connect-tray-content-above-input {
+    transition: opacity 0.4s ease, max-height 0.4s ease, margin-bottom 0.4s ease;
+    max-height: 1000px;
+    overflow: hidden;
+}
+
+.connect-tray-content-above-input.hidden {
+    opacity: 0;
+    max-height: 0;
+    margin-bottom: 0;
+    pointer-events: none;
+}
+
+.connect-tray-container.keyboard-active > .tray > .tray-content > .connect-tray-content-area > .btn-tertiary,
+.connect-tray-content-area.stage-2 > .btn-tertiary:not(#connect-back-to-search-btn),
+.connect-tray-content-area.stage-3 > .btn-tertiary:not(#connect-back-to-search-btn) {
+    display: none !important;
+}
+
+.connect-tray-content-area {
+    transition: padding-bottom 0.4s ease;
+}
+
+.connect-tray-content-area.loading #connect-registration-input {
+    opacity: 0.3 !important;
+    transition: opacity 0.3s ease;
+}
+
+.connect-tray-content-area.loading #connect-search-button {
+    opacity: 0.3 !important;
+    transition: opacity 0.3s ease;
+}
+
+.connect-tray-content-area.stage-3 {
+    padding-bottom: 0;
+}
+
+.connect-vehicle-result {
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: opacity 0.5s ease, max-height 0.5s ease, margin-bottom 0.5s ease;
+    margin-bottom: 0;
+    display: flex;
+    gap: var(--spacing-16);
+    align-items: center;
+    padding: var(--spacing-08) var(--spacing-08);
+    background: var(--bg-panel-secondary);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-default);
+    position: relative;
+}
+
+.connect-vehicle-result.visible {
+    opacity: 1;
+    max-height: 200px;
+    margin-bottom: var(--spacing-16);
+}
+
+.connect-spinner-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    pointer-events: none;
+    display: none;
+}
+
+.connect-spinner-container.active {
+    display: block;
+}
+
+#connect-registration-input {
+    position: relative;
+    transition: opacity 0.3s ease;
+}
+
+#connect-search-button {
+    transition: opacity 0.3s ease;
+}
+
+.connect-search-results {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.connect-search-results.visible {
+    display: block;
+    opacity: 1;
+}
+
+.connect-vehicle-image {
+    width: 120px;
+    height: auto;
+    flex-shrink: 0;
+}
+
+.connect-vehicle-info {
+    flex: 1;
+}
+
+.connect-vehicle-info-line {
+    font-family: var(--type-style-6-family);
+    font-size: var(--type-style-6-size);
+    font-weight: var(--type-style-6-weight);
+    line-height: var(--type-style-6-line-height);
+    color: var(--text-default);
+    margin-bottom: var(--spacing-04);
+}
+
+.connect-vehicle-info-line:last-child {
+    margin-bottom: 0;
+}
+
+.connect-vehicle-info-line strong {
+    font-weight: 600;
+}
+
+.connect-vehicle-plate {
+    display: inline-block;
+    padding: var(--spacing-04) var(--spacing-12);
+    background: var(--bg-panel-default);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-small);
+    font-family: var(--font-family-body);
+    font-size: var(--type-style-6-size);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: var(--spacing-08);
+}
+
+.connect-vehicle-result-spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    pointer-events: none;
+    display: none;
+}
+
+/* Force spinner to full opacity even when parent is faded */
+.connect-vehicle-result-spinner,
+.connect-vehicle-result-spinner * {
+    opacity: 1 !important;
+}
+
+.connect-vehicle-result-spinner.active {
+    display: block;
+}
+
+.connect-tray-container.keyboard-active {
+    transform: translateX(-50%) translateY(-250px);
+    transition: transform 0.3s ease;
+}
+
+#connect-native-keyboard.visible {
+    transform: translateX(-50%) translateY(0);
+    transition: transform 0.3s ease;
+}
+
+body[data-theme="dark"] #connect-native-keyboard {
+    background-color: var(--bg-panel-default) !important;
+}
+
+body[data-theme="light"] #connect-native-keyboard {
+    background-color: var(--bg-panel-default) !important;
+}
+
+#connect-native-keyboard {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%) translateY(100%);
+    max-width: 430px;
+    width: 100%;
+    background-color: var(--bg-panel-default) !important;
+    border-top: none;
+    padding: 0;
+    margin-top: 0;
+    z-index: 1002;
+    transition: transform 0.3s ease;
+    pointer-events: auto;
+}
+
+.connect-keyboard-accessory-bar {
+    background-color: #000000;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: var(--spacing-08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+[data-theme="dark"] .connect-keyboard-accessory-bar {
+    background-color: #000000;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.connect-keyboard-nav-buttons {
+    display: flex;
+    gap: var(--spacing-08);
+}
+
+.connect-keyboard-nav-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: var(--radius-small);
+    padding: var(--spacing-04) var(--spacing-08);
+    cursor: pointer;
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 32px;
+}
+
+[data-theme="dark"] .connect-keyboard-nav-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #FFFFFF;
+}
+
+.connect-keyboard-nav-btn:active {
+    background: rgba(255, 255, 255, 0.35);
+}
+
+[data-theme="dark"] .connect-keyboard-nav-btn:active {
+    background: rgba(255, 255, 255, 0.35);
+}
+
+.connect-keyboard-done-btn {
+    background: transparent;
+    border: none;
+    color: #FFFFFF;
+    font-family: var(--font-family-body);
+    font-size: var(--type-style-6-size);
+    font-weight: 600;
+    padding: var(--spacing-08);
+    cursor: pointer;
+}
+
+.connect-keyboard-done-btn:active {
+    opacity: 0.5;
+}
+
+.connect-keyboard-keys-area {
+    padding: var(--spacing-08);
+}
+
+.connect-keyboard-row {
+    display: flex;
+    gap: var(--spacing-04);
+    margin-bottom: var(--spacing-04);
+    justify-content: center;
+}
+
+.connect-tray .tray-content .connect-tray-content-area {
+    flex: 0 1 auto !important;
+    padding: var(--spacing-24) var(--spacing-24) var(--spacing-24) var(--spacing-24) !important;
+    overflow-y: auto;
+    min-height: 0 !important;
+    transition: padding 0.3s ease;
+}
+
+.connect-tray-content-area.stage-3 {
+    padding-bottom: var(--spacing-24) !important;
+}
+
+.connect-keyboard-row:first-child {
+    padding-top: 0;
+}
+
+.connect-keyboard-key {
+    background: var(--bg-panel-default);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-small);
+    padding: var(--spacing-12) var(--spacing-08);
+    min-width: 32px;
+    text-align: center;
+    font-family: var(--font-family-body);
+    font-size: var(--type-style-7-size);
+    color: var(--text-default);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.1s ease, transform 0.1s ease;
+}
+
+.connect-keyboard-key:active {
+    background: var(--bg-panel-pressed);
+    transform: scale(0.95);
+}
+
+.connect-keyboard-key.wide {
+    flex: 1;
+}
+
+.connect-keyboard-key.action {
+    background: var(--color-brand-accent);
+    color: var(--text-default);
+    font-weight: var(--type-style-5-weight);
+}
+
+@media (max-width: 768px) {
+    #connect-native-keyboard {
+        display: none !important;
+    }
+}

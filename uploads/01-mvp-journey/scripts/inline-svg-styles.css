@@ -1,0 +1,254 @@
+/* Inline SVG Theme Support
+ * Styles for SVGs converted to inline by inline-svg-loader.js
+ * Include this in every page that uses the inline SVG loader
+ */
+
+/* Dark mode - white icons */
+[data-theme="dark"] .inline-svg {
+    color: white;
+}
+
+/* Light mode - black icons */
+[data-theme="light"] .inline-svg {
+    color: black;
+}
+
+/* Default: SVGs inherit sizing from wrapper */
+.inline-svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* Bottom nav icons */
+.bottom-nav-icon .inline-svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* Header icons */
+.icon-wrapper .inline-svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* CRITICAL: Pictograms need exact sizing like img tags */
+.pictogram svg,
+.pictogram .inline-svg {
+    width: 24px !important;
+    height: 24px !important;
+    object-fit: contain;
+}
+
+/* Pictograms ALWAYS stay black (never theme) */
+.pictogram svg,
+.pictogram svg *,
+.pictogram .inline-svg,
+.pictogram .inline-svg * {
+    color: black !important;
+    fill: black !important;
+}
+
+[data-theme="dark"] .pictogram svg,
+[data-theme="dark"] .pictogram svg *,
+[data-theme="dark"] .pictogram .inline-svg,
+[data-theme="dark"] .pictogram .inline-svg * {
+    color: black !important;
+    fill: black !important;
+}
+
+/* Cancara horse logo - DON'T convert to inline, let it switch files */
+#caught-up-horse {
+    /* This will remain as <img> tag, won't be converted by loader */
+}
+
+
+/* Service alert close button icon */
+.service-alert-close svg,
+.service-alert-close .inline-svg {
+    width: 18px !important;
+    height: 18px !important;
+}
+
+/* Action buttons arrows - BLACK in dark mode, WHITE in light mode */
+[data-theme="dark"] .btn-primary .inline-svg,
+[data-theme="dark"] .btn-secondary .inline-svg,
+[data-theme="dark"] .service-alert-buttons .inline-svg {
+    color: black !important;
+}
+
+[data-theme="light"] .btn-primary .inline-svg,
+[data-theme="light"] .btn-secondary .inline-svg,
+[data-theme="light"] .service-alert-buttons .inline-svg {
+    color: white !important;
+}
+
+/* Clock icon in service alert - ALWAYS sentiment-warning orange */
+.service-alert-icon svg,
+.service-alert-icon .inline-svg {
+    color: var(--icon-sentiment-warning) !important;
+    fill: var(--icon-sentiment-warning) !important;
+}
+
+.service-alert-icon svg path,
+.service-alert-icon .inline-svg path {
+    fill: var(--icon-sentiment-warning) !important;
+}
+
+[data-theme="dark"] .service-alert-icon svg,
+[data-theme="dark"] .service-alert-icon .inline-svg,
+[data-theme="dark"] .service-alert-icon svg path,
+[data-theme="dark"] .service-alert-icon .inline-svg path {
+    color: var(--icon-sentiment-warning) !important;
+    fill: var(--icon-sentiment-warning) !important;
+}
+
+[data-theme="light"] .service-alert-icon svg,
+[data-theme="light"] .service-alert-icon .inline-svg,
+[data-theme="light"] .service-alert-icon svg path,
+[data-theme="light"] .service-alert-icon .inline-svg path {
+    color: var(--icon-sentiment-warning) !important;
+    fill: var(--icon-sentiment-warning) !important;
+}
+
+/* Calendar picker icon - ALWAYS bright green */
+.calendar-picker-icon svg,
+.calendar-picker-icon .inline-svg {
+    color: #6FDC1D !important;
+}
+
+.calendar-picker-icon svg path,
+.calendar-picker-icon .inline-svg path {
+    fill: #6FDC1D !important;
+}
+
+[data-theme="dark"] .calendar-picker-icon svg,
+[data-theme="dark"] .calendar-picker-icon .inline-svg,
+[data-theme="dark"] .calendar-picker-icon svg path,
+[data-theme="dark"] .calendar-picker-icon .inline-svg path {
+    color: #6FDC1D !important;
+    fill: #6FDC1D !important;
+}
+
+[data-theme="light"] .calendar-picker-icon svg,
+[data-theme="light"] .calendar-picker-icon .inline-svg,
+[data-theme="light"] .calendar-picker-icon svg path,
+[data-theme="light"] .calendar-picker-icon .inline-svg path {
+    color: #6FDC1D !important;
+    fill: #6FDC1D !important;
+}
+
+
+.accordion-icon-left img[src*="success"] ~ svg path,
+.accordion-icon-left svg path,
+.accordion-icon-left .inline-svg path {
+    fill: var(--icon-sentiment-success) !important;
+}
+
+/* Cross icon - red */
+.accordion-icon-left img[src*="cross"] ~ svg,
+.accordion-icon-left img[src*="cross"] ~ svg path {
+    color: var(--icon-sentiment-critical) !important;
+    fill: var(--icon-sentiment-critical) !important;
+}
+
+/* Apply in both themes */
+[data-theme="dark"] .accordion-icon-left svg,
+[data-theme="dark"] .accordion-icon-left .inline-svg,
+[data-theme="dark"] .accordion-icon-left svg path,
+[data-theme="dark"] .accordion-icon-left .inline-svg path {
+    color: var(--icon-sentiment-success) !important;
+    fill: var(--icon-sentiment-success) !important;
+}
+
+[data-theme="light"] .accordion-icon-left svg,
+[data-theme="light"] .accordion-icon-left .inline-svg,
+[data-theme="light"] .accordion-icon-left svg path,
+[data-theme="light"] .accordion-icon-left .inline-svg path {
+    color: var(--icon-sentiment-success) !important;
+    fill: var(--icon-sentiment-success) !important;
+}
+
+/* Force cross icon to be red in both themes */
+[data-theme="dark"] .accordion-icon-left img[src*="cross"] ~ svg,
+[data-theme="dark"] .accordion-icon-left img[src*="cross"] ~ svg path,
+[data-theme="light"] .accordion-icon-left img[src*="cross"] ~ svg,
+[data-theme="light"] .accordion-icon-left img[src*="cross"] ~ svg path {
+    color: var(--icon-sentiment-critical) !important;
+    fill: var(--icon-sentiment-critical) !important;
+}
+
+/* MOT status icons in #tab-all-mots ONLY - sentiment colors */
+/* Success icons (tick) - green in MOT history */
+#tab-all-mots .accordion-icon-left svg,
+#tab-all-mots .accordion-icon-left .inline-svg {
+    color: var(--icon-sentiment-success) !important;
+}
+
+#tab-all-mots .accordion-icon-left svg path,
+#tab-all-mots .accordion-icon-left .inline-svg path {
+    fill: var(--icon-sentiment-success) !important;
+}
+
+/* BUT if the original img src had "cross", make it red */
+#tab-all-mots .accordion-icon-left svg[data-original-src*="cross"],
+#tab-all-mots .accordion-icon-left .inline-svg[data-original-src*="cross"] {
+    color: var(--icon-sentiment-critical) !important;
+}
+
+#tab-all-mots .accordion-icon-left svg[data-original-src*="cross"] path,
+#tab-all-mots .accordion-icon-left .inline-svg[data-original-src*="cross"] path {
+    fill: var(--icon-sentiment-critical) !important;
+}
+
+/* Apply in both dark and light themes */
+[data-theme="dark"] #tab-all-mots .accordion-icon-left svg,
+[data-theme="dark"] #tab-all-mots .accordion-icon-left .inline-svg,
+[data-theme="dark"] #tab-all-mots .accordion-icon-left svg path,
+[data-theme="dark"] #tab-all-mots .accordion-icon-left .inline-svg path,
+[data-theme="light"] #tab-all-mots .accordion-icon-left svg,
+[data-theme="light"] #tab-all-mots .accordion-icon-left .inline-svg,
+[data-theme="light"] #tab-all-mots .accordion-icon-left svg path,
+[data-theme="light"] #tab-all-mots .accordion-icon-left .inline-svg path {
+    color: var(--icon-sentiment-success) !important;
+    fill: var(--icon-sentiment-success) !important;
+}
+
+/* Cross icons stay red in both themes */
+[data-theme="dark"] #tab-all-mots .accordion-icon-left svg[data-original-src*="cross"],
+[data-theme="dark"] #tab-all-mots .accordion-icon-left .inline-svg[data-original-src*="cross"],
+[data-theme="dark"] #tab-all-mots .accordion-icon-left svg[data-original-src*="cross"] path,
+[data-theme="dark"] #tab-all-mots .accordion-icon-left .inline-svg[data-original-src*="cross"] path,
+[data-theme="light"] #tab-all-mots .accordion-icon-left svg[data-original-src*="cross"],
+[data-theme="light"] #tab-all-mots .accordion-icon-left .inline-svg[data-original-src*="cross"],
+[data-theme="light"] #tab-all-mots .accordion-icon-left svg[data-original-src*="cross"] path,
+[data-theme="light"] #tab-all-mots .accordion-icon-left .inline-svg[data-original-src*="cross"] path {
+    color: var(--icon-sentiment-critical) !important;
+    fill: var(--icon-sentiment-critical) !important;
+}
+
+
+/* IMPORTANT: Bell icon and other accordion-icon-left icons OUTSIDE #tab-all-mots should use default theme colors */
+.service-hero-panel-accordion .accordion-icon-left svg,
+.service-hero-panel-accordion .accordion-icon-left .inline-svg,
+.service-hero-panel-accordion .accordion-icon-left svg path,
+.service-hero-panel-accordion .accordion-icon-left .inline-svg path {
+    color: inherit !important;
+    fill: currentColor !important;
+}
+
+/* Ensure bell follows theme in both modes */
+[data-theme="dark"] .service-hero-panel-accordion .accordion-icon-left svg,
+[data-theme="dark"] .service-hero-panel-accordion .accordion-icon-left .inline-svg,
+[data-theme="dark"] .service-hero-panel-accordion .accordion-icon-left svg path,
+[data-theme="dark"] .service-hero-panel-accordion .accordion-icon-left .inline-svg path {
+    color: white !important;
+    fill: white !important;
+}
+
+[data-theme="light"] .service-hero-panel-accordion .accordion-icon-left svg,
+[data-theme="light"] .service-hero-panel-accordion .accordion-icon-left .inline-svg,
+[data-theme="light"] .service-hero-panel-accordion .accordion-icon-left svg path,
+[data-theme="light"] .service-hero-panel-accordion .accordion-icon-left .inline-svg path {
+    color: black !important;
+    fill: black !important;
+}

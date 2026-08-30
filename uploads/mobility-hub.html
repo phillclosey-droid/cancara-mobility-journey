@@ -1,0 +1,1825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <!-- CRITICAL: Set theme BEFORE any CSS loads to prevent flicker -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('cancara-theme-preference') || 'dark';
+            // Set on html first for immediate effect
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            // Then set on body when it's available
+            if (document.body) {
+                document.body.setAttribute('data-theme', savedTheme);
+                html.setAttribute('data-theme', 'dark');
+            } else {
+                document.addEventListener('DOMContentLoaded', function() {
+                    document.body.setAttribute('data-theme', savedTheme);
+                html.setAttribute('data-theme', 'dark');
+                });
+            }
+        })();
+    </script>
+    
+    <!-- PWA Meta Tags for Full Screen -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="../../../manifest.json">
+    
+    <title>Mobility Hub - Manage Vehicle</title>
+    
+    <!-- Design Tokens -->
+    <link rel="stylesheet" href="../../../src/css/cancara-tokens.css">
+    
+    <!-- Component Styles -->
+    <link rel="stylesheet" href="../../../src/components/navigation/status-bar/StatusBar.vanilla.css">
+    <link rel="stylesheet" href="../../../src/components/navigation/header/custom-header/CustomHeader.vanilla.css">
+    <link rel="stylesheet" href="../../../src/components/navigation/bottom-nav/BottomNav.vanilla.css">
+    <link rel="stylesheet" href="../../../src/components/content/icon/illustration/Illustration.vanilla.css">
+    <link rel="stylesheet" href="../../../src/components/content/icon/pictogram/Pictogram.vanilla.css">
+    <link rel="stylesheet" href="../../../src/components/content/divider/Divider.vanilla.css">
+    <link rel="stylesheet" href="../../../src/components/content/list/list-item-action/ListItemAction.vanilla.css">
+    <link rel="stylesheet" href="../../../src/components/content/list/list-action-group/ListActionGroup.vanilla.css">
+    <link rel="stylesheet" href="../../../src/components/notification/notification-tag/NotificationTag.vanilla.css">
+    <link rel="stylesheet" href="../../../src/components/notification/notification-panel/NotificationPanel.vanilla.css">
+    <link rel="stylesheet" href="../../../src/components/custom/mobility-mvp/hero-panel/HeroPanel.vanilla.css">
+    <link rel="stylesheet" href="../../../src/components/custom/mobility-mvp/empty-state-hero-panel/EmptyStateHeroPanel.vanilla.css">
+    <link rel="stylesheet" href="../../../src/components/action/button/action-button/ActionButton.vanilla.css">
+    <link rel="stylesheet" href="../../../src/components/os/native-spinner-configuration/NativeSpinner.vanilla.css">
+    <link rel="stylesheet" href="../../../src/templates/base-template/base-template.css">
+    
+    <!-- Page-specific styles -->
+    <link rel="stylesheet" href="mobility-hub.css">
+    
+    <!-- Cache buster: 20251223-v3 -->
+    <!-- Cache buster: 20251223-v3 -->
+    <link rel="stylesheet" href="../scripts/inline-svg-styles.css">
+</head>
+<body>
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('cancara-theme-preference') || 'dark';
+            document.body.setAttribute('data-theme', savedTheme);
+                html.setAttribute('data-theme', 'dark');
+        })();
+    </script>
+    <!-- Dark Mode Toggle -->
+    <div class="theme-toggle">
+        <button class="toggle-button" onclick="toggleTheme()">
+            <span id="theme-text">Switch to Light Mode</span>
+        </button>
+    </div>
+
+    <!-- Base Template -->
+    <div class="base-template">
+        <!-- Header - Fixed at top -->
+        <div class="header-wrapper">
+            <div class="custom-header">
+                <!-- Status Bar -->
+                <div class="status-bar status-bar-ios">
+                    <div class="status-bar-time">9:41</div>
+                    <div class="status-bar-levels">
+                        <div class="cellular-signal">
+                            <div class="signal-bar signal-bar-1"></div>
+                            <div class="signal-bar signal-bar-2"></div>
+                            <div class="signal-bar signal-bar-3"></div>
+                            <div class="signal-bar signal-bar-4"></div>
+                            <div class="signal-bar signal-bar-5"></div>
+                        </div>
+                        <div class="wifi-indicator">
+                            <div class="wifi-dot"></div>
+                            <div class="wifi-arc wifi-arc-1"></div>
+                            <div class="wifi-arc wifi-arc-2"></div>
+                            <div class="wifi-arc wifi-arc-3"></div>
+                        </div>
+                        <div class="status-bar-battery">
+                            <div class="battery-border"></div>
+                            <div class="battery-capacity"></div>
+                            <div class="battery-tip"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Header Bar -->
+                <div class="header-bar">
+                    <div class="header-leading">
+                        <div class="hit-target" onclick="window.location.href='../01-account-summary/account-summary.html'" style="cursor: pointer;">
+                            <div class="icon-wrapper icon-18">
+                                <img id="back-icon" src="" alt="Back">
+                            </div>
+                        </div>
+                        <div class="header-gap"></div>
+                        <div class="empty-space"></div>
+                    </div>
+
+                    <div class="header-title-wrapper">
+                        <div class="header-title">Manage vehicle</div>
+                    </div>
+
+                    <div class="header-trailing">
+                        <div class="empty-space"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Area - Scrollable -->
+        <div class="content-wrapper">
+            <div class="content-container">
+                
+                <!-- Hero Panel Component (Exact copy from component with animations) -->
+                <div class="hero-panel-container" id="hero-panel-connected">
+                    <div class="hero-panel-top-row">
+                        <div class="hero-panel-vehicle-info">
+                            <div class="pictogram pict-default">
+                                <img data-pictogram="Car_Lloyds_-_V2" alt="Car icon">
+                            </div>
+                            <div class="hero-panel-vehicle-text">
+                                <div class="hero-panel-vehicle-model">Renault Rafale</div>
+                                <div class="hero-panel-vehicle-reg">VX73 TZB</div>
+                            </div>
+                        </div>
+                        <div class="hero-panel-edit-link" onclick="openManageTray()" style="cursor: pointer;">
+                            <img class="hero-panel-edit-icon" data-icon="edit" data-icon-folder="edit" alt="Edit icon">
+                            <span class="hero-panel-edit-text">Edit</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Car Placement with Video -->
+                    <div class="hero-panel-car-placement">
+                        <video muted playsinline class="hero-panel-car-video" id="hero-car-video">
+                            <!-- Source will be set by JavaScript based on theme -->
+                        </video>
+                    </div>
+                    
+                    <!-- Progress Section with Animation -->
+                    <div class="hero-panel-progress-section" id="progress-section" style="display: none;">
+                        <div class="hero-panel-progress-text" id="progress-text">Your car profile is 50% complete</div>
+                        <div class="hero-panel-progress-bar" id="progress-bar">
+                            <div class="hero-panel-progress-fill" id="progress-fill" data-target-width="50" style="width: 50%; transition: none;"></div>
+                        </div>
+                        <div class="hero-panel-progress-subtext" id="progress-subtext">2 of 4 tasks completed</div>
+                    </div>
+                    
+                    <!-- Inline script to set initial state IMMEDIATELY (prevents flicker) -->
+                    <script>
+                    (function() {
+                        const params = new URLSearchParams(window.location.search);
+                        const newTaskParam = params.get('newTask');
+                        const completedParam = params.get('completed');
+                        const hasAnimated = sessionStorage.getItem('hubAnimationPlayed') === 'true';
+                        const completedTasks = completedParam ? completedParam.split(',').filter(t => t) : [];
+                        const totalCompleted = 2 + completedTasks.length;
+                        const progressPercent = Math.round((totalCompleted / 4) * 100);
+                        
+                        const fill = document.getElementById('progress-fill');
+                        const text = document.getElementById('progress-text');
+                        const subtext = document.getElementById('progress-subtext');
+                        const progressSection = document.getElementById('progress-section');
+                        const notification = document.getElementById('completion-notification');
+                        
+                        console.log('[INLINE] hasAnimated:', hasAnimated, 'newTask:', newTaskParam, 'completed:', completedParam);
+                        
+                        // SCENARIO 1: New task animation (from capture success)
+                        if (newTaskParam) {
+                            // Calculate the CURRENT state (including all completed tasks but NOT the new one being animated)
+                            // completedTasks already has the previous tasks, newTask will be added after animation
+                            const currentCompleted = 2 + completedTasks.length;
+                            const currentProgress = Math.round((currentCompleted / 4) * 100);
+                            console.log('[INLINE] New task - set to', currentProgress + '%', 'will animate to', progressPercent + '%');
+                            if (fill) fill.style.width = currentProgress + '%';
+                            if (text) text.textContent = `Your car profile is ${currentProgress}% complete`;
+                            if (subtext) subtext.textContent = `${currentCompleted} of 4 tasks completed`;
+                            if (progressSection) progressSection.style.display = 'flex'; // Show for animation (use flex!)
+                        }
+                        // SCENARIO 2: Already animated (returning from service pages)
+                        else if (hasAnimated) {
+                            console.log('[INLINE] Already animated - set to', progressPercent + '%');
+                            if (fill) fill.style.width = progressPercent + '%';
+                            if (text) text.textContent = `Your car profile is ${progressPercent}% complete`;
+                            if (subtext) subtext.textContent = `${totalCompleted} of 4 tasks completed`;
+                            
+                            // Show progress section ONLY if not at 100%
+                            if (progressPercent < 100) {
+                                if (progressSection) progressSection.style.display = 'flex'; // Use flex!
+                            }
+                            // If at 100%, keep it hidden (notification will show instead)
+                        }
+                        // SCENARIO 3: First load - set to 8px for animation
+                        else {
+                            console.log('[INLINE] First load - set to 8px');
+                            if (fill) fill.style.width = '8px';
+                            if (progressSection) progressSection.style.display = 'flex'; // Show for animation (use flex!)
+                        }
+                    })();
+                    </script>
+                    
+                    <!-- Notification Panel (Hidden until 100% complete) -->
+                    <div class="notification-panel type-primary sentiment-success" id="completion-notification" style="opacity: 0; display: none; margin: 0 var(--spacing-16); padding: 0;">
+                        <div class="notification-panel-content" style="align-items: center; max-width: none; padding: var(--spacing-12) var(--spacing-16); cursor: default; pointer-events: none;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color: var(--icon-sentiment-success); flex-shrink: 0;">
+                                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                                <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            <div class="notification-panel-text" style="margin-left: var(--spacing-08); flex: 1;">
+                                <div class="notification-panel-message">You're up to date. We'll email you 30 days before your next due date.</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Second inline script to handle notification (runs after notification element exists) -->
+                    <script>
+                    (function() {
+                        const params = new URLSearchParams(window.location.search);
+                        const completedParam = params.get('completed');
+                        const newTaskParam = params.get('newTask');
+                        const hasAnimated = sessionStorage.getItem('hubAnimationPlayed') === 'true';
+                        
+                        // ONLY show notification if returning WITHOUT a new task
+                        // If there's a newTask, the animation will show the notification
+                        if (hasAnimated && !newTaskParam) {
+                            const completedTasks = completedParam ? completedParam.split(',').filter(t => t) : [];
+                            const totalCompleted = 2 + completedTasks.length;
+                            const progressPercent = Math.round((totalCompleted / 4) * 100);
+                            
+                            if (progressPercent === 100) {
+                                console.log('[INLINE-2] Returning at 100% (no new task) - showing notification immediately');
+                                const progressSection = document.getElementById('progress-section');
+                                const notification = document.getElementById('completion-notification');
+                                
+                                if (progressSection) {
+                                    progressSection.style.display = 'none';
+                                }
+                                if (notification) {
+                                    notification.style.display = 'block';
+                                    notification.style.opacity = '1';
+                                    console.log('[INLINE-2] Notification shown!');
+                                }
+                            }
+                        } else if (newTaskParam) {
+                            console.log('[INLINE-2] New task present - animation will handle notification');
+                        }
+                    })();
+                    </script>
+                    
+                    <!-- Dashboard Grid -->
+                    <div class="hero-panel-dashboard-grid">
+                        <div class="hero-panel-dashboard-row">
+                            <a href="#" onclick="sessionStorage.setItem('leavingHub', 'true'); window.location.href='../03-insurance-capture/insurance-capture.html'; return false;" style="text-decoration: none; color: inherit; flex: 1; min-width: 0;">
+                                <div class="flip-container" data-task="insurance">
+                                    <!-- Front: Ghost Panel -->
+                                    <div class="hero-panel-ghost-compact flip-front">
+                                        <div class="hero-panel-ghost-text">
+                                            <div class="hero-panel-ghost-title">Insurance</div>
+                                            <div class="hero-panel-ghost-subtitle">Get reminder</div>
+                                        </div>
+                                        <div class="hero-panel-ghost-button">
+                                            <div class="hero-panel-ghost-button-icon">
+                                                <img data-action-icon="plus" data-icon-folder="action" alt="Plus icon">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Back: Service Panel -->
+                                    <div class="hero-panel-service-panel flip-back">
+                                        <div class="hero-panel-service-circle">
+                                            <img data-icon="shield" data-icon-folder="security" alt="Insurance icon">
+                                        </div>
+                                        <div class="hero-panel-service-text">
+                                            <div class="hero-panel-service-title">Insurance</div>
+                                            <div class="hero-panel-service-date">06 Aug 25</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                            
+                            <a href="#" onclick="sessionStorage.setItem('leavingHub', 'true'); window.location.href='../04-service-capture/service-capture.html'; return false;" style="text-decoration: none; color: inherit; flex: 1; min-width: 0;">
+                                <div class="flip-container" data-task="servicing">
+                                    <!-- Front: Ghost Panel -->
+                                    <div class="hero-panel-ghost-compact flip-front">
+                                        <div class="hero-panel-ghost-text">
+                                            <div class="hero-panel-ghost-title">Servicing</div>
+                                            <div class="hero-panel-ghost-subtitle">Keep track</div>
+                                        </div>
+                                        <div class="hero-panel-ghost-button">
+                                            <div class="hero-panel-ghost-button-icon">
+                                                <img data-action-icon="plus" data-icon-folder="action" alt="Plus icon">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Back: Service Panel -->
+                                    <div class="hero-panel-service-panel flip-back">
+                                        <div class="hero-panel-service-circle">
+                                            <img data-icon="car" data-icon-folder="travel" alt="Service icon">
+                                        </div>
+                                        <div class="hero-panel-service-text">
+                                            <div class="hero-panel-service-title">Servicing</div>
+                                            <div class="hero-panel-service-date">01 Dec 25</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    
+                </div>
+                
+                <!-- EmptyStateHeroPanel Component (Hidden by default) -->
+                <div class="empty-state-container" id="hero-panel-empty" style="display: none;">
+  
+                    <!-- Top Row: User Greeting -->
+                    <div class="empty-state-top-row">
+                        <div class="empty-state-user-info">
+                            <!-- Pictogram -->
+                            <div class="pictogram pict-default">
+                                <img src="../../../assets/pictograms/Person_Lloyds_-_V2.svg" alt="Person icon">
+                            </div>
+                            <div class="empty-state-user-text">
+                                <div class="empty-state-user-name">Alex</div>
+                                <div class="empty-state-user-cta">Connect your car</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Car Placeholder Image -->
+                    <div class="empty-state-car-placeholder">
+                        <img src="../../../assets/images/car-placeholder.png" alt="Connect your car" class="empty-state-car-image">
+                    </div>
+                    
+                    <!-- Description Text -->
+                    <div class="empty-state-description">
+                        Drive hassle free with MOT, tax, insurance, service reminders and much more.
+                    </div>
+                    
+                    <!-- Benefits Icon Grid -->
+                    <div class="empty-state-benefits-grid">
+                        
+                        <!-- Tax -->
+                        <div class="empty-state-benefit-item">
+                            <div class="empty-state-benefit-icon">
+                                <img src="../../../assets/icons/date-and-time/timer.svg" alt="Tax">
+                            </div>
+                            <div class="empty-state-benefit-label">Tax</div>
+                        </div>
+                        
+                        <!-- MOT -->
+                        <div class="empty-state-benefit-item">
+                            <div class="empty-state-benefit-icon">
+                                <img src="../../../assets/icons/security/id.svg" alt="MOT">
+                            </div>
+                            <div class="empty-state-benefit-label">MOT</div>
+                        </div>
+                        
+                        <!-- Insurance -->
+                        <div class="empty-state-benefit-item">
+                            <div class="empty-state-benefit-icon">
+                                <img src="../../../assets/icons/security/shield.svg" alt="Insurance">
+                            </div>
+                            <div class="empty-state-benefit-label">Insurance</div>
+                        </div>
+                        
+                        <!-- Servicing -->
+                        <div class="empty-state-benefit-item">
+                            <div class="empty-state-benefit-icon">
+                                <img src="../../../assets/icons/travel/car.svg" alt="Servicing">
+                            </div>
+                            <div class="empty-state-benefit-label">Servicing</div>
+                        </div>
+                        
+                    </div>
+                    
+                    <!-- Primary Action Button -->
+                    <div class="empty-state-action">
+                        <button class="action-button btn-primary empty-state-button" onclick="openConnectTray()">
+                            <div class="action-button-inner">
+                                <span class="action-button-text">Connect my car</span>
+                            </div>
+                        </button>
+                    </div>
+                    
+                </div>
+                
+                <!-- List Action Group - 4 Stacked Items -->
+                <div class="list-action-group width-compact">
+                    <!-- Item 1: Tax with tag (06 Aug 25) -->
+                    <div class="list-item-action asset-icon width-compact position-top state-default">
+                        <div class="list-item-content">
+                            <div class="list-item-icon">
+                                <img data-icon="calendar" data-icon-folder="date-and-time" alt="Tax icon">
+                            </div>
+                            
+                            <div class="list-item-text">
+                                <span class="list-item-title">Tax</span>
+                                <span class="list-item-description">06 Aug 25</span>
+                            </div>
+                            
+                            <!-- Tag -->
+                            <div class="notification-tag tag-warning">
+                                <div class="notification-tag-text" style="text-transform: none;">Due in 28 days</div>
+                            </div>
+                            
+                            <div class="list-item-action-icon">
+                                <img data-chevron="right" alt="">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Item 2: Insurance (09 Nov 25) - Initially Hidden -->
+                    <div class="list-item-action asset-icon width-compact position-middle state-default" id="insurance-list-item" style="display: none; opacity: 0;">
+                        <div class="divider width-default"><div class="divider-line"></div></div>
+                        <div class="list-item-content">
+                            <div class="list-item-icon">
+                                <img data-icon="shield" data-icon-folder="security" alt="Insurance icon">
+                            </div>
+                            
+                            <div class="list-item-text">
+                                <span class="list-item-title">Insurance</span>
+                                <span class="list-item-description">09 Nov 25</span>
+                            </div>
+                            
+                            <div class="list-item-action-icon">
+                                <img data-chevron="right" alt="">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Item 3: Servicing (01 Dec 25) - Initially Hidden -->
+                    <div class="list-item-action asset-icon width-compact position-middle state-default" id="servicing-list-item" style="display: none; opacity: 0;">
+                        <div class="divider width-default"><div class="divider-line"></div></div>
+                        <div class="list-item-content">
+                            <div class="list-item-icon">
+                                <img data-icon="car" data-icon-folder="travel" alt="Servicing icon">
+                            </div>
+                            
+                            <div class="list-item-text">
+                                <span class="list-item-title">Servicing</span>
+                                <span class="list-item-description">01 Dec 25</span>
+                            </div>
+                            
+                            <div class="list-item-action-icon">
+                                <img data-chevron="right" alt="">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Item 4: MOT (11 Dec 25) -->
+                    <div class="list-item-action asset-icon width-compact position-bottom state-default">
+                        <div class="divider width-default"><div class="divider-line"></div></div>
+                        <div class="list-item-content">
+                            <div class="list-item-icon">
+                                <img data-icon="id" data-icon-folder="security" alt="MOT icon">
+                            </div>
+                            
+                            <div class="list-item-text">
+                                <span class="list-item-title">MOT</span>
+                                <span class="list-item-description">11 Dec 25</span>
+                            </div>
+                            
+                            <div class="list-item-action-icon">
+                                <img data-chevron="right" alt="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Inline script to show list items for completed tasks (MUST run AFTER list items exist in DOM) -->
+                <script>
+                (function() {
+                    const params = new URLSearchParams(window.location.search);
+                    let completedParam = params.get('completed');
+                    const newTaskParam = params.get('newTask');
+                    
+                    // If no URL param but we have sessionStorage, use that
+                    if (!completedParam) {
+                        completedParam = sessionStorage.getItem('hubCompleted') || '';
+                    }
+                    
+                    const completedTasks = completedParam ? completedParam.split(',').filter(t => t) : [];
+                    
+                    console.log('[INLINE-LIST-ITEMS] completedTasks:', completedTasks);
+                    console.log('[INLINE-LIST-ITEMS] newTaskParam:', newTaskParam);
+                    
+                    // Show list items for completed tasks
+                    completedTasks.forEach(function(task) {
+                        // If there's a newTask and this IS that task, skip it (animation will handle it)
+                        if (newTaskParam && task === newTaskParam) {
+                            console.log('[INLINE-LIST-ITEMS] Skipping new task:', task);
+                            return;
+                        }
+                        
+                        // Show the list item
+                        const listItem = document.getElementById(`${task}-list-item`);
+                        if (listItem) {
+                            listItem.style.display = 'flex';
+                            listItem.style.opacity = '1';
+                            listItem.style.height = 'auto';
+                            console.log('[INLINE-LIST-ITEMS] Shown list item:', task);
+                        } else {
+                            console.error('[INLINE-LIST-ITEMS] Could not find list item:', task);
+                        }
+                    });
+                    
+                    // Reload icons after showing list items
+                    if (completedTasks.length > 0) {
+                        setTimeout(function() {
+                            if (window.reloadInlineSVGs) {
+                                window.reloadInlineSVGs();
+                                console.log('[INLINE-LIST-ITEMS] Reloaded SVG icons');
+                            }
+                        }, 200);
+                    }
+                })();
+                </script>
+                
+                <!-- Section Title -->
+                <h2 class="section-title" style="margin-bottom: var(--spacing-16);">Plan and prepare</h2>
+                
+                <!-- Illustration Panel (Nested Illustration Component) -->
+                <div class="illustration-panel">
+                    <!-- Nested Illustration Component - Self-Contained -->
+                    <div class="illustration ill-default-alt-01">
+                        <img data-illustration="Financial_Planning_Lloyds_-_V2" alt="Financial planning illustration">
+                    </div>
+                    <div class="panel-title">Finance your next vehicle</div>
+                    <div class="panel-description">Time for something new? Find the right plan for your budget.</div>
+                    <!-- Nested Action Button Component - Primary Variant -->
+                    <button class="action-button btn-primary" id="finance-button">
+                        <div class="action-button-inner">
+                            <span class="action-button-text">Explore finance</span>
+                            <div class="action-button-icon">
+                                <img data-icon="arrow-right" data-icon-category="arrows" alt="">
+                            </div>
+                        </div>
+                    </button>
+                </div>
+                
+                <!-- List Item Action Components - EXACT COPY from ListItemAction.html -->
+                <div class="list-item-action asset-pictogram width-compact position-top state-default">
+                    <div class="list-item-content">
+                        <!-- Nested Pictogram Component -->
+                        <div class="pictogram pict-default">
+                            <img data-pictogram="Piggy_Bank_Lloyds_-_V2" alt="Savings icon">
+                        </div>
+                        
+                        <div class="list-item-text">
+                            <span class="list-item-title">Set savings goals</span>
+                        </div>
+                        
+                        <div class="list-item-action-icon">
+                            <img data-chevron="right" alt="">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="list-item-action asset-pictogram width-compact position-bottom state-default">
+                    <div class="divider width-default">
+                        <div class="divider-line"></div>
+                    </div>
+                    
+                    <div class="list-item-content">
+                        <!-- Nested Pictogram Component -->
+                        <div class="pictogram pict-default">
+                            <img data-pictogram="Insurance_Soft_Lloyds_-_V2" alt="Insurance icon">
+                        </div>
+                        
+                        <div class="list-item-text">
+                            <span class="list-item-title">Get a motor insurance quote</span>
+                        </div>
+                        
+                        <div class="list-item-action-icon">
+                            <img data-chevron="right" alt="">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Feedback Section -->
+                <div class="feedback-section">
+                    <div class="feedback-heading">How are we doing?</div>
+                    <div class="feedback-description">This section is a work in progress. We'd love to hear your thoughts.</div>
+                    <!-- Nested Action Button Component - Secondary Variant -->
+                    <button class="action-button btn-secondary">
+                        <div class="action-button-inner">
+                            <span class="action-button-text">Give feedback</span>
+                        </div>
+                    </button>
+                </div>
+                
+                <!-- All Caught Up Section -->
+                <div style="display: flex; flex-direction: column; align-items: center; width: 100%; margin-top: var(--spacing-48);">
+                    <img id="caught-up-horse" src="../../../assets/brand/cancara-horse.svg" alt="" style="width: 44px; height: auto; margin-bottom: var(--spacing-16);">
+                    <div style="font-family: var(--type-style-5-family); font-size: var(--type-style-5-size); font-weight: var(--type-style-5-weight); line-height: var(--type-style-5-line-height); color: var(--text-default); text-align: center;">All caught up</div>
+                </div>
+                
+            </div>
+        </div>
+
+        <!-- Tray Overlay -->
+        <div class="tray-overlay" onclick="event.target === this && closeManageTray()"></div>
+        
+        <!-- Tray Container -->
+        <div class="tray-container">
+            <div class="tray">
+                <div class="tray-content">
+                    
+                    <!-- Handlebar -->
+                    <div class="tray-handlebar">
+                        <div class="tray-grabber"></div>
+                    </div>
+                    
+                    <!-- Header -->
+                    <div class="tray-header">
+                        <!-- Leading Icon - Empty -->
+                        <div class="tray-header-leading">
+                        </div>
+                        
+                        <!-- Title (Centered) - Empty -->
+                        <div class="tray-header-title-wrapper">
+                            <div class="tray-header-title"></div>
+                        </div>
+                        
+                        <!-- Trailing Icon (Close) -->
+                        <div class="tray-header-trailing">
+                            <div class="hit-target" onclick="closeManageTray()">
+                                <div class="icon-wrapper">
+                                    <img src="../../../assets/icons/navigation/close.svg" alt="Close">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tray Content Area -->
+                    <div class="tray-content-area">
+                        <!-- Divider -->
+                        <div class="tray-divider"></div>
+                        
+                        <!-- Remove vehicle row -->
+                        <a href="#" class="manage-action-row" onclick="event.preventDefault(); showRemoveVehicle();">
+                            <div class="manage-action-icon">
+                                <img src="../../../assets/icons/action/minus-alt-01.svg" alt="">
+                            </div>
+                            <div class="manage-action-text">Remove vehicle</div>
+                            <div class="manage-action-chevron">
+                                <img src="../../../assets/icons/arrows/chevron-right.svg" alt="">
+                            </div>
+                        </a>
+                        
+                        <!-- Divider -->
+                        <div class="tray-divider"></div>
+                        
+                        <!-- Connect different vehicle row -->
+                        <a href="#" class="manage-action-row">
+                            <div class="manage-action-icon">
+                                <img src="../../../assets/icons/travel/car.svg" alt="">
+                            </div>
+                            <div class="manage-action-text">Connect a different vehicle</div>
+                            <div class="manage-action-chevron">
+                                <img src="../../../assets/icons/arrows/chevron-right.svg" alt="">
+                            </div>
+                        </a>
+                        
+                        <!-- Divider -->
+                        <div class="tray-divider"></div>
+                        
+                        <!-- Remove Vehicle Content (Hidden by default) -->
+                        <div class="remove-vehicle-content" style="display: none; opacity: 0; padding: var(--spacing-24) var(--spacing-16);">
+                            <!-- Illustration Box -->
+                            <div style="background-color: #C7FFC6; border-radius: var(--radius-default); aspect-ratio: 4 / 2; display: flex; align-items: center; justify-content: center; margin-bottom: var(--spacing-24);">
+                                <img class="remove-vehicle-illustration-light" src="../../../assets/illustrations/default/Car_Finance_Lloyds_-_V2.svg" alt="Vehicle" style="max-width: 80%; max-height: 80%;">
+                                <img class="remove-vehicle-illustration-dark" src="../../../assets/illustrations/default/Car_Finance_Lloyds_-_V2_-_Dark_Mode.svg" alt="Vehicle" style="max-width: 80%; max-height: 80%; display: none;">
+                            </div>
+                            
+                            <!-- Title -->
+                            <div style="font-family: var(--type-style-4-family); font-size: var(--type-style-4-size); font-weight: var(--type-style-4-weight); line-height: var(--type-style-4-line-height); letter-spacing: var(--type-style-4-letter-spacing); color: var(--text-default); margin-bottom: var(--spacing-08); text-align: center;">
+                                Are you sure you want to remove this vehicle?
+                            </div>
+                            
+                            <!-- Body Text -->
+                            <div style="font-family: var(--type-style-6-family); font-size: var(--type-style-6-size); font-weight: var(--type-style-6-weight); line-height: var(--type-style-6-line-height); letter-spacing: var(--type-style-6-letter-spacing); color: var(--text-subdued); margin-bottom: var(--spacing-24); text-align: center;">
+                                This will remove all vehicle information and service reminders from your account. You can always add it back later.
+                            </div>
+                            
+                            <!-- Button Stack -->
+                            <div style="display: flex; flex-direction: column; gap: var(--spacing-12);">
+                                <button class="action-button btn-primary" onclick="confirmRemoveVehicle()">
+                                    <div class="action-button-inner">
+                                        <span class="action-button-text">Yes, remove vehicle</span>
+                                    </div>
+                                </button>
+                                <button class="action-button btn-secondary" onclick="cancelRemoveVehicle()">
+                                    <div class="action-button-inner">
+                                        <span class="action-button-text">Cancel</span>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Nav - Fixed at bottom -->
+        <div class="bottom-nav-wrapper">
+            <div class="bottom-nav" id="bottom-nav">
+                <div class="bottom-nav-active-border">
+                    <div class="active-border-segment active"></div>
+                    <div class="active-border-segment"></div>
+                    <div class="active-border-segment"></div>
+                    <div class="active-border-segment"></div>
+                    <div class="active-border-segment"></div>
+                </div>
+                
+                <div class="bottom-nav-tabs">
+                    <button class="bottom-nav-tab active" onclick="window.location.href='../01-account-summary/account-summary.html'">
+                        <div class="bottom-nav-icon">
+                            <img id="tab-icon-0-inactive" src="" alt="" class="icon-inactive">
+                            <img id="tab-icon-0-active" src="" alt="" class="icon-active">
+                        </div>
+                        <span class="bottom-nav-label">Home</span>
+                    </button>
+                    
+                    <button class="bottom-nav-tab" onclick="setActiveTab(1)">
+                        <div class="bottom-nav-icon">
+                            <img id="tab-icon-1-inactive" src="" alt="" class="icon-inactive">
+                            <img id="tab-icon-1-active" src="" alt="" class="icon-active">
+                        </div>
+                        <span class="bottom-nav-label">Apply</span>
+                    </button>
+                    
+                    <button class="bottom-nav-tab" onclick="setActiveTab(2)">
+                        <div class="bottom-nav-icon">
+                            <img id="tab-icon-2-inactive" src="" alt="" class="icon-inactive">
+                            <img id="tab-icon-2-active" src="" alt="" class="icon-active">
+                        </div>
+                        <span class="bottom-nav-label">Payments</span>
+                    </button>
+                    
+                    <button class="bottom-nav-tab" onclick="setActiveTab(3)">
+                        <div class="bottom-nav-icon">
+                            <img id="tab-icon-3-inactive" src="" alt="" class="icon-inactive">
+                            <img id="tab-icon-3-active" src="" alt="" class="icon-active">
+                        </div>
+                        <span class="bottom-nav-label">Search</span>
+                    </button>
+                    
+                    <button class="bottom-nav-tab" onclick="setActiveTab(4)">
+                        <div class="bottom-nav-icon">
+                            <img id="tab-icon-4-inactive" src="" alt="" class="icon-inactive">
+                            <img id="tab-icon-4-active" src="" alt="" class="icon-active">
+                        </div>
+                        <span class="bottom-nav-label">Cards</span>
+                    </button>
+                </div>
+                
+                <div class="bottom-nav-home-indicator">
+                    <div class="home-indicator-handle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Component JavaScript - Self-Contained Components -->
+    <script src="../../../src/components/content/icon/pictogram/Pictogram.vanilla.js"></script>
+    <script src="../../../src/components/content/icon/illustration/Illustration.vanilla.js"></script>
+    <script src="../../../src/components/content/list/list-item-action/ListItemAction.vanilla.js"></script>
+    <script src="../../../src/components/custom/mobility-mvp/hero-panel/HeroPanel.vanilla.js"></script>
+    <script src="../../../src/components/action/button/action-button/ActionButton.vanilla.js"></script>
+    
+    <script>
+        const ASSETS_BASE = '../../../assets';
+        
+        const ICONS = {
+            back: `${ASSETS_BASE}/icons/arrows/arrow-left.svg`,
+            tab1: `${ASSETS_BASE}/icons/tabs/tab-1-icon.svg`,
+            tab2: `${ASSETS_BASE}/icons/tabs/tab-2-icon.svg`,
+            tab3: `${ASSETS_BASE}/icons/tabs/tab-3-icon.svg`,
+            tab4: `${ASSETS_BASE}/icons/tabs/tab-4-icon.svg`,
+            tab5: `${ASSETS_BASE}/icons/tabs/tab-5-icon.svg`,
+            tab1Active: `${ASSETS_BASE}/icons/tabs/tab-1-icon-active.svg`,
+            tab2Active: `${ASSETS_BASE}/icons/tabs/tab-2-icon-active.svg`,
+            tab3Active: `${ASSETS_BASE}/icons/tabs/tab-3-icon-active.svg`,
+            tab4Active: `${ASSETS_BASE}/icons/tabs/tab-4-icon-active.svg`,
+            tab5Active: `${ASSETS_BASE}/icons/tabs/tab-5-icon-active.svg`,
+        };
+
+        function initializeIcons() {
+            console.log('Initializing icons...');
+            const backIcon = document.getElementById('back-icon');
+            if (backIcon) {
+                backIcon.src = ICONS.back;
+                console.log('Back icon set to:', ICONS.back);
+            } else {
+                console.warn('Back icon element not found');
+            }
+            
+            // Initialize bottom nav icons
+            for (let i = 0; i < 5; i++) {
+                const inactiveIcon = document.getElementById(`tab-icon-${i}-inactive`);
+                const activeIcon = document.getElementById(`tab-icon-${i}-active`);
+                
+                if (inactiveIcon) {
+                    inactiveIcon.src = ICONS[`tab${i + 1}`];
+                    console.log(`Tab ${i} inactive icon set`);
+                } else {
+                    console.warn(`Tab ${i} inactive icon element not found`);
+                }
+                
+                if (activeIcon) {
+                    activeIcon.src = ICONS[`tab${i + 1}Active`];
+                    console.log(`Tab ${i} active icon set`);
+                } else {
+                    console.warn(`Tab ${i} active icon element not found`);
+                }
+            }
+        }
+        
+        function initializeChevrons() {
+            const chevrons = document.querySelectorAll('img[data-chevron]');
+            chevrons.forEach(chevron => {
+                const direction = chevron.getAttribute('data-chevron') || 'right';
+                chevron.src = `${ASSETS_BASE}/icons/arrows/chevron-${direction}.svg`;
+            });
+        }
+
+
+        function setActiveTab(tabIndex) {
+            const nav = document.getElementById('bottom-nav');
+            const tabs = nav.querySelectorAll('.bottom-nav-tab');
+            const segments = nav.querySelectorAll('.active-border-segment');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            segments.forEach(segment => segment.classList.remove('active'));
+            tabs[tabIndex].classList.add('active');
+            segments[tabIndex].classList.add('active');
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeText = document.getElementById('theme-text');
+            const horseLogo = document.getElementById('caught-up-horse');
+            const currentTheme = body.getAttribute('data-theme');
+            const cacheBuster = '?v=' + Date.now();
+            
+            if (currentTheme === 'light') {
+                body.setAttribute('data-theme', 'dark');
+                html.setAttribute('data-theme', 'dark');
+                themeText.textContent = 'Switch to Light Mode';
+                localStorage.setItem('cancara-theme-preference', 'dark');
+                if (horseLogo) {
+                    horseLogo.src = '../../../assets/brand/cancara-horse-dark.svg' + cacheBuster;
+                }
+            } else {
+                body.setAttribute('data-theme', 'light');
+                html.setAttribute('data-theme', 'light');
+                themeText.textContent = 'Switch to Dark Mode';
+                localStorage.setItem('cancara-theme-preference', 'light');
+                if (horseLogo) {
+                    horseLogo.src = '../../../assets/brand/cancara-horse-light.svg' + cacheBuster;
+                }
+            }
+        }
+
+        // Navigate to task capture page with current completed state
+        function navigateToTask(task) {
+            const urlParams = new URLSearchParams(window.location.search);
+            const completed = urlParams.get('completed') || '';
+            const completedTasks = completed ? completed.split(',') : [];
+            
+            // Check if this task has been completed (panel is flipped)
+            const isCompleted = completedTasks.includes(task);
+            
+            const taskUrls = {
+                'insurance': isCompleted ? '../07-insurance-added/insurance-added.html' : '../03-insurance-capture/insurance-capture.html',
+                'servicing': isCompleted ? '../08-service-added/service-added.html' : '../04-service-capture/service-capture.html'
+            };
+            
+            const url = taskUrls[task];
+            if (url) {
+                if (isCompleted) {
+                    // If already completed, just navigate to the added page
+                    window.location.href = url;
+                } else {
+                    // If not completed, go to capture page with completed state
+                    window.location.href = `${url}?from_completed=${completed}`;
+                }
+            }
+        }
+
+        // Theme toggle and icon initialization (needed for UI)
+        window.addEventListener('DOMContentLoaded', function() {
+            const currentTheme = document.body.getAttribute('data-theme');
+            const themeText = document.getElementById('theme-text');
+            if (themeText) {
+                if (currentTheme === 'dark') {
+                    themeText.textContent = 'Switch to Light Mode';
+                } else {
+                    themeText.textContent = 'Switch to Dark Mode';
+                }
+            }
+            
+            const horseLogo = document.getElementById('caught-up-horse');
+            if (horseLogo) {
+                const cacheBuster = '?v=' + Date.now();
+                if (currentTheme === 'light') {
+                    horseLogo.src = '../../../assets/brand/cancara-horse-light.svg' + cacheBuster;
+                } else {
+                    horseLogo.src = '../../../assets/brand/cancara-horse-dark.svg' + cacheBuster;
+                }
+            }
+            
+            initializeIcons();
+            initializeChevrons();
+        });
+
+        
+        // Handle pageshow for debugging
+        window.addEventListener('pageshow', function(event) {
+            console.log('[PAGESHOW] Event fired, persisted:', event.persisted);
+        });
+        
+        // Function to fade out progress and fade in notification panel
+        function showCompletionNotification() {
+            console.log('[NOTIFICATION] showCompletionNotification called');
+            const progressSection = document.getElementById('progress-section');
+            const notification = document.getElementById('completion-notification');
+            
+            console.log('[NOTIFICATION] progressSection:', progressSection);
+            console.log('[NOTIFICATION] notification:', notification);
+            console.log('[NOTIFICATION] notification opacity:', notification ? notification.style.opacity : 'N/A');
+            
+            // Check if notification is already visible - don't animate again
+            if (notification && notification.style.opacity === '1') {
+                console.log('[NOTIFICATION] Already visible, skipping animation');
+                return;
+            }
+            
+            if (progressSection && notification) {
+                console.log('[NOTIFICATION] Starting fade animation');
+                // Fade out progress section
+                progressSection.style.transition = 'opacity 0.3s ease';
+                progressSection.style.opacity = '0';
+                
+                setTimeout(function() {
+                    console.log('[NOTIFICATION] Hiding progress, showing notification');
+                    // Hide progress section and show notification
+                    progressSection.style.display = 'none';
+                    notification.style.display = 'block';
+                    
+                    // Fade in notification
+                    setTimeout(function() {
+                        console.log('[NOTIFICATION] Fading in notification');
+                        notification.style.transition = 'opacity 0.3s ease';
+                        notification.style.opacity = '1';
+                    }, 50);
+                }, 300); // Wait for fade out to complete
+            } else {
+                console.log('[NOTIFICATION] Missing elements!');
+            }
+        }
+        
+        // Open manage tray
+        function openManageTray() {
+            document.querySelector('.tray-overlay').classList.add('visible');
+            document.querySelector('.tray-container').classList.add('visible');
+            document.body.style.overflow = 'hidden';
+            
+            // Re-run inline SVG loader for tray icons (they load after page init)
+            setTimeout(function() {
+                if (window.reloadInlineSVGs) {
+                    window.reloadInlineSVGs();
+                    console.log('[TRAY] Re-ran inline SVG loader for manage tray icons');
+                }
+            }, 200);
+        }
+        
+        // Close manage tray
+        function closeManageTray() {
+            document.querySelector('.tray-overlay').classList.remove('visible');
+            document.querySelector('.tray-container').classList.remove('visible');
+            document.body.style.overflow = '';
+            
+            // Reset tray to initial state after closing
+            setTimeout(function() {
+                const manageRows = document.querySelectorAll('.manage-action-row');
+                const dividers = document.querySelectorAll('.tray-divider');
+                const removeContent = document.querySelector('.remove-vehicle-content');
+                const trayTitle = document.querySelector('.tray-header-title');
+                
+                manageRows.forEach(row => {
+                    row.style.display = '';
+                    row.style.opacity = '1';
+                });
+                dividers.forEach(divider => {
+                    divider.style.display = '';
+                    divider.style.opacity = '1';
+                });
+                if (removeContent) {
+                    removeContent.style.display = 'none';
+                    removeContent.style.opacity = '0';
+                }
+                if (trayTitle) {
+                    trayTitle.textContent = '';
+                }
+            }, 300);
+        }
+        
+        // Show remove vehicle confirmation
+        function showRemoveVehicle() {
+            const manageRows = document.querySelectorAll('.manage-action-row');
+            const dividers = document.querySelectorAll('.tray-divider');
+            const removeContent = document.querySelector('.remove-vehicle-content');
+            const trayTitle = document.querySelector('.tray-header-title');
+            const trayContentArea = document.querySelector('.tray-content-area');
+            const tray = document.querySelector('.tray');
+            
+            // Update header title
+            if (trayTitle) {
+                trayTitle.textContent = 'Remove vehicle';
+            }
+            
+            // PHASE 1: Fade out rows and dividers (0.3s)
+            manageRows.forEach(row => {
+                row.style.transition = 'opacity 0.3s ease';
+                row.style.opacity = '0';
+            });
+            dividers.forEach(divider => {
+                divider.style.transition = 'opacity 0.3s ease';
+                divider.style.opacity = '0';
+            });
+            
+            // After PHASE 1 completes
+            setTimeout(function() {
+                // Hide old content
+                manageRows.forEach(row => row.style.display = 'none');
+                dividers.forEach(divider => divider.style.display = 'none');
+                
+                if (removeContent && tray) {
+                    // Measure current tray height
+                    const currentTrayHeight = tray.offsetHeight;
+                    
+                    // Show new content invisibly to measure height
+                    removeContent.style.display = 'block';
+                    removeContent.style.opacity = '0';
+                    removeContent.style.transition = 'none';
+                    
+                    // Handle dark mode illustration
+                    const theme = document.body.getAttribute('data-theme');
+                    const lightIllustration = document.querySelector('.remove-vehicle-illustration-light');
+                    const darkIllustration = document.querySelector('.remove-vehicle-illustration-dark');
+                    if (theme === 'dark') {
+                        if (lightIllustration) lightIllustration.style.display = 'none';
+                        if (darkIllustration) darkIllustration.style.display = 'block';
+                    } else {
+                        if (lightIllustration) lightIllustration.style.display = 'block';
+                        if (darkIllustration) darkIllustration.style.display = 'none';
+                    }
+                    
+                    // Force layout recalculation
+                    void removeContent.offsetHeight;
+                    
+                    // Measure new tray height with new content
+                    const newTrayHeight = tray.offsetHeight;
+                    
+                    // PHASE 2: Animate tray height (0.4s)
+                    tray.style.height = currentTrayHeight + 'px';
+                    tray.style.overflow = 'hidden';
+                    
+                    // Force reflow
+                    void tray.offsetHeight;
+                    
+                    // Start height animation on tray
+                    tray.style.transition = 'height 0.4s ease';
+                    
+                    requestAnimationFrame(function() {
+                        tray.style.height = newTrayHeight + 'px';
+                    });
+                    
+                    // After PHASE 2 completes
+                    setTimeout(function() {
+                        // PHASE 3: Fade in new content (0.3s)
+                        removeContent.style.transition = 'opacity 0.3s ease';
+                        removeContent.style.opacity = '1';
+                        
+                        // Clean up after PHASE 3
+                        setTimeout(function() {
+                            tray.style.height = '';
+                            tray.style.overflow = '';
+                            tray.style.transition = '';
+                        }, 300);
+                    }, 400);
+                }
+            }, 300);
+        }
+        
+        // Confirm remove vehicle
+        function confirmRemoveVehicle() {
+            console.log('[REMOVE] Vehicle removal confirmed');
+            
+            // Close the tray
+            closeManageTray();
+            
+            // Wait for tray to close, then disconnect via state machine
+            setTimeout(function() {
+                if (window.hubStateMachine) {
+                    window.hubStateMachine.disconnect();
+                } else {
+                    console.error('[REMOVE] State machine not available!');
+                }
+            }, 300);
+        }
+        
+        // Cancel remove vehicle
+        function cancelRemoveVehicle() {
+            closeManageTray();
+        }
+    </script>
+    
+    <script src="../../../src/components/notification/notification-panel/NotificationPanel.vanilla.js"></script>
+    
+    <!-- Connect Car Tray Overlay (Namespaced) -->
+    <div class="connect-tray-overlay" onclick="event.target === this && closeConnectTray()"></div>
+    
+    <!-- Connect Tray Container (Namespaced) -->
+    <div class="connect-tray-container">
+        <div class="tray">
+            <div class="tray-content">
+                
+                <!-- Handlebar -->
+                <div class="connect-tray-handlebar tray-handlebar">
+                    <div class="connect-tray-grabber tray-grabber"></div>
+                </div>
+                
+                <!-- Header -->
+                <div class="tray-header">
+                    <div class="tray-header-leading"></div>
+                    <div class="tray-header-title-wrapper">
+                        <div class="tray-header-title">Connect your vehicle</div>
+                    </div>
+                    <div class="connect-tray-header-trailing tray-header-trailing">
+                        <div class="hit-target" onclick="closeConnectTray()">
+                            <div class="icon-wrapper">
+                                <img src="../../../assets/icons/navigation/close.svg" alt="Close">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tray Content Area -->
+                <div class="connect-tray-content-area tray-content-area">
+                    <!-- Content above input -->
+                    <div class="connect-tray-content-above-input">
+                        <!-- Content item 1 -->
+                        <div style="margin-bottom: var(--spacing-24);">
+                            <div style="display: flex; align-items: flex-start; gap: var(--spacing-12);">
+                                <div class="pictogram pict-default">
+                                    <img data-pictogram="Car_Lloyds_-_V2" alt="">
+                                </div>
+                                <div style="flex: 1;">
+                                    <div style="font-family: var(--type-style-5-family); font-size: var(--type-style-5-size); font-weight: var(--type-style-5-weight); line-height: var(--type-style-5-line-height); color: var(--text-default); margin-bottom: var(--spacing-08);">Everything in one place</div>
+                                    <div style="font-family: var(--type-style-9-family); font-size: var(--type-style-9-size); font-weight: var(--type-style-9-weight); line-height: var(--type-style-9-line-height); color: var(--text-subdued);">MOT, tax, insurance, servicing – simply reminded here in the Lloyds app.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Content item 2 -->
+                        <div style="margin-bottom: var(--spacing-24);">
+                            <div style="display: flex; align-items: flex-start; gap: var(--spacing-12);">
+                                <div class="pictogram pict-default">
+                                    <img data-pictogram="Settings_Lloyds_-_V2" alt="">
+                                </div>
+                                <div style="flex: 1;">
+                                    <div style="font-family: var(--type-style-5-family); font-size: var(--type-style-5-size); font-weight: var(--type-style-5-weight); line-height: var(--type-style-5-line-height); color: var(--text-default); margin-bottom: var(--spacing-08);">Ready for something new?</div>
+                                    <div style="font-family: var(--type-style-9-family); font-size: var(--type-style-9-size); font-weight: var(--type-style-9-weight); line-height: var(--type-style-9-line-height); color: var(--text-subdued);">Explore your financing options and set your budget for your new vehicle.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Content item 3 -->
+                        <div style="margin-bottom: var(--spacing-24);">
+                            <div style="display: flex; align-items: flex-start; gap: var(--spacing-12);">
+                                <div class="pictogram pict-default">
+                                    <img data-pictogram="Links_Lloyds_-_V2" alt="">
+                                </div>
+                                <div style="flex: 1;">
+                                    <div style="font-family: var(--type-style-5-family); font-size: var(--type-style-5-size); font-weight: var(--type-style-5-weight); line-height: var(--type-style-5-line-height); color: var(--text-default); margin-bottom: var(--spacing-08);">Connect and get going</div>
+                                    <div style="font-family: var(--type-style-6-family); font-size: var(--type-style-6-size); font-weight: var(--type-style-6-weight); line-height: var(--type-style-6-line-height); color: var(--text-subdued);">Just pop in your registration number and you're on your way.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Input field -->
+                    <div style="margin-bottom: var(--spacing-16); position: relative;">
+                        <label style="font-family: var(--type-style-8-family); font-size: var(--type-style-8-size); font-weight: var(--type-style-8-weight); line-height: var(--type-style-8-line-height); color: var(--text-subdued); display: block; margin-bottom: var(--spacing-08);">Enter registration</label>
+                        <input type="text" id="connect-registration-input" placeholder="e.g. AB12 CDE" style="width: 100%; padding: var(--spacing-12); border: 1px solid var(--border-default); border-radius: var(--radius-default); font-family: var(--font-family-body); font-size: var(--type-style-7-size); background: var(--bg-panel-default); color: var(--text-default);">
+                        
+                        <!-- Spinner -->
+                        <div class="connect-spinner-container">
+                            <div class="spinner-with-icon size-small bg-light">
+                                <div class="native-spinner size-large" data-spinner-set="3"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Primary Action Button -->
+                    <button class="action-button btn-primary" id="connect-search-button" style="width: 100%; margin-bottom: var(--spacing-12);">
+                        <div class="action-button-inner">
+                            <span class="action-button-text">Connect vehicle</span>
+                            <div class="action-button-icon">
+                                <img data-icon="arrow-right" data-icon-category="arrows" alt="">
+                            </div>
+                        </div>
+                    </button>
+
+                    <!-- Tertiary Action Button -->
+                    <button class="action-button btn-tertiary" style="width: 100%; margin-bottom: var(--spacing-12);">
+                        <div class="action-button-inner">
+                            <span class="action-button-text">Browse without connecting</span>
+                        </div>
+                    </button>
+                    
+                    <!-- Stage 3: Search Results -->
+                    <div class="connect-search-results">
+                        <div class="connect-vehicle-result">
+                            <img src="../../../assets/images/renault-rafale-front.png" alt="Renault Rafale" class="connect-vehicle-image">
+                            <div class="connect-vehicle-info">
+                                <div class="connect-vehicle-info-line"><strong>Renault Rafale</strong></div>
+                                <div class="connect-vehicle-info-line">E-TECH 220hp</div>
+                                <div class="connect-vehicle-info-line"><span class="connect-vehicle-plate">VX73 TZB</span></div>
+                            </div>
+                            
+                            <!-- Spinner for connect loading -->
+                            <div class="connect-vehicle-result-spinner">
+                                <div class="spinner-with-icon size-small bg-light">
+                                    <div class="native-spinner size-large" data-spinner-set="3"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Connect vehicle button after results -->
+                        <button class="action-button btn-primary" id="connect-vehicle-btn" style="width: 100%; margin-bottom: var(--spacing-12);">
+                            <div class="action-button-inner">
+                                <span class="action-button-text">Connect vehicle</span>
+                                <div class="action-button-icon">
+                                    <img data-icon="arrow-right" data-icon-category="arrows" alt="">
+                                </div>
+                            </div>
+                        </button>
+                        
+                        <!-- Back to search button -->
+                        <button class="action-button btn-tertiary" id="connect-back-to-search-btn" style="width: 100%;">
+                            <div class="action-button-inner">
+                                <span class="action-button-text">Back to search</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Connect Native Keyboard Simulation (Namespaced) -->
+    <div id="connect-native-keyboard">
+        <!-- Keyboard Accessory Bar -->
+        <div class="connect-keyboard-accessory-bar">
+            <div class="connect-keyboard-nav-buttons">
+                <button class="connect-keyboard-nav-btn" id="connect-keyboard-prev">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <button class="connect-keyboard-nav-btn" id="connect-keyboard-next">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+            <button class="connect-keyboard-done-btn" id="connect-keyboard-done-top">Done</button>
+        </div>
+        
+        <!-- Keyboard Keys Area -->
+        <div class="connect-keyboard-keys-area">
+            <div class="connect-keyboard-row">
+                <div class="connect-keyboard-key">Q</div>
+                <div class="connect-keyboard-key">W</div>
+                <div class="connect-keyboard-key">E</div>
+                <div class="connect-keyboard-key">R</div>
+                <div class="connect-keyboard-key">T</div>
+                <div class="connect-keyboard-key">Y</div>
+                <div class="connect-keyboard-key">U</div>
+                <div class="connect-keyboard-key">I</div>
+                <div class="connect-keyboard-key">O</div>
+                <div class="connect-keyboard-key">P</div>
+            </div>
+            <div class="connect-keyboard-row">
+                <div class="connect-keyboard-key">A</div>
+                <div class="connect-keyboard-key">S</div>
+                <div class="connect-keyboard-key">D</div>
+                <div class="connect-keyboard-key">F</div>
+                <div class="connect-keyboard-key">G</div>
+                <div class="connect-keyboard-key">H</div>
+                <div class="connect-keyboard-key">J</div>
+                <div class="connect-keyboard-key">K</div>
+                <div class="connect-keyboard-key">L</div>
+            </div>
+            <div class="connect-keyboard-row">
+                <div class="connect-keyboard-key">Z</div>
+                <div class="connect-keyboard-key">X</div>
+                <div class="connect-keyboard-key">C</div>
+                <div class="connect-keyboard-key">V</div>
+                <div class="connect-keyboard-key">B</div>
+                <div class="connect-keyboard-key">N</div>
+                <div class="connect-keyboard-key">M</div>
+                <div class="connect-keyboard-key backspace">⌫</div>
+            </div>
+            <div class="connect-keyboard-row">
+                <div class="connect-keyboard-key">123</div>
+                <div class="connect-keyboard-key wide">space</div>
+                <div class="connect-keyboard-key action">Done</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== CONNECT CAR TRAY - COMPLETE IMPLEMENTATION ==========
+        
+        let connectKeyboardMode = 'letters';
+        let connectKeyboardListenersAttached = false;
+        
+        function openConnectTray() {
+            document.querySelector('.connect-tray-overlay').classList.add('visible');
+            document.querySelector('.connect-tray-container').classList.add('visible');
+            document.body.style.overflow = 'hidden';
+            
+            // Re-run inline SVG loader for tray icons (they load after page init)
+            setTimeout(function() {
+                if (window.reloadInlineSVGs) {
+                    window.reloadInlineSVGs();
+                    console.log('[TRAY] Re-ran inline SVG loader for connect tray icons');
+                }
+            }, 200);
+            
+            // Manually load spinner frames - EXACTLY like account summary
+            setTimeout(function() {
+                const spinners = document.querySelectorAll('.connect-spinner-container .native-spinner[data-spinner-set], .connect-vehicle-result-spinner .native-spinner[data-spinner-set]');
+                spinners.forEach(function(nativeSpinner) {
+                    const spinnerSet = nativeSpinner.getAttribute('data-spinner-set');
+                    const theme = document.documentElement.getAttribute('data-theme') || 'dark';
+                    
+                    // Clear any existing content
+                    nativeSpinner.innerHTML = '';
+                    
+                    // Set 3 has 4 frames: 1.svg, 2.svg, 3.svg, 4.svg
+                    for (let i = 1; i <= 4; i++) {
+                        const img = document.createElement('img');
+                        img.src = `../../../assets/spinners/spinner-set-${spinnerSet}/${theme}/${i}.svg`;
+                        img.alt = '';
+                        nativeSpinner.appendChild(img);
+                    }
+                    
+                    console.log(`Loaded 4 spinner frames from set ${spinnerSet}, theme ${theme}`);
+                });
+            }, 100);
+            
+            // Attach keyboard listeners
+            setTimeout(function() {
+                attachConnectKeyboardListeners();
+            }, 100);
+        }
+
+        function closeConnectTray() {
+            document.querySelector('.connect-tray-overlay').classList.remove('visible');
+            document.querySelector('.connect-tray-container').classList.remove('visible');
+            document.body.style.overflow = '';
+            
+            // Close keyboard if open
+            const keyboard = document.getElementById('connect-native-keyboard');
+            if (keyboard) {
+                keyboard.classList.remove('visible');
+            }
+            
+            // Reset to Stage 1 after closing
+            setTimeout(function() {
+                document.querySelector('.connect-tray-content-above-input').classList.remove('hidden');
+                const trayContentArea = document.querySelector('.connect-tray-content-area');
+                const searchBtn = document.getElementById('connect-search-button');
+                const regInput = document.getElementById('connect-registration-input');
+                const trayContainer = document.querySelector('.connect-tray-container');
+                
+                trayContentArea.classList.remove('loading');
+                trayContentArea.classList.remove('stage-2');
+                trayContentArea.classList.remove('stage-3');
+                trayContainer.classList.remove('keyboard-active');
+                trayContainer.classList.remove('sliding-to-bottom');
+                
+                document.querySelector('.connect-spinner-container').classList.remove('active');
+                document.querySelector('.connect-search-results').classList.remove('visible');
+                document.querySelector('.connect-vehicle-result').classList.remove('visible');
+                
+                regInput.value = '';
+                regInput.style.opacity = '1';
+                regInput.parentElement.style.display = 'block';
+                regInput.parentElement.style.opacity = '1';
+                
+                searchBtn.style.opacity = '1';
+                searchBtn.style.display = 'block';
+                searchBtn.querySelector('.action-button-text').textContent = 'Connect vehicle';
+            }, 300);
+        }
+
+        function attachConnectKeyboardListeners() {
+            if (connectKeyboardListenersAttached) return;
+            
+            const registrationInput = document.getElementById('connect-registration-input');
+            const nativeKeyboard = document.getElementById('connect-native-keyboard');
+            
+            if (registrationInput && nativeKeyboard) {
+                connectKeyboardListenersAttached = true;
+                
+                // Prevent keyboard from closing when clicking inside
+                nativeKeyboard.addEventListener('mousedown', function(e) {
+                    e.preventDefault();
+                });
+                
+                // STAGE 1 → STAGE 2: Input focus
+                registrationInput.addEventListener('focus', function() {
+                    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+                    const trayContentArea = document.querySelector('.connect-tray-content-area');
+                    const buttonText = document.querySelector('#connect-search-button .action-button-text');
+                    
+                    // If in Stage 3, ignore
+                    if (trayContentArea.classList.contains('stage-3')) {
+                        return;
+                    }
+                    
+                    // If already in Stage 2, just show keyboard
+                    if (buttonText.textContent === 'Search') {
+                        document.querySelector('.connect-tray-container').classList.add('keyboard-active');
+                        if (!isMobile) {
+                            nativeKeyboard.classList.add('visible');
+                        }
+                        return;
+                    }
+                    
+                    // First time entering Stage 2
+                    trayContentArea.classList.add('stage-2');
+                    document.querySelector('.connect-tray-content-above-input').classList.add('hidden');
+                    document.querySelector('.connect-tray-container').classList.add('keyboard-active');
+                    if (!isMobile) {
+                        nativeKeyboard.classList.add('visible');
+                    }
+                    buttonText.textContent = 'Search';
+                });
+
+                // Input blur
+                registrationInput.addEventListener('blur', function() {
+                    const trayContentArea = document.querySelector('.connect-tray-content-area');
+                    
+                    // Don't do anything if in Stage 3
+                    if (trayContentArea.classList.contains('stage-3')) {
+                        return;
+                    }
+                    
+                    // Slide keyboard away
+                    nativeKeyboard.classList.remove('visible');
+                    // Slide panel back down
+                    document.querySelector('.connect-tray-container').classList.remove('keyboard-active');
+                    // KEEP content hidden (Stage 2 state)
+                    // KEEP button text as "Search"
+                });
+            
+                // Function to switch keyboard layout
+                function updateKeyboardLayout(mode) {
+                    const rows = nativeKeyboard.querySelectorAll('.connect-keyboard-row');
+                    
+                    if (mode === 'numbers') {
+                        rows[0].innerHTML = `
+                            <div class="connect-keyboard-key">1</div>
+                            <div class="connect-keyboard-key">2</div>
+                            <div class="connect-keyboard-key">3</div>
+                            <div class="connect-keyboard-key">4</div>
+                            <div class="connect-keyboard-key">5</div>
+                            <div class="connect-keyboard-key">6</div>
+                            <div class="connect-keyboard-key">7</div>
+                            <div class="connect-keyboard-key">8</div>
+                            <div class="connect-keyboard-key">9</div>
+                            <div class="connect-keyboard-key">0</div>
+                        `;
+                        rows[1].innerHTML = `
+                            <div class="connect-keyboard-key">-</div>
+                            <div class="connect-keyboard-key">/</div>
+                            <div class="connect-keyboard-key">:</div>
+                            <div class="connect-keyboard-key">;</div>
+                            <div class="connect-keyboard-key">(</div>
+                            <div class="connect-keyboard-key">)</div>
+                            <div class="connect-keyboard-key">$</div>
+                            <div class="connect-keyboard-key">&</div>
+                            <div class="connect-keyboard-key">@</div>
+                        `;
+                        rows[2].innerHTML = `
+                            <div class="connect-keyboard-key">.</div>
+                            <div class="connect-keyboard-key">,</div>
+                            <div class="connect-keyboard-key">?</div>
+                            <div class="connect-keyboard-key">!</div>
+                            <div class="connect-keyboard-key">'</div>
+                            <div class="connect-keyboard-key">"</div>
+                            <div class="connect-keyboard-key backspace">⌫</div>
+                        `;
+                        rows[3].innerHTML = `
+                            <div class="connect-keyboard-key">ABC</div>
+                            <div class="connect-keyboard-key wide">space</div>
+                            <div class="connect-keyboard-key action">Done</div>
+                        `;
+                    } else {
+                        rows[0].innerHTML = `
+                            <div class="connect-keyboard-key">Q</div>
+                            <div class="connect-keyboard-key">W</div>
+                            <div class="connect-keyboard-key">E</div>
+                            <div class="connect-keyboard-key">R</div>
+                            <div class="connect-keyboard-key">T</div>
+                            <div class="connect-keyboard-key">Y</div>
+                            <div class="connect-keyboard-key">U</div>
+                            <div class="connect-keyboard-key">I</div>
+                            <div class="connect-keyboard-key">O</div>
+                            <div class="connect-keyboard-key">P</div>
+                        `;
+                        rows[1].innerHTML = `
+                            <div class="connect-keyboard-key">A</div>
+                            <div class="connect-keyboard-key">S</div>
+                            <div class="connect-keyboard-key">D</div>
+                            <div class="connect-keyboard-key">F</div>
+                            <div class="connect-keyboard-key">G</div>
+                            <div class="connect-keyboard-key">H</div>
+                            <div class="connect-keyboard-key">J</div>
+                            <div class="connect-keyboard-key">K</div>
+                            <div class="connect-keyboard-key">L</div>
+                        `;
+                        rows[2].innerHTML = `
+                            <div class="connect-keyboard-key">Z</div>
+                            <div class="connect-keyboard-key">X</div>
+                            <div class="connect-keyboard-key">C</div>
+                            <div class="connect-keyboard-key">V</div>
+                            <div class="connect-keyboard-key">B</div>
+                            <div class="connect-keyboard-key">N</div>
+                            <div class="connect-keyboard-key">M</div>
+                            <div class="connect-keyboard-key backspace">⌫</div>
+                        `;
+                        rows[3].innerHTML = `
+                            <div class="connect-keyboard-key">123</div>
+                            <div class="connect-keyboard-key wide">space</div>
+                            <div class="connect-keyboard-key action">Done</div>
+                        `;
+                    }
+                    
+                    attachKeyHandlers();
+                }
+                
+                // Function to attach click handlers to all keys
+                function attachKeyHandlers() {
+                    const allKeys = nativeKeyboard.querySelectorAll('.connect-keyboard-key');
+                    allKeys.forEach(function(key) {
+                        key.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            const keyText = key.textContent;
+                            
+                            if (keyText === 'Done') {
+                                registrationInput.blur();
+                            } else if (keyText === 'space') {
+                                registrationInput.value += ' ';
+                            } else if (keyText === '⌫' || key.classList.contains('backspace')) {
+                                registrationInput.value = registrationInput.value.slice(0, -1);
+                            } else if (keyText === '123') {
+                                connectKeyboardMode = 'numbers';
+                                updateKeyboardLayout('numbers');
+                            } else if (keyText === 'ABC') {
+                                connectKeyboardMode = 'letters';
+                                updateKeyboardLayout('letters');
+                            } else {
+                                registrationInput.value += keyText;
+                            }
+                            
+                            if (keyText !== 'Done') {
+                                registrationInput.focus();
+                            }
+                        });
+                    });
+                }
+                
+                // Initial attachment of handlers
+                attachKeyHandlers();
+                
+                // STAGE 2 → STAGE 3: Search button click
+                const searchButton = document.getElementById('connect-search-button');
+                if (searchButton) {
+                    searchButton.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        const buttonText = searchButton.querySelector('.action-button-text').textContent;
+                        if (buttonText !== 'Search') {
+                            return;
+                        }
+                        
+                        // Blur input to close keyboard
+                        registrationInput.blur();
+                        
+                        // Close custom keyboard
+                        if (nativeKeyboard.classList.contains('visible')) {
+                            nativeKeyboard.classList.remove('visible');
+                        }
+                        
+                        // Start loading
+                        const trayContentArea = document.querySelector('.connect-tray-content-area');
+                        const inputField = document.getElementById('connect-registration-input');
+                        trayContentArea.classList.add('loading');
+                        
+                        // Show spinner
+                        const spinnerContainer = document.querySelector('.connect-spinner-container');
+                        spinnerContainer.classList.add('active');
+                        
+                        // After 1 second, show results
+                        setTimeout(function() {
+                            trayContentArea.classList.remove('loading');
+                            
+                            // Slide panel down to bottom
+                            const trayContainer = document.querySelector('.connect-tray-container');
+                            trayContainer.classList.add('sliding-to-bottom');
+                            trayContainer.classList.remove('keyboard-active');
+                            
+                            // Wait for panel to slide down
+                            setTimeout(function() {
+                                trayContainer.classList.remove('sliding-to-bottom');
+                                spinnerContainer.classList.remove('active');
+                                
+                                // Fade out input field
+                                inputField.parentElement.style.opacity = '0';
+                                searchButton.style.opacity = '0';
+                                
+                                setTimeout(function() {
+                                    inputField.parentElement.style.display = 'none';
+                                    searchButton.style.display = 'none';
+                                    
+                                    // Add stage-3
+                                    trayContentArea.classList.add('stage-3');
+                                    
+                                    // Show results
+                                    document.querySelector('.connect-search-results').classList.add('visible');
+                                    setTimeout(function() {
+                                        document.querySelector('.connect-vehicle-result').classList.add('visible');
+                                    }, 50);
+                                }, 300);
+                            }, 300);
+                        }, 1000);
+                    });
+                }
+                
+                // Accessory bar buttons
+                const prevBtn = document.getElementById('connect-keyboard-prev');
+                const nextBtn = document.getElementById('connect-keyboard-next');
+                const doneTopBtn = document.getElementById('connect-keyboard-done-top');
+                
+                if (prevBtn) {
+                    prevBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const pos = registrationInput.selectionStart;
+                        if (pos > 0) {
+                            registrationInput.setSelectionRange(pos - 1, pos - 1);
+                        }
+                        registrationInput.focus();
+                    });
+                }
+                
+                if (nextBtn) {
+                    nextBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const pos = registrationInput.selectionStart;
+                        if (pos < registrationInput.value.length) {
+                            registrationInput.setSelectionRange(pos + 1, pos + 1);
+                        }
+                        registrationInput.focus();
+                    });
+                }
+                
+                if (doneTopBtn) {
+                    doneTopBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        registrationInput.blur();
+                    });
+                }
+            }
+        }
+
+        // STAGE 3: Connect vehicle button
+        document.getElementById('connect-vehicle-btn').addEventListener('click', function() {
+            const vehicleResultBox = document.querySelector('.connect-vehicle-result');
+            const vehicleResultSpinner = document.querySelector('.connect-vehicle-result-spinner');
+            const trayOverlay = document.querySelector('.connect-tray-overlay');
+            const trayContainer = document.querySelector('.connect-tray-container');
+            
+            console.log('[CONNECT] Starting connection animation');
+            console.log('[CONNECT] Spinner element:', vehicleResultSpinner);
+            
+            // FIRST: Set spinner to full opacity BEFORE showing it
+            vehicleResultSpinner.style.opacity = '1';
+            vehicleResultSpinner.style.display = 'block';
+            
+            // THEN: Fade car box to 30%
+            vehicleResultBox.style.transition = 'opacity 0.3s ease';
+            vehicleResultBox.style.opacity = '0.3';
+            
+            console.log('[CONNECT] Spinner visible at 100%, car box fading to 30%');
+            
+            // After 2s, slide tray down off screen
+            setTimeout(function() {
+                console.log('[CONNECT] Sliding tray down');
+                
+                // Fade overlay
+                trayOverlay.style.transition = 'opacity 0.3s ease';
+                trayOverlay.style.opacity = '0';
+                
+                // Slide tray down
+                trayContainer.style.transition = 'transform 0.3s ease';
+                trayContainer.style.transform = 'translateX(-50%) translateY(100%)';
+                
+                // After slide animation completes
+                setTimeout(function() {
+                    console.log('[CONNECT] Tray slid down, closing and swapping panels');
+                    closeConnectTray();
+                    swapToConnectedPanel();
+                }, 300);
+            }, 2000);
+        });
+
+        // STAGE 3: Back to search
+        document.getElementById('connect-back-to-search-btn').addEventListener('click', function() {
+            const trayContentArea = document.querySelector('.connect-tray-content-area');
+            const regInput = document.getElementById('connect-registration-input');
+            const searchBtn = document.getElementById('connect-search-button');
+            
+            document.querySelector('.connect-search-results').classList.remove('visible');
+            document.querySelector('.connect-vehicle-result').classList.remove('visible');
+            trayContentArea.classList.remove('stage-3');
+            
+            regInput.parentElement.style.display = 'block';
+            searchBtn.style.display = 'block';
+            
+            setTimeout(function() {
+                regInput.parentElement.style.opacity = '1';
+                searchBtn.style.opacity = '1';
+                regInput.value = '';
+            }, 50);
+        });
+
+        function swapToConnectedPanel() {
+            console.log('[CONNECT] Swapping to connected panel and resetting state');
+            
+            // Reconnect via state machine (resets to hub_0 and reloads)
+            if (window.hubStateMachine) {
+                window.hubStateMachine.reconnect();
+            } else {
+                console.error('[CONNECT] State machine not available, using fallback');
+                // Fallback: manually reset and reload
+                localStorage.removeItem('hub_state_v2');
+                sessionStorage.removeItem('hubCompleted');
+                sessionStorage.removeItem('hubAnimationPlayed');
+                window.location.href = window.location.pathname;
+            }
+        }
+
+        // Close on escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const connectTrayVisible = document.querySelector('.connect-tray-container.visible');
+                if (connectTrayVisible) {
+                    closeConnectTray();
+                }
+            }
+        });
+    </script>
+
+    <!-- Load animations FIRST so they're available -->
+    <script src="hub-new-animations.js"></script>
+    <script src="hub-navigation.js"></script>
+    
+    <!-- STATE MACHINE - Loads after animations are available -->
+    <script src="hub-state-machine-simple.js"></script>
+    
+    <!-- Inline SVG Loader - Firewall Workaround -->
+    <script src="../scripts/inline-svg-loader.js"></script>
+    
+    <!-- Force reload SVGs after all scripts loaded -->
+    <script>
+        // This runs AFTER inline-svg-loader is loaded
+        setTimeout(function() {
+            if (window.reloadInlineSVGs) {
+                window.reloadInlineSVGs();
+                console.log('[POST-LOAD] Reloaded all SVG icons including list items');
+            }
+        }, 250);
+    </script>
+</body>
+</html>

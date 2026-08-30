@@ -1,0 +1,89 @@
+/* ============================================================
+   Cancara — Page / content transitions (journey-level)
+
+   For swapping the CENTRE content of a frame while the header and
+   bottom nav stay fixed: slide-in-left (back), slide-in-right (forward),
+   dissolve (cross-fade), plus a scrim fade + tray slide-up for trays.
+
+   MOTION TOKENS: the Lloyds Reimagined set has no motion scale, so
+   per owner sign-off the duration + easing below are APPROVED
+   journey-level locals (not brand tokens). Where a token DOES fit it is
+   used: the slide distance is the full frame width (100%) so an incoming
+   screen starts COMPLETELY outside the frame and slides fully in (not a
+   small nudge). If a motion token group is later added to the source,
+   point these vars at it.
+
+   VISIBILITY RULE: the resting (base) state of an animated view is fully
+   visible. Entrance motion is OPT-IN, gated on prefers-reduced-motion:
+   no-preference, and uses NO animation-fill-mode — so nothing is ever
+   left pinned at a hidden from-state. Any non-advancing context (a frozen
+   preview, the html-to-image screenshotter, a hidden tab, reduced-motion)
+   shows the content, never a blank frame. Slides are transform-only (a
+   frozen mid-slide is still fully visible); only dissolve/overlay-fade
+   touch opacity, and they're never applied to a view on its first paint.
+   ============================================================ */
+
+:root {
+  /* Journey-level locals — no motion token exists (owner-approved). */
+  --cnc-motion-duration: 280ms;
+  --cnc-motion-duration-fade: 200ms;
+  --cnc-motion-ease: cubic-bezier(0.2, 0, 0, 1);
+  /* Slide distance = full frame width so the incoming screen starts fully
+     outside the frame and slides all the way in (not a 24px flick). */
+  --cnc-motion-distance: 100%;
+}
+
+/* The content region that animates. Base = fully visible. Add one motion
+   class on NAVIGATION (not on first paint) to play an entrance. */
+.cnc-view {
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+
+  /* ---- Slide in from the right (forward / push) — transform only ---- */
+  @keyframes cnc-slide-in-right {
+    from { transform: translateX(var(--cnc-motion-distance)); }
+    to   { transform: translateX(0); }
+  }
+  .cnc-view--slide-right {
+    animation: cnc-slide-in-right var(--cnc-motion-duration) var(--cnc-motion-ease);
+  }
+
+  /* ---- Slide in from the left (back / pop) — transform only ---- */
+  @keyframes cnc-slide-in-left {
+    from { transform: translateX(calc(-1 * var(--cnc-motion-distance))); }
+    to   { transform: translateX(0); }
+  }
+  .cnc-view--slide-left {
+    animation: cnc-slide-in-left var(--cnc-motion-duration) var(--cnc-motion-ease);
+  }
+
+  /* ---- Dissolve (cross-fade) ---- */
+  @keyframes cnc-dissolve {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  .cnc-view--dissolve {
+    animation: cnc-dissolve var(--cnc-motion-duration-fade) var(--cnc-motion-ease);
+  }
+
+  /* ---- Overlay fade — trays / action sheets: the scrim fades over the
+     WHOLE page while the tray slides up at the frame width. ---- */
+  @keyframes cnc-overlay-fade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  .cnc-overlay-fade {
+    animation: cnc-overlay-fade var(--cnc-motion-duration-fade) var(--cnc-motion-ease);
+  }
+
+  /* ---- Tray slide-up (sits within the frame, not the viewport) ---- */
+  @keyframes cnc-tray-up {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+  }
+  .cnc-tray-up {
+    animation: cnc-tray-up var(--cnc-motion-duration) var(--cnc-motion-ease);
+  }
+}

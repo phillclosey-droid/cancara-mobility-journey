@@ -1,0 +1,1739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- CRITICAL: Set theme BEFORE any CSS loads to prevent flicker -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('cancara-theme-preference') || 'dark';
+            // Set on html first for immediate effect
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            // Then set on body when it's available
+            if (document.body) {
+                document.body.setAttribute('data-theme', savedTheme);
+            } else {
+                document.addEventListener('DOMContentLoaded', function() {
+                    document.body.setAttribute('data-theme', savedTheme);
+                });
+            }
+        })();
+    </script>
+    
+    <!-- PWA Meta Tags for Full Screen -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="../../../manifest.json">
+    
+    <title>Account Summary - MVP Journey</title>
+    
+    <!-- Design Tokens -->
+    <link rel="stylesheet" href="../../../src/css/cancara-tokens.css">
+    
+    <!-- Component Styles -->
+    <link rel="stylesheet" href="../../../src/components/navigation/status-bar/StatusBar.vanilla.css">
+    <link rel="stylesheet" href="../../../src/components/notification/notification-badge/NotificationBadge.vanilla.css">
+    <link rel="stylesheet" href="../../../src/components/navigation/header/custom-header/CustomHeader.vanilla.css">
+    <link rel="stylesheet" href="../../../src/components/navigation/tabs/tab-collection-scroll/TabCollectionScroll.vanilla.css">
+    <link rel="stylesheet" href="../../../src/components/navigation/bottom-nav/BottomNav.vanilla.css">
+    <link rel="stylesheet" href="../../../src/components/action/tile/tile-grid/TileGrid.vanilla.css">
+    <link rel="stylesheet" href="../../../src/components/action/button/action-button/ActionButton.vanilla.css">
+    <link rel="stylesheet" href="../../../src/components/content/icon/pictogram/Pictogram.vanilla.css">
+    <link rel="stylesheet" href="../../../src/components/os/native-spinner-configuration/NativeSpinner.vanilla.css">
+    <link rel="stylesheet" href="../../../src/components/os/spinner/Spinner.vanilla.css">
+    
+    <!-- Template Styles -->
+    <link rel="stylesheet" href="../../../src/templates/base-template/base-template.css">
+    <link rel="stylesheet" href="../../../src/templates/tray-template/tray-template.css">
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        html {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            font-family: var(--font-family-body);
+            background: var(--color-gray-800);
+            color: var(--text-default);
+            transition: background-color 0.3s, color 0.3s;
+            overflow: hidden;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        /* Base template positioning - same as page 02 */
+        .base-template {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            max-width: 100%;
+            margin: 0;
+        }
+        
+        @media (min-width: 431px) {
+            .base-template {
+                max-width: 430px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+        }
+        
+        /* Override content-container padding - remove ALL padding */
+        .content-container {
+            padding: 0 0 100px 0 !important;
+        }
+
+        
+        /* Tray overlay - hidden by default */
+        .tray-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            z-index: 1000;
+            pointer-events: none;
+        }
+        
+        .tray-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+        
+        /* Tray container - slides up from bottom */
+        .tray-container {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%) translateY(100%);
+            max-width: 430px;
+            width: 100%;
+            padding-top: 0 !important;
+            transition: transform 0.3s ease;
+            z-index: 1001;
+            pointer-events: auto;
+        }
+        
+        .tray-container.visible {
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        /* Mobile keyboard adjustments */
+        @media (max-width: 768px) {
+            /* When keyboard is active on mobile, don't move panel up */
+            .tray-container.keyboard-active {
+                transform: translateX(-50%) translateY(0) !important;
+            }
+        }
+        
+        /* Smooth slide down animation for search transition */
+        .tray-container.sliding-to-bottom {
+            transition: transform 0.4s ease !important;
+        }
+        
+        /* Move handlebar down from edge */
+        .tray-handlebar {
+            margin-top: var(--spacing-12) !important;
+            margin-bottom: var(--spacing-12) !important;
+        }
+        
+        /* Dark mode handlebar */
+        [data-theme="dark"] .tray-grabber {
+            background-color: var(--color-white) !important;
+        }
+        
+        /* Tray close button padding */
+        .tray-header-trailing .hit-target {
+            padding: var(--spacing-08);
+        }
+        
+        /* Keyboard interaction styles */
+        .tray-content-above-input {
+            transition: opacity 0.4s ease, max-height 0.4s ease, margin-bottom 0.4s ease;
+            max-height: 1000px;
+            overflow: hidden;
+        }
+        
+        .tray-content-above-input.hidden {
+            opacity: 0;
+            max-height: 0;
+            margin-bottom: 0;
+            pointer-events: none;
+        }
+        
+        /* Hide Stage 1 "Browse without connecting" button in stage 2/3, but NOT the Stage 3 "Back to search" button */
+        .keyboard-active > .tray > .tray-content > .tray-content-area > .btn-tertiary,
+        .tray-content-area.stage-2 > .btn-tertiary:not(#back-to-search-btn),
+        .tray-content-area.stage-3 > .btn-tertiary:not(#back-to-search-btn) {
+            display: none !important;
+        }
+        
+        /* Stage 3: Loading and results styles */
+        .tray-content-area {
+            transition: padding-bottom 0.4s ease;
+        }
+        
+        .tray-content-area.loading #registration-input {
+            opacity: 0.3 !important;
+            transition: opacity 0.3s ease;
+        }
+        
+        .tray-content-area.loading #search-button {
+            opacity: 0.3 !important;
+            transition: opacity 0.3s ease;
+        }
+        
+        /* Stage 3: Smooth height increase and fade in vehicle result */
+        .tray-content-area.stage-3 {
+            padding-bottom: var(--spacing-24);
+        }
+        
+        .vehicle-result {
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: opacity 0.5s ease, max-height 0.5s ease, margin-bottom 0.5s ease;
+            margin-bottom: 0;
+        }
+        
+        .vehicle-result.visible {
+            opacity: 1;
+            max-height: 200px;
+            margin-bottom: var(--spacing-16);
+        }
+        
+        /* Spinner positioned center of input field */
+        .spinner-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            pointer-events: none;
+            display: none;
+        }
+        
+        .spinner-container.active {
+            display: block;
+        }
+        
+        /* Input field wrapper needs relative positioning */
+        #registration-input {
+            position: relative;
+            transition: opacity 0.3s ease;
+        }
+        
+        #search-button {
+            transition: opacity 0.3s ease;
+        }
+        
+        .search-results {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .search-results.visible {
+            display: block;
+            opacity: 1;
+        }
+        
+        .vehicle-result {
+            display: flex;
+            gap: var(--spacing-16);
+            align-items: center;
+            padding: var(--spacing-08) var(--spacing-08);
+            background: var(--bg-panel-secondary);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-default);
+            margin-bottom: 0;
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: opacity 0.5s ease, max-height 0.5s ease, margin-bottom 0.5s ease;
+        }
+        
+        .vehicle-result.visible {
+            opacity: 1;
+            max-height: 200px;
+            margin-bottom: var(--spacing-16);
+        }
+        
+        .vehicle-image {
+            width: 120px;
+            height: auto;
+            flex-shrink: 0;
+        }
+        
+        .vehicle-info {
+            flex: 1;
+        }
+        
+        .vehicle-info-line {
+            font-family: var(--type-style-6-family);
+            font-size: var(--type-style-6-size);
+            font-weight: var(--type-style-6-weight);
+            line-height: var(--type-style-6-line-height);
+            color: var(--text-default);
+            margin-bottom: var(--spacing-04);
+        }
+        
+        .vehicle-info-line:last-child {
+            margin-bottom: 0;
+        }
+        
+        .vehicle-info-line strong {
+            font-weight: 600;
+        }
+        
+        /* Number plate styling */
+        .vehicle-plate {
+            display: inline-block;
+            padding: var(--spacing-04) var(--spacing-12);
+            background: var(--bg-panel-default);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-small);
+            font-family: var(--font-family-body);
+            font-size: var(--type-style-6-size);
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-top: var(--spacing-08);
+        }
+        
+        /* Simulate keyboard pushing tray up - move together */
+        .tray-container.keyboard-active {
+            transform: translateX(-50%) translateY(-250px);
+            transition: transform 0.3s ease;
+        }
+        
+        /* Keyboard stays at bottom, visible when active */
+        #native-keyboard.native-keyboard.visible {
+            transform: translateX(-50%) translateY(0);
+            transition: transform 0.3s ease;
+        }
+        
+        /* Native keyboard simulation */
+        body[data-theme="dark"] #native-keyboard.native-keyboard {
+            background-color: var(--bg-panel-default) !important;
+        }
+        
+        body[data-theme="light"] #native-keyboard.native-keyboard {
+            background-color: var(--bg-panel-default) !important;
+        }
+        
+        #native-keyboard.native-keyboard {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%) translateY(100%);
+            max-width: 430px;
+            width: 100%;
+            background-color: var(--bg-panel-default) !important;
+            border-top: none;
+            padding: 0;
+            margin-top: 0;
+            z-index: 1002;
+            transition: transform 0.3s ease;
+            pointer-events: auto;
+        }
+        
+        /* Keyboard Accessory Bar (solid black strip above keyboard) */
+        .keyboard-accessory-bar {
+            background-color: #000000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: var(--spacing-08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        [data-theme="dark"] .keyboard-accessory-bar {
+            background-color: #000000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .keyboard-nav-buttons {
+            display: flex;
+            gap: var(--spacing-08);
+        }
+        
+        .keyboard-nav-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: var(--radius-small);
+            padding: var(--spacing-04) var(--spacing-08);
+            cursor: pointer;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
+            height: 32px;
+        }
+        
+        [data-theme="dark"] .keyboard-nav-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #FFFFFF;
+        }
+        
+        .keyboard-nav-btn:active {
+            background: rgba(255, 255, 255, 0.35);
+        }
+        
+        [data-theme="dark"] .keyboard-nav-btn:active {
+            background: rgba(255, 255, 255, 0.35);
+        }
+        
+        .keyboard-done-btn {
+            background: transparent;
+            border: none;
+            color: #FFFFFF;
+            font-family: var(--font-family-body);
+            font-size: var(--type-style-6-size);
+            font-weight: 600;
+            padding: var(--spacing-08);
+            cursor: pointer;
+        }
+        
+        .keyboard-done-btn:active {
+            opacity: 0.5;
+        }
+        
+        /* Keyboard keys container */
+        .keyboard-keys-area {
+            padding: var(--spacing-08);
+        }
+        
+        .keyboard-row {
+            display: flex;
+            gap: var(--spacing-04);
+            margin-bottom: var(--spacing-04);
+            justify-content: center;
+        }
+        
+        /* Remove default tray-content-area padding */
+        .tray .tray-content .tray-content-area {
+            flex: 0 1 auto !important;
+            padding: var(--spacing-24) var(--spacing-24) var(--spacing-24) var(--spacing-24) !important;
+            overflow-y: auto;
+            min-height: 0 !important;
+            transition: padding 0.3s ease;
+        }
+        
+        /* Stage 3: Add bottom padding for content */
+        .tray-content-area.stage-3 {
+            padding-bottom: var(--spacing-24) !important;
+        }
+        
+        /* Hide invisible tile-grid elements that create dead space */
+        .tray-content-area .tile-grid-header,
+        .tray-content-area .tile-grid-link-description {
+            display: none !important;
+        }
+        
+        /* Make tray content not expand unnecessarily */
+        .tray-content {
+            flex: 0 1 auto !important;
+        }
+        
+        .keyboard-row {
+            display: flex;
+            gap: var(--spacing-04);
+            margin-bottom: var(--spacing-04);
+            justify-content: center;
+        }
+        
+        .keyboard-row:first-child {
+            padding-top: 0;
+        }
+        
+        .keyboard-key {
+            background: var(--bg-panel-default);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-small);
+            padding: var(--spacing-12) var(--spacing-08);
+            min-width: 32px;
+            text-align: center;
+            font-family: var(--font-family-body);
+            font-size: var(--type-style-7-size);
+            color: var(--text-default);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.1s ease, transform 0.1s ease;
+        }
+        
+        .keyboard-key:active {
+            background: var(--bg-panel-pressed);
+            transform: scale(0.95);
+        }
+        
+        .keyboard-key.wide {
+            flex: 1;
+        }
+        
+        .keyboard-key.action {
+            background: var(--color-brand-accent);
+            color: var(--text-default);
+            font-weight: var(--type-style-5-weight);
+        }
+        
+        /* Mobile fixes */
+        @media (max-width: 768px) {
+            /* Hide theme toggle on mobile */
+            .theme-toggle {
+                display: none !important;
+            }
+            
+            /* Hide custom keyboard - use native */
+            #native-keyboard {
+                display: none !important;
+            }
+            
+            /* Fix bottom nav z-index above native browser UI */
+            .bottom-nav {
+                z-index: 9999 !important;
+            }
+            
+            /* Ensure bottom nav stays at bottom with safe area */
+            .bottom-nav-home-indicator {
+                padding-bottom: env(safe-area-inset-bottom, 0px);
+            }
+        }
+        
+        /* Ensure tertiary button text stays on one line */
+        .btn-tertiary .action-button-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        /* Remove gap above tile grid */
+        .tile-grid-link-only,
+        .tile-grid-link-description {
+            gap: 0 !important;
+        }
+        
+        /* Inline SVG dark mode support */
+        [data-theme="dark"] .inline-svg {
+            color: white;
+        }
+        
+        [data-theme="light"] .inline-svg {
+            color: black;
+        }
+        
+        /* Ensure SVGs inherit sizing */
+        .inline-svg {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+    
+    <!-- Load theme BEFORE body renders to prevent flicker -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('cancara-theme-preference') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
+    <link rel="stylesheet" href="../scripts/inline-svg-styles.css">
+</head>
+<body data-theme="dark">
+    <!-- Dark Mode Toggle -->
+    <div class="theme-toggle">
+        <button class="toggle-button" onclick="toggleTheme()">
+            <span id="theme-text">Switch to Dark Mode</span>
+        </button>
+    </div>
+
+    <!-- Base Template -->
+    <div class="base-template">
+        <!-- Header - Fixed at top (iOS AOV Retail) -->
+        <div class="header-wrapper">
+            <!-- CustomHeader Component (Nested) -->
+            <div class="custom-header">
+                <!-- Status Bar (Nested Component) -->
+                <div class="status-bar status-bar-ios">
+                    <div class="status-bar-time">9:41</div>
+                    <div class="status-bar-levels">
+                        <div class="cellular-signal">
+                            <div class="signal-bar signal-bar-1"></div>
+                            <div class="signal-bar signal-bar-2"></div>
+                            <div class="signal-bar signal-bar-3"></div>
+                            <div class="signal-bar signal-bar-4"></div>
+                            <div class="signal-bar signal-bar-5"></div>
+                        </div>
+                        <div class="wifi-indicator">
+                            <div class="wifi-dot"></div>
+                            <div class="wifi-arc wifi-arc-1"></div>
+                            <div class="wifi-arc wifi-arc-2"></div>
+                            <div class="wifi-arc wifi-arc-3"></div>
+                        </div>
+                        <div class="status-bar-battery">
+                            <div class="battery-border"></div>
+                            <div class="battery-capacity"></div>
+                            <div class="battery-tip"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Header Bar -->
+                <div class="header-bar">
+                    <!-- Leading Section -->
+                    <div class="header-leading">
+                        <div class="hit-target">
+                            <div class="icon-wrapper icon-18">
+                                <!-- INLINE SVG: burger-menu -->
+                                <svg id="burger-menu-icon" class="inline-svg" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M11.9998 4.66667C13.2885 4.66667 14.3332 3.622 14.3332 2.33333C14.3332 1.04467 13.2885 0 11.9998 0C10.7112 0 9.6665 1.04467 9.6665 2.33333C9.6665 3.622 10.7112 4.66667 11.9998 4.66667Z" fill="currentColor"/>
+                                    <path d="M11.9998 24C13.2885 24 14.3332 22.9553 14.3332 21.6667C14.3332 20.378 13.2885 19.3333 11.9998 19.3333C10.7112 19.3333 9.6665 20.378 9.6665 21.6667C9.6665 22.9553 10.7112 24 11.9998 24Z" fill="currentColor"/>
+                                    <path d="M11.9998 14.3333C13.2885 14.3333 14.3332 13.2887 14.3332 12C14.3332 10.7113 13.2885 9.66667 11.9998 9.66667C10.7112 9.66667 9.6665 10.7113 9.6665 12C9.6665 13.2887 10.7112 14.3333 11.9998 14.3333Z" fill="currentColor"/>
+                                </svg>
+                            </div>
+                            <!-- Notification Badge (Nested Component) -->
+                            <div class="notification-badge">
+                                <div class="notification-badge-text">12</div>
+                            </div>
+                        </div>
+                        <div class="header-gap"></div>
+                        <div class="empty-space"></div>
+                    </div>
+
+                    <!-- Title -->
+                    <div class="header-title-wrapper">
+                        <div class="header-title">Hi Alex</div>
+                    </div>
+
+                    <!-- Trailing Section -->
+                    <div class="header-trailing">
+                        <div class="hit-target">
+                            <div class="icon-wrapper icon-18">
+                                <img id="question-icon" src="" alt="Help">
+                            </div>
+                        </div>
+                        <div class="hit-target">
+                            <div class="icon-wrapper icon-18">
+                                <img id="person-icon" src="" alt="Profile">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tab Collection Scroll Component (Nested in header wrapper) -->
+            <div class="tab-collection-scroll layout-default">
+                <div class="tabs-container">
+                    <button class="tab active">
+                        <span class="tab-text">Summary</span>
+                    </button>
+                    <button class="tab">
+                        <span class="tab-text">Everyday</span>
+                    </button>
+                    <button class="tab">
+                        <span class="tab-text">Save & Invest</span>
+                    </button>
+                    <button class="tab">
+                        <span class="tab-text">Borrow</span>
+                    </button>
+                    <button class="tab">
+                        <span class="tab-text">Homes</span>
+                    </button>
+                    <button class="tab">
+                        <span class="tab-text">Insure</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Area - Scrollable - DROP YOUR CONTENT HERE -->
+        <div class="content-wrapper">
+            <div class="content-container">
+                <!-- Your accounts section header -->
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: var(--spacing-24) var(--spacing-16) 0 var(--spacing-16); width: 100%; box-sizing: border-box;">
+                    <h2 style="font-family: var(--type-style-3-family); font-size: var(--type-style-3-size); font-weight: var(--type-style-3-weight); line-height: var(--type-style-3-line-height); letter-spacing: var(--type-style-3-letter-spacing); color: var(--text-default); margin: 0;">Your accounts</h2>
+                    <div style="width: 24px; height: 24px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+                        <!-- INLINE SVG: reorder-accounts -->
+                        <svg class="account-icon inline-svg" style="width: 100%; height: 100%;" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21 1H3C1.9 1 1 1.9 1 3V8C1 9.1 1.9 10 3 10H21C22.1 10 23 9.1 23 8V3C23 1.9 22.1 1 21 1ZM21.7 8C21.7 8.39 21.39 8.69995 21 8.69995H3C2.61 8.69995 2.3 8.39 2.3 8V3C2.3 2.61 2.61 2.30005 3 2.30005H21C21.39 2.30005 21.7 2.61 21.7 3V8Z" fill="currentColor"/>
+                            <path d="M5.7 6.75C6.39036 6.75 6.95 6.19036 6.95 5.5C6.95 4.80964 6.39036 4.25 5.7 4.25C5.00964 4.25 4.45 4.80964 4.45 5.5C4.45 6.19036 5.00964 6.75 5.7 6.75Z" fill="currentColor"/>
+                            <path d="M18.99 5H8.99V6.30005H18.99V5Z" fill="currentColor"/>
+                            <path d="M19 12.7H9V14H19V12.7Z" fill="currentColor"/>
+                            <path d="M5.7 14.58C6.39036 14.58 6.95 14.0203 6.95 13.33C6.95 12.6396 6.39036 12.08 5.7 12.08C5.00964 12.08 4.45 12.6396 4.45 13.33C4.45 14.0203 5.00964 14.58 5.7 14.58Z" fill="currentColor"/>
+                            <path d="M19 16.7H9V18H19V16.7Z" fill="currentColor"/>
+                            <path d="M5.7 18.58C6.39036 18.58 6.95 18.0203 6.95 17.33C6.95 16.6396 6.39036 16.08 5.7 16.08C5.00964 16.08 4.45 16.6396 4.45 17.33C4.45 18.0203 5.00964 18.58 5.7 18.58Z" fill="currentColor"/>
+                            <path d="M19 20.7H9V22H19V20.7Z" fill="currentColor"/>
+                            <path d="M5.7 22.58C6.39036 22.58 6.95 22.0203 6.95 21.33C6.95 20.6396 6.39036 20.08 5.7 20.08C5.00964 20.08 4.45 20.6396 4.45 21.33C4.45 22.0203 5.00964 22.58 5.7 22.58Z" fill="currentColor"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Account card: Club Lloyds -->
+                <div style="background-color: var(--bg-panel-default); border-radius: var(--radius-default); margin: 0 var(--spacing-16) var(--spacing-04) var(--spacing-16); padding: var(--spacing-16); display: flex; align-items: center; justify-content: space-between; width: calc(100% - calc(var(--spacing-16) * 2));">
+                    <div style="display: flex; flex-direction: column; gap: var(--spacing-04);">
+                        <div style="font-family: var(--type-style-5-family); font-size: var(--type-style-5-size); font-weight: var(--type-style-5-weight); line-height: var(--type-style-5-line-height); color: var(--text-default);">Club Lloyds</div>
+                        <div style="font-family: var(--type-style-9-family); font-size: var(--type-style-9-size); font-weight: var(--type-style-9-weight); line-height: var(--type-style-9-line-height); color: var(--text-subdued);">30-91-83 / 54565656</div>
+                    </div>
+                    <div style="font-family: var(--type-style-3-family); font-size: var(--type-style-3-size); font-weight: var(--type-style-3-weight); line-height: var(--type-style-3-line-height); letter-spacing: var(--type-style-3-letter-spacing); color: var(--text-default);">£1,324</div>
+                </div>
+
+                <!-- Account card: Monthly saver -->
+                <div style="background-color: var(--bg-panel-default); border-radius: var(--radius-default); margin: 0 var(--spacing-16) var(--spacing-04) var(--spacing-16); padding: var(--spacing-16); display: flex; align-items: center; justify-content: space-between; width: calc(100% - calc(var(--spacing-16) * 2));">
+                    <div style="display: flex; flex-direction: column; gap: var(--spacing-04);">
+                        <div style="font-family: var(--type-style-5-family); font-size: var(--type-style-5-size); font-weight: var(--type-style-5-weight); line-height: var(--type-style-5-line-height); color: var(--text-default);">Monthly saver</div>
+                        <div style="font-family: var(--type-style-9-family); font-size: var(--type-style-9-size); font-weight: var(--type-style-9-weight); line-height: var(--type-style-9-line-height); color: var(--text-subdued);">30-91-83 / 572123456</div>
+                    </div>
+                    <div style="font-family: var(--type-style-3-family); font-size: var(--type-style-3-size); font-weight: var(--type-style-3-weight); line-height: var(--type-style-3-line-height); letter-spacing: var(--type-style-3-letter-spacing); color: var(--text-default);">£2,124</div>
+                </div>
+
+                <!-- Account card: Home Insurance -->
+                <div style="background-color: var(--bg-panel-default); border-radius: var(--radius-default); margin: 0 var(--spacing-16) var(--spacing-04) var(--spacing-16); padding: var(--spacing-16); display: flex; align-items: center; justify-content: space-between; width: calc(100% - calc(var(--spacing-16) * 2));">
+                    <div style="display: flex; flex-direction: column; gap: var(--spacing-04);">
+                        <div style="font-family: var(--type-style-5-family); font-size: var(--type-style-5-size); font-weight: var(--type-style-5-weight); line-height: var(--type-style-5-line-height); color: var(--text-default);">Home Insurance</div>
+                        <div style="font-family: var(--type-style-9-family); font-size: var(--type-style-9-size); font-weight: var(--type-style-9-weight); line-height: var(--type-style-9-line-height); color: var(--text-subdued);">EL1234567</div>
+                    </div>
+                    <div style="font-family: var(--type-style-3-family); font-size: var(--type-style-3-size); font-weight: var(--type-style-3-weight); line-height: var(--type-style-3-line-height); letter-spacing: var(--type-style-3-letter-spacing); color: var(--text-default);">Gold status</div>
+                </div>
+
+                <!-- More for you section - TileGrid Component -->
+                <div class="tile-grid-link-description" style="margin-top: var(--spacing-48); margin-bottom: var(--spacing-16);">
+                  <!-- Header: Heading + View All button -->
+                  <div class="tile-grid-header">
+                    <h2 class="tile-grid-heading">More for you</h2>
+                  </div>
+
+                  <!-- Tiles Container: 2 rows × 2 tiles -->
+                  <div class="tile-grid-tiles">
+                    <!-- Row 1 -->
+                    <div class="tile-grid-row">
+                      <!-- Tile 1 - Credit Cards -->
+                      <div class="tile tile-vertical">
+                        <div class="pictogram pict-secondary-alt-01">
+                          <!-- INLINE SVG: Cards -->
+                          <svg class="inline-svg" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M17 9H2C0.9 9 0 9.9 0 11V21C0 22.1 0.9 23 2 23H17C18.1 23 19 22.1 19 21V11C19 9.9 18.1 9 17 9ZM17.7 21C17.7 21.38 17.38 21.7 17 21.7H2C1.62 21.7 1.3 21.38 1.3 21V11C1.3 10.62 1.62 10.3 2 10.3H17C17.38 10.3 17.7 10.62 17.7 11V21Z" fill="currentColor"/>
+                              <path d="M6 13H3.5C3.22386 13 3 13.2239 3 13.5V15C3 15.2761 3.22386 15.5 3.5 15.5H6C6.27614 15.5 6.5 15.2761 6.5 15V13.5C6.5 13.2239 6.27614 13 6 13Z" fill="currentColor"/>
+                              <path d="M16 18.7H10V20H16V18.7Z" fill="currentColor"/>
+                              <path d="M22 1H8C6.9 1 6 1.9 6 3V7.5H9V5.5C9 5.23 9.23 5 9.5 5H12C12.27 5 12.5 5.23 12.5 5.5V7.5H18C19.38 7.5 20.5 8.62 20.5 10V14H22C23.1 14 24 13.1 24 12V3C24 1.9 23.1 1 22 1Z" fill="currentColor"/>
+                          </svg>
+                        </div>
+                        <div class="tile-vstack">
+                          <div class="tile-text-description">View your accounts with other banks</div>
+                          <div class="tile-text-link">Add accounts</div>
+                        </div>
+                      </div>
+
+                      <!-- Tile 2 - Car -->
+                      <div class="tile tile-vertical" onclick="openTray()" style="cursor: pointer;">
+                        <div class="pictogram pict-secondary-alt-03">
+                          <img src="../../../assets/pictograms/Car_Lloyds_-_V2.svg" alt="">
+                        </div>
+                        <div class="tile-vstack">
+                          <div class="tile-text-description">Organise your vehicle admin, or plan your next purchase</div>
+                          <div class="tile-text-link">Manage your vehicle</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Row 2 -->
+                    <div class="tile-grid-row">
+                      <!-- Tile 3 - Credit Score -->
+                      <div class="tile tile-vertical">
+                        <div class="pictogram pict-primary-alt-01">
+                          <img src="../../../assets/pictograms/Credit_Score_Lloyds_-_V2.svg" alt="">
+                        </div>
+                        <div class="tile-vstack">
+                          <div class="tile-text-description">Check your credit score and track progress</div>
+                          <div class="tile-text-link">Your credit score</div>
+                        </div>
+                      </div>
+
+                      <!-- Tile 4 - Holiday -->
+                      <div class="tile tile-vertical">
+                        <div class="pictogram pict-secondary-alt-04">
+                          <!-- INLINE SVG: Holiday -->
+                          <svg class="inline-svg" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M23.9891 24L21.1091 7.63636H16.3527V9.81818H14.7164V7.63636H12.6982V4.16727C13.1236 3.94909 14.2473 3.52364 16.2873 3.90545C20.1709 4.63636 21.2291 1.60364 21.2291 1.60364C19.8327 1.89818 18.0436 1.66909 15.9382 0.709091C14.7164 0.141818 13.5818 0 12.6982 0H11.28V7.63636H9.26182V9.81818H7.62545V7.63636H2.88L0 24H24H23.9891ZM1.68 22.5818L4.06909 9.05455H6.20727V11.2364H10.68V9.05455H13.2982V11.2364H17.7709V9.05455H19.9091L22.2982 22.5818H15.2618V18.0545C15.2618 16.2436 13.8 14.7818 11.9891 14.7818C10.1782 14.7818 8.71636 16.2436 8.71636 18.0545V22.5818H1.68Z" fill="currentColor"/>
+                          </svg>
+                        </div>
+                        <div class="tile-vstack">
+                          <div class="tile-text-description">Take advantage of all the travel services we offer</div>
+                          <div class="tile-text-link">Travel</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- All caught up section -->
+                <div style="display: flex; flex-direction: column; align-items: center; width: 100%; margin-top: var(--spacing-48);">
+                    <img id="caught-up-horse" src="../../../assets/brand/cancara-horse.svg" alt="" style="width: 44px; height: auto; margin-bottom: var(--spacing-16);">
+                    <div style="font-family: var(--type-style-5-family); font-size: var(--type-style-5-size); font-weight: var(--type-style-5-weight); line-height: var(--type-style-5-line-height); color: var(--text-default); text-align: center;">All caught up</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Nav - Fixed at bottom -->
+        <div class="bottom-nav-wrapper">
+            <!-- BottomNav Component (Nested) -->
+            <div class="bottom-nav" id="bottom-nav">
+                <div class="bottom-nav-active-border">
+                    <div class="active-border-segment active"></div>
+                    <div class="active-border-segment"></div>
+                    <div class="active-border-segment"></div>
+                    <div class="active-border-segment"></div>
+                    <div class="active-border-segment"></div>
+                </div>
+                
+                <div class="bottom-nav-tabs">
+                    <button class="bottom-nav-tab active" onclick="window.location.href='../../../index.html'">
+                        <div class="bottom-nav-icon">
+                            <img id="tab-icon-0-inactive" src="" alt="" class="icon-inactive">
+                            <img id="tab-icon-0-active" src="" alt="" class="icon-active">
+                        </div>
+                        <span class="bottom-nav-label">Home</span>
+                    </button>
+                    
+                    <button class="bottom-nav-tab" onclick="setActiveTab(1)">
+                        <div class="bottom-nav-icon">
+                            <img id="tab-icon-1-inactive" src="" alt="" class="icon-inactive">
+                            <img id="tab-icon-1-active" src="" alt="" class="icon-active">
+                        </div>
+                        <span class="bottom-nav-label">Apply</span>
+                    </button>
+                    
+                    <button class="bottom-nav-tab" onclick="setActiveTab(2)">
+                        <div class="bottom-nav-icon">
+                            <img id="tab-icon-2-inactive" src="" alt="" class="icon-inactive">
+                            <img id="tab-icon-2-active" src="" alt="" class="icon-active">
+                        </div>
+                        <span class="bottom-nav-label">Payments</span>
+                    </button>
+                    
+                    <button class="bottom-nav-tab" onclick="setActiveTab(3)">
+                        <div class="bottom-nav-icon">
+                            <img id="tab-icon-3-inactive" src="" alt="" class="icon-inactive">
+                            <img id="tab-icon-3-active" src="" alt="" class="icon-active">
+                        </div>
+                        <span class="bottom-nav-label">Search</span>
+                    </button>
+                    
+                    <button class="bottom-nav-tab" onclick="setActiveTab(4)">
+                        <div class="bottom-nav-icon">
+                            <img id="tab-icon-4-inactive" src="" alt="" class="icon-inactive">
+                            <img id="tab-icon-4-active" src="" alt="" class="icon-active">
+                        </div>
+                        <span class="bottom-nav-label">Cards</span>
+                    </button>
+                </div>
+                
+                <!-- iOS Home Indicator -->
+                <div class="bottom-nav-home-indicator">
+                    <div class="home-indicator-handle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tray Overlay -->
+    <div class="tray-overlay" onclick="event.target === this && closeTray()"></div>
+    
+    <!-- Tray Container -->
+    <div class="tray-container">
+        <div class="tray">
+            <div class="tray-content">
+                
+                <!-- Handlebar -->
+                <div class="tray-handlebar">
+                    <div class="tray-grabber"></div>
+                </div>
+                
+                <!-- Header -->
+                <div class="tray-header">
+                    <!-- Leading Icon - REMOVED -->
+                    <div class="tray-header-leading">
+                    </div>
+                    
+                    <!-- Title (Centered) -->
+                    <div class="tray-header-title-wrapper">
+                        <div class="tray-header-title">Manage your vehicle</div>
+                    </div>
+                    
+                    <!-- Trailing Icon (Close with padding) -->
+                    <div class="tray-header-trailing">
+                        <div class="hit-target" onclick="closeTray()">
+                            <div class="icon-wrapper">
+                                <img src="../../../assets/icons/navigation/close.svg" alt="Close">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tray Content Area -->
+                <div class="tray-content-area">
+                    <!-- Content above input - will fade out on keyboard -->
+                    <div class="tray-content-above-input">
+                        <!-- Content item 1 -->
+                        <div style="margin-bottom: var(--spacing-24);">
+                            <div style="display: flex; align-items: flex-start; gap: var(--spacing-12);">
+                                <!-- Pictogram Component - EXACT COPY -->
+                                <div class="pictogram pict-default">
+                                    <img data-pictogram="Car_Lloyds_-_V2" alt="">
+                                </div>
+                                <div style="flex: 1;">
+                                    <div style="font-family: var(--type-style-5-family); font-size: var(--type-style-5-size); font-weight: var(--type-style-5-weight); line-height: var(--type-style-5-line-height); color: var(--text-default); margin-bottom: var(--spacing-08);">Everything in one place</div>
+                                    <div style="font-family: var(--type-style-9-family); font-size: var(--type-style-9-size); font-weight: var(--type-style-9-weight); line-height: var(--type-style-9-line-height); color: var(--text-subdued);">MOT, tax, insurance, servicing – simply reminded here in the Lloyds app.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Content item 2 -->
+                        <div style="margin-bottom: var(--spacing-24);">
+                            <div style="display: flex; align-items: flex-start; gap: var(--spacing-12);">
+                                <!-- Pictogram Component - EXACT COPY -->
+                                <div class="pictogram pict-default">
+                                    <img data-pictogram="Settings_Lloyds_-_V2" alt="">
+                                </div>
+                                <div style="flex: 1;">
+                                    <div style="font-family: var(--type-style-5-family); font-size: var(--type-style-5-size); font-weight: var(--type-style-5-weight); line-height: var(--type-style-5-line-height); color: var(--text-default); margin-bottom: var(--spacing-08);">Ready for something new?</div>
+                                    <div style="font-family: var(--type-style-9-family); font-size: var(--type-style-9-size); font-weight: var(--type-style-9-weight); line-height: var(--type-style-9-line-height); color: var(--text-subdued);">Explore your financing options and set your budget for your new vehicle.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Content item 3 -->
+                        <div style="margin-bottom: var(--spacing-24);">
+                            <div style="display: flex; align-items: flex-start; gap: var(--spacing-12);">
+                                <!-- Pictogram Component - EXACT COPY -->
+                                <div class="pictogram pict-default">
+                                    <img data-pictogram="Links_Lloyds_-_V2" alt="">
+                                </div>
+                                <div style="flex: 1;">
+                                    <div style="font-family: var(--type-style-5-family); font-size: var(--type-style-5-size); font-weight: var(--type-style-5-weight); line-height: var(--type-style-5-line-height); color: var(--text-default); margin-bottom: var(--spacing-08);">Connect and get going</div>
+                                    <div style="font-family: var(--type-style-6-family); font-size: var(--type-style-6-size); font-weight: var(--type-style-6-weight); line-height: var(--type-style-6-line-height); color: var(--text-subdued);">Just pop in your registration number and you're on your way.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Input field -->
+                    <div style="margin-bottom: var(--spacing-16); position: relative;">
+                        <label style="font-family: var(--type-style-8-family); font-size: var(--type-style-8-size); font-weight: var(--type-style-8-weight); line-height: var(--type-style-8-line-height); color: var(--text-subdued); display: block; margin-bottom: var(--spacing-08);">Enter registration</label>
+                        <input type="text" id="registration-input" placeholder="e.g. AB12 CDE" style="width: 100%; padding: var(--spacing-12); border: 1px solid var(--border-default); border-radius: var(--radius-default); font-family: var(--font-family-body); font-size: var(--type-style-7-size); background: var(--bg-panel-default); color: var(--text-default);">
+                        
+                        <!-- Spinner (hidden by default, centered on input field) - Set 3 WITHOUT icon overlay -->
+                        <div class="spinner-container">
+                            <div class="spinner-with-icon size-small bg-light">
+                                <div class="native-spinner size-large" data-spinner-set="3">
+                                    <!-- Spinner frames auto-populate via JS -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Primary Action Button - EXACT COPY from ActionButton.html -->
+                    <button class="action-button btn-primary" id="search-button" style="width: 100%; margin-bottom: var(--spacing-12);">
+                        <div class="action-button-inner">
+                            <span class="action-button-text">Connect vehicle</span>
+                            <div class="action-button-icon">
+                                <img data-icon="arrow-right" data-icon-category="arrows" alt="">
+                            </div>
+                        </div>
+                    </button>
+
+                    <!-- Tertiary Action Button - EXACT COPY from ActionButton.html (no icon) -->
+                    <button class="action-button btn-tertiary" style="width: 100%; margin-bottom: var(--spacing-12);">
+                        <div class="action-button-inner">
+                            <span class="action-button-text">Browse without connecting</span>
+                        </div>
+                    </button>
+                    
+                    <!-- Stage 3: Search Results (hidden by default) -->
+                    <div class="search-results">
+                        <div class="vehicle-result" style="position: relative;">
+                            <img src="../../../assets/images/renault-rafale-front.png" alt="Renault Rafale" class="vehicle-image">
+                            <div class="vehicle-info">
+                                <div class="vehicle-info-line"><strong>Renault Rafale</strong></div>
+                                <div class="vehicle-info-line">E-TECH 220hp</div>
+                                <div class="vehicle-info-line"><span class="vehicle-plate">VG23 TZM</span></div>
+                            </div>
+                            
+                            <!-- Spinner for "Connect vehicle" loading - centered on car box -->
+                            <div class="vehicle-result-spinner" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; pointer-events: none;">
+                                <div class="spinner-with-icon size-small bg-light">
+                                    <div class="native-spinner size-large" data-spinner-set="3">
+                                        <!-- Spinner frames will be populated by JS -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Connect vehicle button after results -->
+                        <button class="action-button btn-primary" id="connect-vehicle-btn" style="width: 100%; margin-bottom: var(--spacing-12);">
+                            <div class="action-button-inner">
+                                <span class="action-button-text">Connect vehicle</span>
+                                <div class="action-button-icon">
+                                    <img data-icon="arrow-right" data-icon-category="arrows" alt="">
+                                </div>
+                            </div>
+                        </button>
+                        
+                        <!-- Back to search tertiary button - EXACT COPY from ActionButton.html (no icon) -->
+                        <button class="action-button btn-tertiary" id="back-to-search-btn" style="width: 100%;">
+                            <div class="action-button-inner">
+                                <span class="action-button-text">Back to search</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Native Keyboard Simulation -->
+    <div class="native-keyboard" id="native-keyboard">
+        <!-- Keyboard Accessory Bar -->
+        <div class="keyboard-accessory-bar">
+            <div class="keyboard-nav-buttons">
+                <button class="keyboard-nav-btn" id="keyboard-prev">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <button class="keyboard-nav-btn" id="keyboard-next">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+            <button class="keyboard-done-btn" id="keyboard-done-top">Done</button>
+        </div>
+        
+        <!-- Keyboard Keys Area -->
+        <div class="keyboard-keys-area">
+            <div class="keyboard-row">
+            <div class="keyboard-key">Q</div>
+            <div class="keyboard-key">W</div>
+            <div class="keyboard-key">E</div>
+            <div class="keyboard-key">R</div>
+            <div class="keyboard-key">T</div>
+            <div class="keyboard-key">Y</div>
+            <div class="keyboard-key">U</div>
+            <div class="keyboard-key">I</div>
+            <div class="keyboard-key">O</div>
+            <div class="keyboard-key">P</div>
+        </div>
+        <div class="keyboard-row">
+            <div class="keyboard-key">A</div>
+            <div class="keyboard-key">S</div>
+            <div class="keyboard-key">D</div>
+            <div class="keyboard-key">F</div>
+            <div class="keyboard-key">G</div>
+            <div class="keyboard-key">H</div>
+            <div class="keyboard-key">J</div>
+            <div class="keyboard-key">K</div>
+            <div class="keyboard-key">L</div>
+        </div>
+        <div class="keyboard-row">
+            <div class="keyboard-key">Z</div>
+            <div class="keyboard-key">X</div>
+            <div class="keyboard-key">C</div>
+            <div class="keyboard-key">V</div>
+            <div class="keyboard-key">B</div>
+            <div class="keyboard-key">N</div>
+            <div class="keyboard-key">M</div>
+            <div class="keyboard-key backspace">⌫</div>
+        </div>
+        <div class="keyboard-row">
+            <div class="keyboard-key">123</div>
+            <div class="keyboard-key wide">space</div>
+            <div class="keyboard-key action">Done</div>
+        </div>
+        </div><!-- End keyboard-keys-area -->
+    </div><!-- End native-keyboard -->
+
+    <script>
+        const ASSETS_BASE = '../../../assets';
+        
+        const ICONS = {
+            burgerMenu: `${ASSETS_BASE}/icons/navigation/burger-menu.svg`,
+            question: `${ASSETS_BASE}/icons/communication/question-mark.svg`,
+            person: `${ASSETS_BASE}/icons/people/person.svg`,
+            tab1: `${ASSETS_BASE}/icons/tabs/tab-1-icon.svg`,
+            tab2: `${ASSETS_BASE}/icons/tabs/tab-2-icon.svg`,
+            tab3: `${ASSETS_BASE}/icons/tabs/tab-3-icon.svg`,
+            tab4: `${ASSETS_BASE}/icons/tabs/tab-4-icon.svg`,
+            tab5: `${ASSETS_BASE}/icons/tabs/tab-5-icon.svg`,
+            tab1Active: `${ASSETS_BASE}/icons/tabs/tab-1-icon-active.svg`,
+            tab2Active: `${ASSETS_BASE}/icons/tabs/tab-2-icon-active.svg`,
+            tab3Active: `${ASSETS_BASE}/icons/tabs/tab-3-icon-active.svg`,
+            tab4Active: `${ASSETS_BASE}/icons/tabs/tab-4-icon-active.svg`,
+            tab5Active: `${ASSETS_BASE}/icons/tabs/tab-5-icon-active.svg`,
+        };
+
+        function initializeIcons() {
+            console.log('Initializing icons...');
+            
+            // Header icons
+            const burgerMenu = document.getElementById('burger-menu-icon');
+            const question = document.getElementById('question-icon');
+            const person = document.getElementById('person-icon');
+            
+            if (burgerMenu) {
+                burgerMenu.src = ICONS.burgerMenu;
+                console.log('Burger menu icon set');
+            }
+            
+            if (question) {
+                question.src = ICONS.question;
+                console.log('Question icon set');
+            }
+            
+            if (person) {
+                person.src = ICONS.person;
+                console.log('Person icon set');
+            }
+            
+            // Bottom nav tab icons
+            for (let i = 0; i < 5; i++) {
+                const inactiveIcon = document.getElementById(`tab-icon-${i}-inactive`);
+                const activeIcon = document.getElementById(`tab-icon-${i}-active`);
+                
+                if (inactiveIcon) {
+                    inactiveIcon.src = ICONS[`tab${i + 1}`];
+                    console.log(`Tab ${i} inactive icon set`);
+                }
+                
+                if (activeIcon) {
+                    activeIcon.src = ICONS[`tab${i + 1}Active`];
+                    console.log(`Tab ${i} active icon set`);
+                }
+            }
+        }
+
+        // Set active tab
+        function setActiveTab(tabIndex) {
+            const nav = document.getElementById('bottom-nav');
+            const tabs = nav.querySelectorAll('.bottom-nav-tab');
+            const segments = nav.querySelectorAll('.active-border-segment');
+
+            // Remove active class from all
+            tabs.forEach(tab => tab.classList.remove('active'));
+            segments.forEach(segment => segment.classList.remove('active'));
+
+            // Add active class to selected
+            tabs[tabIndex].classList.add('active');
+            segments[tabIndex].classList.add('active');
+        }
+
+        // Toggle theme
+        function toggleTheme() {
+            const body = document.body;
+            const html = document.documentElement;
+            const themeText = document.getElementById('theme-text');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'light') {
+                body.setAttribute('data-theme', 'dark');
+                html.setAttribute('data-theme', 'dark');
+                themeText.textContent = 'Switch to Light Mode';
+                localStorage.setItem('cancara-theme-preference', 'dark');
+            } else {
+                body.setAttribute('data-theme', 'light');
+                html.setAttribute('data-theme', 'light');
+                themeText.textContent = 'Switch to Dark Mode';
+                localStorage.setItem('cancara-theme-preference', 'light');
+            }
+        }
+
+        // Open tray
+        function openTray() {
+            console.log('[TRAY] Opening tray...');
+            document.querySelector('.tray-overlay').classList.add('visible');
+            document.querySelector('.tray-container').classList.add('visible');
+            document.body.style.overflow = 'hidden';
+            console.log('[TRAY] Tray opened, overlay and container visible');
+            
+            // Re-run inline SVG loader for tray icons (they load after page init)
+            setTimeout(function() {
+                if (window.reloadInlineSVGs) {
+                    window.reloadInlineSVGs();
+                    console.log('[TRAY] Re-ran inline SVG loader for tray icons');
+                }
+            }, 200);
+            
+            // Attach keyboard listeners after tray is open
+            setTimeout(function() {
+                attachKeyboardListeners();
+                console.log('[TRAY] Keyboard listeners attached');
+            }, 100);
+        }
+
+        // Close tray and reset to Stage 1 for next opening
+        function closeTray() {
+            // Close the tray
+            document.querySelector('.tray-overlay').classList.remove('visible');
+            document.querySelector('.tray-container').classList.remove('visible');
+            document.body.style.overflow = '';
+            
+            // Close keyboard if open
+            const nativeKeyboard = document.getElementById('native-keyboard');
+            if (nativeKeyboard) {
+                nativeKeyboard.classList.remove('visible');
+            }
+            
+            // Wait for close animation, then reset to Stage 1
+            setTimeout(function() {
+                // Reset to Stage 1 completely
+                document.querySelector('.tray-content-above-input').classList.remove('hidden');
+                document.querySelector('.tray-container').classList.remove('keyboard-active');
+                
+                // Reset button text
+                const primaryBtnText = document.querySelector('.tray-content-area .btn-primary .action-button-text');
+                if (primaryBtnText) {
+                    primaryBtnText.textContent = 'Connect vehicle';
+                }
+                
+                // Reset Stage 2/3 elements
+                const trayContentArea = document.querySelector('.tray-content-area');
+                const inputWrapper = document.querySelector('#registration-input').parentElement;
+                const tertiaryBtn = document.querySelector('.btn-tertiary:not(#back-to-search-btn)');
+                const searchBtn = document.querySelector('#search-button');
+                const vehicleResult = document.querySelector('.vehicle-result');
+                
+                trayContentArea.classList.remove('loading');
+                trayContentArea.classList.remove('stage-2');
+                trayContentArea.classList.remove('stage-3');
+                document.querySelector('.spinner-container').classList.remove('active');
+                
+                // Reset visibility and opacity
+                if (inputWrapper) {
+                    inputWrapper.style.display = 'block';
+                    inputWrapper.style.opacity = '1';
+                }
+                if (searchBtn) {
+                    searchBtn.style.display = 'block';
+                    searchBtn.style.opacity = '1';
+                }
+                if (tertiaryBtn) {
+                    tertiaryBtn.style.display = 'block';
+                    tertiaryBtn.style.opacity = '1';
+                }
+                
+                document.querySelector('.search-results').classList.remove('visible');
+                if (vehicleResult) {
+                    vehicleResult.classList.remove('visible');
+                }
+                
+                // Reset input opacity
+                const regInput = document.querySelector('#registration-input');
+                if (regInput) {
+                    regInput.style.opacity = '1';
+                }
+            }, 300); // Wait for close animation (0.3s)
+        }
+
+        // Close tray on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeTray();
+            }
+        });
+
+        // Keyboard interaction for input field
+        let keyboardMode = 'letters'; // 'letters' or 'numbers'
+        let keyboardListenersAttached = false;
+        let isSearching = false; // Flag to prevent blur from interfering with search
+        let justFocused = false; // Flag to prevent immediate blur after focus
+        
+        function attachKeyboardListeners() {
+            if (keyboardListenersAttached) return; // Only attach once
+            
+            const registrationInput = document.getElementById('registration-input');
+            const nativeKeyboard = document.getElementById('native-keyboard');
+            
+            console.log('Attaching keyboard listeners...', registrationInput, nativeKeyboard);
+            
+            if (registrationInput && nativeKeyboard) {
+                keyboardListenersAttached = true;
+                
+                // Prevent keyboard from closing when clicking inside
+                nativeKeyboard.addEventListener('mousedown', function(e) {
+                    e.preventDefault();
+                });
+                
+                // STAGE 1 → STAGE 2: Input focus
+                registrationInput.addEventListener('focus', function() {
+                    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+                    const trayContentArea = document.querySelector('.tray-content-area');
+                    const buttonText = document.querySelector('.tray-content-area .btn-primary .action-button-text');
+                    
+                    // If in Stage 3, ignore
+                    if (trayContentArea.classList.contains('stage-3')) {
+                        return;
+                    }
+                    
+                    // If already in Stage 2, just show keyboard
+                    if (buttonText && buttonText.textContent === 'Search') {
+                        document.querySelector('.tray-container').classList.add('keyboard-active');
+                        if (!isMobile) {
+                            nativeKeyboard.classList.add('visible');
+                        }
+                        return;
+                    }
+                    
+                    // First time entering Stage 2
+                    trayContentArea.classList.add('stage-2');
+                    document.querySelector('.tray-content-above-input').classList.add('hidden');
+                    document.querySelector('.tray-container').classList.add('keyboard-active');
+                    if (!isMobile) {
+                        nativeKeyboard.classList.add('visible');
+                    }
+                    if (buttonText) {
+                        buttonText.textContent = 'Search';
+                    }
+                });
+
+                // Input blur
+                registrationInput.addEventListener('blur', function() {
+                    const trayContentArea = document.querySelector('.tray-content-area');
+                    
+                    // Don't do anything if in Stage 3
+                    if (trayContentArea.classList.contains('stage-3')) {
+                        return;
+                    }
+                    
+                    // Slide keyboard away
+                    nativeKeyboard.classList.remove('visible');
+                    // Slide panel back down
+                    document.querySelector('.tray-container').classList.remove('keyboard-active');
+                    // KEEP content hidden (Stage 2 state)
+                    // KEEP button text as "Search"
+                });
+            
+                // Function to switch keyboard layout
+                function updateKeyboardLayout(mode) {
+                    const rows = nativeKeyboard.querySelectorAll('.keyboard-row');
+                    
+                    if (mode === 'numbers') {
+                        // Numbers layout
+                        rows[0].innerHTML = `
+                            <div class="keyboard-key">1</div>
+                            <div class="keyboard-key">2</div>
+                            <div class="keyboard-key">3</div>
+                            <div class="keyboard-key">4</div>
+                            <div class="keyboard-key">5</div>
+                            <div class="keyboard-key">6</div>
+                            <div class="keyboard-key">7</div>
+                            <div class="keyboard-key">8</div>
+                            <div class="keyboard-key">9</div>
+                            <div class="keyboard-key">0</div>
+                        `;
+                        rows[1].innerHTML = `
+                            <div class="keyboard-key">-</div>
+                            <div class="keyboard-key">/</div>
+                            <div class="keyboard-key">:</div>
+                            <div class="keyboard-key">;</div>
+                            <div class="keyboard-key">(</div>
+                            <div class="keyboard-key">)</div>
+                            <div class="keyboard-key">$</div>
+                            <div class="keyboard-key">&</div>
+                            <div class="keyboard-key">@</div>
+                        `;
+                        rows[2].innerHTML = `
+                            <div class="keyboard-key">.</div>
+                            <div class="keyboard-key">,</div>
+                            <div class="keyboard-key">?</div>
+                            <div class="keyboard-key">!</div>
+                            <div class="keyboard-key">'</div>
+                            <div class="keyboard-key">"</div>
+                            <div class="keyboard-key backspace">⌫</div>
+                        `;
+                        rows[3].innerHTML = `
+                            <div class="keyboard-key">ABC</div>
+                            <div class="keyboard-key wide">space</div>
+                            <div class="keyboard-key action">Done</div>
+                        `;
+                    } else {
+                        // Letters layout
+                        rows[0].innerHTML = `
+                            <div class="keyboard-key">Q</div>
+                            <div class="keyboard-key">W</div>
+                            <div class="keyboard-key">E</div>
+                            <div class="keyboard-key">R</div>
+                            <div class="keyboard-key">T</div>
+                            <div class="keyboard-key">Y</div>
+                            <div class="keyboard-key">U</div>
+                            <div class="keyboard-key">I</div>
+                            <div class="keyboard-key">O</div>
+                            <div class="keyboard-key">P</div>
+                        `;
+                        rows[1].innerHTML = `
+                            <div class="keyboard-key">A</div>
+                            <div class="keyboard-key">S</div>
+                            <div class="keyboard-key">D</div>
+                            <div class="keyboard-key">F</div>
+                            <div class="keyboard-key">G</div>
+                            <div class="keyboard-key">H</div>
+                            <div class="keyboard-key">J</div>
+                            <div class="keyboard-key">K</div>
+                            <div class="keyboard-key">L</div>
+                        `;
+                        rows[2].innerHTML = `
+                            <div class="keyboard-key">Z</div>
+                            <div class="keyboard-key">X</div>
+                            <div class="keyboard-key">C</div>
+                            <div class="keyboard-key">V</div>
+                            <div class="keyboard-key">B</div>
+                            <div class="keyboard-key">N</div>
+                            <div class="keyboard-key">M</div>
+                            <div class="keyboard-key backspace">⌫</div>
+                        `;
+                        rows[3].innerHTML = `
+                            <div class="keyboard-key">123</div>
+                            <div class="keyboard-key wide">space</div>
+                            <div class="keyboard-key action">Done</div>
+                        `;
+                    }
+                    
+                    // Re-attach click handlers after updating layout
+                    attachKeyHandlers();
+                }
+                
+                // Function to attach click handlers to all keys
+                function attachKeyHandlers() {
+                    const allKeys = nativeKeyboard.querySelectorAll('.keyboard-key');
+                    allKeys.forEach(function(key) {
+                        key.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            const keyText = key.textContent;
+                            
+                            if (keyText === 'Done') {
+                                // Bottom Done button - close keyboard
+                                registrationInput.blur();
+                            } else if (keyText === 'space') {
+                                registrationInput.value += ' ';
+                            } else if (keyText === '⌫' || key.classList.contains('backspace')) {
+                                // Backspace - delete last character
+                                registrationInput.value = registrationInput.value.slice(0, -1);
+                            } else if (keyText === '123') {
+                                keyboardMode = 'numbers';
+                                updateKeyboardLayout('numbers');
+                            } else if (keyText === 'ABC') {
+                                keyboardMode = 'letters';
+                                updateKeyboardLayout('letters');
+                            } else {
+                                // Add the character to the input
+                                registrationInput.value += keyText;
+                            }
+                            
+                            // Keep focus on input (unless Done was clicked)
+                            if (keyText !== 'Done') {
+                                registrationInput.focus();
+                            }
+                        });
+                    });
+                }
+                
+                // Initial attachment of handlers
+                attachKeyHandlers();
+                
+                // Search button click handler (Stage 2 → Stage 3)
+                // CRITICAL: Use mousedown instead of click to fire BEFORE blur
+                const searchButton = document.getElementById('search-button');
+                if (searchButton) {
+                    console.log('[INIT] Search button found, attaching handler');
+                    
+                    searchButton.addEventListener('mousedown', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        console.log('[SEARCH] Button mousedown!');
+                        console.log('[SEARCH] Button text:', searchButton.querySelector('.action-button-text').textContent);
+                        console.log('[SEARCH] isSearching flag:', isSearching);
+                        console.log('[SEARCH] Keyboard visible:', nativeKeyboard.classList.contains('visible'));
+                        
+                        // Only proceed to Stage 3 if button says "Search"
+                        const buttonText = searchButton.querySelector('.action-button-text').textContent;
+                        if (buttonText !== 'Search') {
+                            console.log('[SEARCH] Button not in search mode, ignoring');
+                            return;
+                        }
+                        
+                        console.log('[SEARCH] Proceeding to Stage 3...');
+                        isSearching = true;
+                        
+                        const registrationInput = document.getElementById('registration-input');
+                        const trayContentArea = document.querySelector('.tray-content-area');
+                        const inputField = document.getElementById('registration-input');
+                        const trayContainer = document.querySelector('.tray-container');
+                        const spinnerContainer = document.querySelector('.spinner-container');
+                        
+                        if (registrationInput) {
+                            registrationInput.blur();
+                        }
+                        
+                        // Check if keyboard is visible
+                        const isKeyboardVisible = nativeKeyboard.classList.contains('visible');
+                        
+                        if (isKeyboardVisible) {
+                            console.log('Closing keyboard then starting sequence');
+                            nativeKeyboard.classList.remove('visible');
+                            trayContainer.classList.remove('keyboard-active');
+                            
+                            // Wait for keyboard animation then start Stage 3
+                            setTimeout(function() {
+                                startStage3Sequence();
+                            }, 300);
+                        } else {
+                            startStage3Sequence();
+                        }
+                        
+                        function startStage3Sequence() {
+                            trayContentArea.classList.add('loading');
+                            spinnerContainer.classList.add('active');
+                            
+                            setTimeout(function() {
+                                trayContentArea.classList.remove('loading');
+                                trayContainer.classList.add('sliding-to-bottom');
+                                
+                                setTimeout(function() {
+                                    trayContainer.classList.remove('sliding-to-bottom');
+                                    spinnerContainer.classList.remove('active');
+                                    inputField.parentElement.style.opacity = '0';
+                                    searchButton.style.opacity = '0';
+                                    
+                                    setTimeout(function() {
+                                        inputField.parentElement.style.display = 'none';
+                                        searchButton.style.display = 'none';
+                                        trayContentArea.classList.add('stage-3');
+                                        document.querySelector('.search-results').classList.add('visible');
+                                        
+                                        setTimeout(function() {
+                                            document.querySelector('.vehicle-result').classList.add('visible');
+                                            isSearching = false;
+                                        }, 50);
+                                    }, 300);
+                                }, 300);
+                            }, 1000);
+                        }
+                    });
+                }
+                
+                // Accessory bar button handlers
+                const prevBtn = document.getElementById('keyboard-prev');
+                const nextBtn = document.getElementById('keyboard-next');
+                const doneTopBtn = document.getElementById('keyboard-done-top');
+                
+                if (prevBtn) {
+                    prevBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        // Move cursor backward
+                        const pos = registrationInput.selectionStart;
+                        if (pos > 0) {
+                            registrationInput.setSelectionRange(pos - 1, pos - 1);
+                        }
+                        registrationInput.focus();
+                    });
+                }
+                
+                if (nextBtn) {
+                    nextBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        // Move cursor forward
+                        const pos = registrationInput.selectionStart;
+                        if (pos < registrationInput.value.length) {
+                            registrationInput.setSelectionRange(pos + 1, pos + 1);
+                        }
+                        registrationInput.focus();
+                    });
+                }
+                
+                if (doneTopBtn) {
+                    doneTopBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        registrationInput.blur();
+                    });
+                }
+            }
+        }
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            // Update toggle text based on current theme (already set by localStorage script in <body>)
+            const currentTheme = document.body.getAttribute('data-theme');
+            const themeText = document.getElementById('theme-text');
+            if (themeText) {
+                if (currentTheme === 'dark') {
+                    themeText.textContent = 'Switch to Light Mode';
+                } else {
+                    themeText.textContent = 'Switch to Dark Mode';
+                }
+            }
+            
+            initializeIcons();    // Load all icon paths
+            attachKeyboardListeners(); // Attach keyboard listeners on page load
+            
+            // Manually initialize all component scripts to ensure SVGs load correctly
+            // This is needed because the auto-init may run before DOM is fully ready
+            if (window.initPictograms) {
+                window.initPictograms();
+                console.log('Pictograms manually initialized');
+            }
+            
+            if (window.initActionButtons) {
+                window.initActionButtons();
+                console.log('Action buttons manually initialized');
+            }
+            
+            // Manually load spinner frames because component JS path calculation is wrong for journey files
+            const spinners = document.querySelectorAll('.native-spinner[data-spinner-set]');
+            spinners.forEach(function(nativeSpinner) {
+                const spinnerSet = nativeSpinner.getAttribute('data-spinner-set');
+                const theme = document.documentElement.getAttribute('data-theme') || 'dark';
+                
+                // Clear any existing content
+                nativeSpinner.innerHTML = '';
+                
+                // Set 3 has 4 frames: 1.svg, 2.svg, 3.svg, 4.svg
+                for (let i = 1; i <= 4; i++) {
+                    const img = document.createElement('img');
+                    img.className = 'spinner-frame';
+                    img.src = `../../../assets/spinners/spinner-set-${spinnerSet}/${theme}/${i}.svg`;
+                    img.alt = '';
+                    nativeSpinner.appendChild(img);
+                }
+                
+                console.log(`Loaded 4 spinner frames from set ${spinnerSet}, theme ${theme}`);
+            });
+            
+            // Update horse logo based on theme
+            const horseLogo = document.getElementById('caught-up-horse');
+            if (horseLogo) {
+                const cacheBuster = '?v=' + Date.now();
+                if (currentTheme === 'light') {
+                    horseLogo.src = '../../../assets/brand/cancara-horse-light.svg' + cacheBuster;
+                } else {
+                    horseLogo.src = '../../../assets/brand/cancara-horse-dark.svg' + cacheBuster;
+                }
+            }
+            
+            // Add "Back to search" button handler
+            const backToSearchBtn = document.getElementById('back-to-search-btn');
+            if (backToSearchBtn) {
+                backToSearchBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Go back to Stage 2
+                    const trayContentArea = document.querySelector('.tray-content-area');
+                    const inputWrapper = document.querySelector('#registration-input').parentElement;
+                    const searchBtn = document.querySelector('#search-button');
+                    const vehicleResult = document.querySelector('.vehicle-result');
+                    
+                    // Remove Stage 3
+                    trayContentArea.classList.remove('stage-3');
+                    document.querySelector('.search-results').classList.remove('visible');
+                    vehicleResult.classList.remove('visible');
+                    
+                    // Show Stage 2 elements
+                    inputWrapper.style.display = 'block';
+                    inputWrapper.style.opacity = '1';
+                    searchBtn.style.display = 'block';
+                    searchBtn.style.opacity = '1';
+                    
+                    // Keep in Stage 2 state
+                    trayContentArea.classList.add('stage-2');
+                    document.querySelector('.tray-content-above-input').classList.add('hidden');
+                    
+                    // Button should still say "Search"
+                    searchBtn.querySelector('.action-button-text').textContent = 'Search';
+                });
+            }
+            
+            // Add "Connect vehicle" button handler (final stage)
+            const connectVehicleBtn = document.getElementById('connect-vehicle-btn');
+            if (connectVehicleBtn) {
+                connectVehicleBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const vehicleResultBox = document.querySelector('.vehicle-result');
+                    const vehicleResultSpinner = document.querySelector('.vehicle-result-spinner');
+                    const trayOverlay = document.querySelector('.tray-overlay');
+                    const trayContainer = document.querySelector('.tray-container');
+                    
+                    // Step 1: Fade car box to 30% and show spinner at 100%
+                    vehicleResultBox.style.transition = 'opacity 0.3s ease';
+                    vehicleResultBox.style.opacity = '0.3';
+                    vehicleResultSpinner.style.display = 'block';
+                    vehicleResultSpinner.style.opacity = '1'; // Spinner at 100%
+                    
+                    // Step 2: After 1 second, fade out spinner and fade car box back to 100%
+                    setTimeout(function() {
+                        vehicleResultSpinner.style.transition = 'opacity 0.3s ease';
+                        vehicleResultSpinner.style.opacity = '0';
+                        
+                        setTimeout(function() {
+                            vehicleResultSpinner.style.display = 'none';
+                            vehicleResultBox.style.opacity = '1';
+                            
+                            // Step 3: Hold for 0.5s, then slide panel straight down and fade overlay
+                            setTimeout(function() {
+                                // Slide panel straight down using the same method as closeTray (translateX + translateY)
+                                trayContainer.style.transition = 'transform 0.3s ease';
+                                trayContainer.style.transform = 'translateX(-50%) translateY(100%)';
+                                
+                                // Fade out overlay
+                                trayOverlay.style.transition = 'opacity 0.3s ease';
+                                trayOverlay.style.opacity = '0';
+                                
+                                // Step 4: After animation + 300ms pause, navigate to mobility hub
+                                setTimeout(function() {
+                                    // Clear animation flag so hub plays intro animation
+                                    sessionStorage.removeItem('hubAnimationPlayed');
+                                    sessionStorage.removeItem('hubCompleted');
+                                    window.location.href = '../02-mobility-hub/mobility-hub.html?from=account-summary';
+                                }, 600); // 300ms animation + 300ms pause
+                            }, 500);
+                        }, 300);
+                    }, 1000);
+                });
+            }
+        });
+    </script>
+    
+    <script src="../../../src/components/navigation/tabs/tab-collection-scroll/TabCollectionScroll.vanilla.js"></script>
+    <script src="../../../src/components/action/tile/tile/Tile.vanilla.js"></script>
+    <script src="../../../src/components/content/icon/pictogram/Pictogram.vanilla.js"></script>
+    <script src="../../../src/components/action/button/action-button/ActionButton.vanilla.js"></script>
+    <script src="../../../src/components/os/native-spinner-configuration/NativeSpinner.vanilla.js"></script>
+    <script src="../../../src/components/os/spinner/Spinner.vanilla.js"></script>
+    <!-- Inline SVG Loader - Firewall Workaround -->
+    <script src="../scripts/inline-svg-loader.js"></script>
+</body>
+</html>
