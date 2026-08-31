@@ -17,7 +17,8 @@
     .ov-frame .cnc-tpl-base__container { scrollbar-width: none; -ms-overflow-style: none; -webkit-overflow-scrolling: touch; touch-action: pan-y; padding-top: var(--spacing-size08); }
     .ov-frame .cnc-tpl-base__container::-webkit-scrollbar { width: 0; height: 0; }
     .ov-frame .cnc-lag { max-width: none; width: 100%; }
-      .mv-menu-divider { padding-top: 0; padding-bottom: 0; }
+      .mv-menu-divider { padding-top: 0 !important; padding-bottom: 0 !important; }
+      .mv-menu-panel .cnc-panel { background: transparent; border-color: transparent; }
   </style>
   <script>document.documentElement.setAttribute("data-theme", localStorage.getItem("cnc-theme") || "dark");</script>
   <style>
@@ -52,7 +53,7 @@
     .hb-hero__edit { flex: 0 0 auto; display: flex; align-items: center; gap: var(--spacing-size04); background: transparent; border: 0; padding: 0; cursor: pointer; color: var(--text-action-default); }
     .hb-video-wrap { position: relative; width: calc(100% + var(--spacing-size32)); margin: calc(-1 * var(--spacing-size16)) calc(-1 * var(--spacing-size16)); aspect-ratio: 16 / 9; background: var(--background-panel-secondary); }
     .hb-video-wrap video { display: block; width: 100%; height: 100%; object-fit: cover; }
-    .hb-carrow { position: relative; width: calc(100% + var(--spacing-size32)); margin: calc(-1 * var(--spacing-size16) - 16px) calc(-1 * var(--spacing-size16)) -16px; aspect-ratio: 16 / 8.3; overflow: hidden; background: linear-gradient(to top, var(--background-panel-default) 0, var(--background-panel-default) 88px, #383838 88px, var(--background-panel-default) 100%); }
+    .hb-carrow { position: relative; width: calc(100% + var(--spacing-size32)); margin: calc(-1 * var(--spacing-size16) - 16px) calc(-1 * var(--spacing-size16)) -16px; aspect-ratio: 16 / 8.3; overflow: hidden; background: linear-gradient(to top, var(--background-panel-default) 0, var(--background-panel-default) 88px, var(--border-generic-defaultalt01) 88px, var(--background-panel-default) 100%); }
     .hb-carrow__img { position: absolute; top: 50%; transition: left 0.45s ease, transform 0.45s ease, height 0.45s ease; z-index: 1; }
     .hb-carrow__img--notransition { transition: none; }
     .hb-carrow__img--left { left: 0%; height: 148px; transform: translate(-55%, calc(-50% + 10px)); }
@@ -496,11 +497,11 @@
         <!-- MANAGE MENU -->
         <sc-if value="{{ viewIsManageMenu }}" hint-placeholder-val="{{ false }}">
           <div class="mv-step">
-            <div style="padding-bottom: var(--spacing-size24);">
+            <div>
               <div class="cnc-l-flush">
-                <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Panel" asset="icon" icon="Action/Minus Alt 01/Minus Alt 01" heading="Remove vehicle" description="" on-click="{{ openManageRemove }}" base-path="../_ds/cancara" hint-size="100%,64px"></x-import>
+                <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Panel" class-name="mv-menu-panel" asset="icon" icon="Action/Minus Alt 01/Minus Alt 01" heading="Remove vehicle" description="" on-click="{{ openManageRemove }}" base-path="../_ds/cancara" hint-size="100%,64px"></x-import>
                 <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Divider" width="full" class-name="mv-menu-divider" base-path="../_ds/cancara" hint-size="100%,1px"></x-import>
-                <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Panel" asset="icon" icon="Travel/Car/Car" heading="Connect a different vehicle" description="" base-path="../_ds/cancara" hint-size="100%,64px"></x-import>
+                <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Panel" class-name="mv-menu-panel" asset="icon" icon="Travel/Car/Car" heading="Connect a different vehicle" description="" base-path="../_ds/cancara" hint-size="100%,64px"></x-import>
               </div>
             </div>
           </div>
@@ -1057,7 +1058,7 @@ const DEFAULT_SLOTS3 = { renault: "left", byd: "center", cadillac: "right" };
 const CAR_CONTENT3 = {
   renault: { completedTasks: [], reg: "VG23 TZM" },
   byd: { completedTasks: ["insurance"], reg: "BY24 SDX" },
-  cadillac: { completedTasks: [], reg: "CL24 LYX" },
+  cadillac: { completedTasks: ["insurance", "servicing"], reg: "CL24 LYX" },
 };
 const CAR_STATE_KEY = "cnc-car-progress";
 function readCarProgress() { try { return JSON.parse(localStorage.getItem(CAR_STATE_KEY) || "{}"); } catch (e) { return {}; } }
@@ -1125,10 +1126,10 @@ class Component extends DCLogic {
       const imgs = document.querySelectorAll('img[alt="Renault Rafale"], img[alt="BYD Seal"], img[alt="Cadillac Lyriq"]');
       const ready = imgs.length > 0 && Array.from(imgs).every((img) => img.complete);
       if (!ready && Date.now() - start < 3000) { this._carPoll = setTimeout(wait, 30); return; }
-      requestAnimationFrame(() => requestAnimationFrame(() => {
+      setTimeout(() => {
         this.setState({ carsIn: true });
         this.scheduleAutoOpenTray();
-      }));
+      }, 20);
     };
     wait();
   }
@@ -1142,11 +1143,11 @@ class Component extends DCLogic {
     if (this._autoOpenTray) clearTimeout(this._autoOpenTray);
     const vc = this.getVehicleCount();
     if (vc === 1) {
-      this._autoOpenTray = setTimeout(() => this.openCarTray(), 1000);
+      this._autoOpenTray = setTimeout(() => this.openCarTray({ autoRotate: true }), 1000);
     } else if (vc === 2) {
-      this._autoOpenTray = setTimeout(() => this.openCarTray(), 1550);
+      this._autoOpenTray = setTimeout(() => this.openCarTray({ autoRotate: true }), 1550);
     } else if (vc >= 3) {
-      this._autoOpenTray = setTimeout(() => this.openCarTray(), 2100);
+      this._autoOpenTray = setTimeout(() => this.openCarTray({ autoRotate: true }), 2100);
     }
   }
   getVehicleCount() {
@@ -1158,12 +1159,14 @@ class Component extends DCLogic {
   }
 
   // ---- Single-car hub tray: open/close + view stack with crossfade ----
-  openCarTray() {
+  openCarTray(opts) {
+    const skipRotate = !opts || !opts.autoRotate;
     this.setState({ carTrayMounted: true, viewStack: ["hub"], trayAtRest: false });
     setTimeout(() => this.setState({ carTrayOpen: true }), 30);
     setTimeout(() => {
       this.setState({ trayAtRest: true });
       this.trySpin();
+      if (skipRotate) return;
       const vc = this.getVehicleCount();
       if (vc === 2) setTimeout(() => this.rotateCars2("left"), 350);
       else if (vc >= 3) setTimeout(() => this.rotateCars3("left"), 350);
@@ -1203,18 +1206,19 @@ class Component extends DCLogic {
     const el = this.hubViewRef.current;
     const oldH = el ? el.getBoundingClientRect().height : null;
     this.setState({ hubViewHeight: oldH, hubViewAnimating: false, hubFade: 0 });
-    requestAnimationFrame(() => requestAnimationFrame(() => {
+    setTimeout(() => {
       this.setState({ hubViewAnimating: true });
       setTimeout(() => {
         this.setState((st) => ({ viewStack: mutateStack(st.viewStack) }));
-        requestAnimationFrame(() => requestAnimationFrame(() => {
+        setTimeout(() => {
           let newH = null;
-          if (el) { const prevHeight = el.style.height; el.style.height = "auto"; newH = el.getBoundingClientRect().height; el.style.height = prevHeight; }
+          const el2 = this.hubViewRef.current;
+          if (el2) { const prevHeight = el2.style.height; el2.style.height = "auto"; newH = el2.getBoundingClientRect().height; el2.style.height = prevHeight; }
           this.setState({ hubViewHeight: newH, hubFade: 1 });
           setTimeout(() => this.setState({ hubViewHeight: null, hubViewAnimating: false }), 340);
-        }));
+        }, 20);
       }, 180);
-    }));
+    }, 20);
   }
   rotateCars2(dir) {
     if (this.state.carRotating) return;
@@ -1237,25 +1241,25 @@ class Component extends DCLogic {
         carSlots3: Object.assign({}, slots, { [leftCar]: "offleft", [centerCar]: "left", [rightCar]: "center" }),
         carGhost3: { carId: leftCar, slot: "offright" },
       });
-      requestAnimationFrame(() => requestAnimationFrame(() => {
+      setTimeout(() => {
         this.setState((st) => ({ carGhost3: Object.assign({}, st.carGhost3, { slot: "right" }) }));
         setTimeout(() => {
           this.setState((st) => ({ carSlots3: Object.assign({}, st.carSlots3, { [leftCar]: "right" }), carGhost3: null, carNoTransition3: leftCar }));
-          requestAnimationFrame(() => requestAnimationFrame(() => this.setState({ carNoTransition3: null, carRotating3: false })));
+          setTimeout(() => this.setState({ carNoTransition3: null, carRotating3: false }), 20);
         }, 460);
-      }));
+      }, 20);
     } else {
       this.setState({
         carSlots3: Object.assign({}, slots, { [rightCar]: "offright", [centerCar]: "right", [leftCar]: "center" }),
         carGhost3: { carId: rightCar, slot: "offleft" },
       });
-      requestAnimationFrame(() => requestAnimationFrame(() => {
+      setTimeout(() => {
         this.setState((st) => ({ carGhost3: Object.assign({}, st.carGhost3, { slot: "left" }) }));
         setTimeout(() => {
           this.setState((st) => ({ carSlots3: Object.assign({}, st.carSlots3, { [rightCar]: "left" }), carGhost3: null, carNoTransition3: rightCar }));
-          requestAnimationFrame(() => requestAnimationFrame(() => this.setState({ carNoTransition3: null, carRotating3: false })));
+          setTimeout(() => this.setState({ carNoTransition3: null, carRotating3: false }), 20);
         }, 460);
-      }));
+      }, 20);
     }
   }
   pushView(name) { this.changeHubViewTo((stack) => stack.concat([name])); }
@@ -1299,7 +1303,7 @@ class Component extends DCLogic {
       return;
     }
     this.setState({ pct: prevPct, animPhase: 1, animTask: task, noBarTransition: true });
-    requestAnimationFrame(() => requestAnimationFrame(() => this.setState({ noBarTransition: false })));
+    setTimeout(() => this.setState({ noBarTransition: false }), 20);
     const t = (ms, fn) => setTimeout(fn, ms);
     t(450, () => this.setState({ pct: target }));
     t(1700, () => this.setState({ animPhase: 2 }));
@@ -1321,7 +1325,7 @@ class Component extends DCLogic {
     setTimeout(() => {
       const lockedH = el ? el.getBoundingClientRect().height : null;
       this.setState({ animPhase: 4, heroLockedHeight: lockedH, heroAnimating: false, notifVisible: false, completionFading: false });
-      requestAnimationFrame(() => requestAnimationFrame(() => {
+      setTimeout(() => {
         this.setState({ notifVisible: true });
         setTimeout(() => {
           let naturalH = null;
@@ -1329,22 +1333,22 @@ class Component extends DCLogic {
           this.setState({ heroLockedHeight: naturalH, heroAnimating: true });
           setTimeout(() => this.setState({ heroLockedHeight: null, heroAnimating: false }), 550);
         }, 550);
-      }));
+      }, 20);
     }, 420);
   }
   animateListReveal() {
     const el = this.listRef.current;
     const oldH = el ? el.getBoundingClientRect().height : null;
     this.setState({ listLockedHeight: oldH, listAnimating: false });
-    requestAnimationFrame(() => {
+    setTimeout(() => {
       this.setState({ animPhase: 5 });
-      requestAnimationFrame(() => requestAnimationFrame(() => {
+      setTimeout(() => {
         let newH = null;
         if (el) { const prevHeight = el.style.height; el.style.height = "auto"; newH = el.getBoundingClientRect().height; el.style.height = prevHeight; }
         this.setState({ listLockedHeight: newH, listAnimating: true });
         setTimeout(() => this.setState({ listLockedHeight: null, listAnimating: false }), 450);
-      }));
-    });
+      }, 20);
+    }, 20);
   }
   onVideoLoaded(e) {
     e.target.muted = true;
@@ -1364,19 +1368,19 @@ class Component extends DCLogic {
     const curH = el ? el.getBoundingClientRect().height : null;
     if (willOpen) {
       this.setState({ accordionWrapHeight: curH, accordionAnimating: false, accordionOpen: true });
-      requestAnimationFrame(() => requestAnimationFrame(() => {
+      setTimeout(() => {
         const newH = el ? el.scrollHeight : null;
         this.setState({ accordionWrapHeight: newH, accordionAnimating: true });
         setTimeout(() => this.setState({ accordionWrapHeight: null, accordionAnimating: false }), 320);
-      }));
+      }, 20);
     } else {
       const headerEl = el ? el.querySelector(".cnc-accordion__header") : null;
       const headerH = headerEl ? headerEl.getBoundingClientRect().height : curH;
       this.setState({ accordionWrapHeight: curH, accordionAnimating: false });
-      requestAnimationFrame(() => requestAnimationFrame(() => {
+      setTimeout(() => {
         this.setState({ accordionWrapHeight: headerH, accordionAnimating: true });
         setTimeout(() => this.setState({ accordionOpen: false, accordionWrapHeight: null, accordionAnimating: false }), 320);
-      }));
+      }, 20);
     }
   }
   toggleMotAt(i) {
@@ -1391,19 +1395,19 @@ class Component extends DCLogic {
     if (willOpen) {
       setH(curH, false);
       this.setState((st) => ({ motOpen: st.motOpen.map((v, idx) => idx === i ? true : v) }));
-      requestAnimationFrame(() => requestAnimationFrame(() => {
+      setTimeout(() => {
         const newH = el ? el.scrollHeight : null;
         setH(newH, true);
         setTimeout(() => setH(null, false), 320);
-      }));
+      }, 20);
     } else {
       const headerEl = el ? el.querySelector(".cnc-accordion__header") : null;
       const headerH = headerEl ? headerEl.getBoundingClientRect().height : curH;
       setH(curH, false);
-      requestAnimationFrame(() => requestAnimationFrame(() => {
+      setTimeout(() => {
         setH(headerH, true);
         setTimeout(() => { this.setState((st) => ({ motOpen: st.motOpen.map((v, idx) => idx === i ? false : v) })); setH(headerH, false); }, 320);
-      }));
+      }, 20);
     }
   }
 
@@ -1451,18 +1455,18 @@ class Component extends DCLogic {
       const el = this.stepWrapRef.current;
       const oldH = el ? el.getBoundingClientRect().height : null;
       this.setState({ stepWrapHeight: oldH, stepWrapAnimating: false, stepFade: 0 });
-      requestAnimationFrame(() => requestAnimationFrame(() => {
+      setTimeout(() => {
         this.setState({ stepWrapAnimating: true });
         setTimeout(() => {
           this.setState({ step: newStep });
-          requestAnimationFrame(() => requestAnimationFrame(() => {
+          setTimeout(() => {
             let newH = null;
             if (el) { const prevHeight = el.style.height; el.style.height = "auto"; newH = el.getBoundingClientRect().height; el.style.height = prevHeight; }
             this.setState({ stepWrapHeight: newH, stepFade: 1 });
             setTimeout(() => this.setState({ stepWrapHeight: null, stepWrapAnimating: false }), 320);
-          }));
+          }, 20);
         }, 180);
-      }));
+      }, 20);
     };
     const connectVehicle = () => { changeStepTo("searching"); setTimeout(() => changeStepTo("result"), 1400); };
     const finishConnect = () => {
@@ -1478,10 +1482,10 @@ class Component extends DCLogic {
           } catch (e) {}
           this.setState({ trayMounted: false, carsIn: false });
           // Replay the hero slide-in for the new car count, then auto-open the hub tray.
-          requestAnimationFrame(() => requestAnimationFrame(() => {
+          setTimeout(() => {
             this.setState({ carsIn: true });
             this.scheduleAutoOpenTray();
-          }));
+          }, 20);
         }, 420);
       }, 1200);
     };
@@ -1494,18 +1498,18 @@ class Component extends DCLogic {
       const el = this.alertsWrapRef.current;
       const oldH = el ? el.getBoundingClientRect().height : null;
       this.setState({ alertsWrapHeight: oldH, alertsAnimating: false, alertsFade: 0 });
-      requestAnimationFrame(() => requestAnimationFrame(() => {
+      setTimeout(() => {
         this.setState({ alertsAnimating: true });
         setTimeout(() => {
           this.setState({ carFilter: newFilter });
-          requestAnimationFrame(() => requestAnimationFrame(() => {
+          setTimeout(() => {
             let newH = null;
             if (el) { const prevHeight = el.style.height; el.style.height = "auto"; newH = el.getBoundingClientRect().height; el.style.height = prevHeight; }
             this.setState({ alertsWrapHeight: newH, alertsFade: 1 });
             setTimeout(() => this.setState({ alertsWrapHeight: null, alertsAnimating: false }), 320);
-          }));
+          }, 20);
         }, 180);
-      }));
+      }, 20);
     };
 
     // ---- Hub tray reminder items (renault, folded into the tray) ----
@@ -1651,12 +1655,12 @@ class Component extends DCLogic {
       showHeroCar: vehicleCount === 1,
       showOneCar: vehicleCount === 1, showTwoCars: vehicleCount >= 2, showThreeCars: vehicleCount >= 3,
       renault1Style, renault2Style, bydStyle, cadillacStyle,
-      goToCars: () => { if (vehicleCount === 1) this.openCarTray(); else window.location.href = carsPageForCount(vehicleCount); },
+      goToCars: () => this.openCarTray(),
       attentionAlerts: [
-        { carId: "cadillac", title: "Insurance", date: "05 Sep 26", name: "Cadillac", reg: "CL24 LYX", dueLabel: "5 days", img: "../assets/images/cadillac-lyriq-side.png", onClick: () => { window.location.href = "cadillac-insurance-detail.dc.html"; } },
-        { carId: "byd", title: "Insurance", date: "14 Sep 26", name: "BYD", reg: "BY24 SDX", dueLabel: "14 days", img: "../assets/images/byd-seal-side.png", onClick: () => { window.location.href = "byd-insurance-detail.dc.html"; } },
-        { carId: "renault", title: "Tax", date: "21 Sep 26", name: "Renault", reg: "VG23 TZM", dueLabel: "21 days", img: "../assets/images/renault-rafale-side.png", onClick: () => { this.openCarTray(); this.pushView("tax"); } },
-        { carId: "byd", title: "MOT", date: "25 Sep 26", name: "BYD", reg: "BY24 SDX", dueLabel: "25 days", img: "../assets/images/byd-seal-side.png", onClick: () => { window.location.href = "byd-mot-detail.dc.html"; } },
+        { carId: "cadillac", title: "Insurance", date: "05 Sep 26", name: "Cadillac", reg: "CL24 LYX", dueLabel: "5 days", img: "../assets/images/cadillac-lyriq-side.png", onClick: () => { this.setState({ detailCarId: "cadillac" }); this.openCarTray(); this.pushView("insuranceDetail"); } },
+        { carId: "byd", title: "Insurance", date: "14 Sep 26", name: "BYD", reg: "BY24 SDX", dueLabel: "14 days", img: "../assets/images/byd-seal-side.png", onClick: () => { this.setState({ detailCarId: "byd" }); this.openCarTray(); this.pushView("insuranceDetail"); } },
+        { carId: "renault", title: "Tax", date: "21 Sep 26", name: "Renault", reg: "VG23 TZM", dueLabel: "21 days", img: "../assets/images/renault-rafale-side.png", onClick: () => { this.setState({ detailCarId: "renault" }); this.openCarTray(); this.pushView("tax"); } },
+        { carId: "byd", title: "MOT", date: "25 Sep 26", name: "BYD", reg: "BY24 SDX", dueLabel: "25 days", img: "../assets/images/byd-seal-side.png", onClick: () => { this.setState({ detailCarId: "byd" }); this.openCarTray(); this.pushView("motDetail"); } },
       ].filter((a) => vehicles.indexOf(a.carId) !== -1 && (s.carFilter === null || a.carId === s.carFilter)),
 
       // ---- Single-car hub tray ----
