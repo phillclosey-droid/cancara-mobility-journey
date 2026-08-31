@@ -2,12 +2,12 @@
 <html>
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content">
 <script src="./support.js"></script>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="assets/pwa/icon-192.png">
 <link rel="icon" href="assets/pwa/icon-192.png">
-<meta name="theme-color" content="#121212">
+<meta name="theme-color" content="#00A651">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Lloyds Cancara">
 </head>
@@ -21,7 +21,7 @@
     html body { margin: 0; background: var(--background-panel-pressed); display: flex; align-items: stretch; justify-content: center; }
     .pi-frame { scrollbar-width: none; -ms-overflow-style: none; }
     .pi-frame::-webkit-scrollbar { width: 0; height: 0; }
-    .pi-layout { box-sizing: border-box; height: 100%; display: grid; grid-template-rows: auto 1fr auto; padding: var(--spacing-size48) var(--spacing-size16) var(--spacing-size32); overflow: hidden; }
+    .pi-layout { box-sizing: border-box; height: 100%; display: grid; grid-template-rows: auto 1fr auto; padding: calc(var(--spacing-size48) + env(safe-area-inset-top)) var(--spacing-size16) calc(var(--spacing-size32) + env(safe-area-inset-bottom)); overflow-y: auto; }
     .pi-brand { display: flex; justify-content: center; }
     .pi-projects { display: flex; flex-direction: column; justify-content: center; gap: var(--spacing-size16); }
     .pi-projects .cnc-lag { max-width: none; }
@@ -50,11 +50,7 @@
   </script>
 </helmet>
 
-<button type="button" onClick="{{ toggleTheme }}" aria-label="Toggle light / dark" title="Toggle light / dark" style="position: fixed; top: var(--spacing-size16); right: var(--spacing-size16); z-index: 100; width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center; border: var(--border-width-01) solid var(--border-generic-defaultalt01); border-radius: var(--radius-circle); background: var(--background-panel-default); color: var(--text-generic-default); cursor: pointer; padding: 0;">
-  <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Icon" name="Weather/Sun/Sun" size="{{ iconSize }}" padding="{{ iconPad }}" base-path="_ds/cancara" hint-size="24px,24px"></x-import>
-</button>
-
-<div class="pi-frame" style="position: relative; box-sizing: border-box; width: 430px; max-width: 100vw; height: 100dvh; overflow: hidden; background: var(--background-page-default);">
+<div class="pi-frame" style="position: relative; box-sizing: border-box; width: min(100vw, 430px); height: var(--app-vh, 100dvh); overflow: hidden; background: var(--background-page-default);">
 
   <div class="pi-layout" data-screen-label="Project index">
 

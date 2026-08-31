@@ -13,29 +13,23 @@
   s.src = base + '/_ds_bundle.js';
   s.onerror = () => console.error('ds-base.js: failed to load ' + s.src + ' — point the base line at the bound _ds/<folder> tree relative to this page');
   document.head.appendChild(s);
+  // The DS bundle injects a "Light/Dark" specimen-card toggle button (presentation aid
+  // for design-system cards) on every page — journey pages don't want it.
+  const hide = document.createElement('style');
+  hide.textContent = 'button[aria-label="Toggle light or dark mode"] { display: none !important; }';
+  document.head.appendChild(hide);
 
-  // Keep the browser / status-bar chrome matched to the page background, so no
-  // stray brand-green band shows behind the phone status bar. Reads the resolved
-  // --background-page-default token (dark in dark theme, light in light theme)
-  // and writes it to <meta name="theme-color">. Re-runs when the theme toggles.
-  function syncThemeColor() {
-    try {
-      if (!document.body) return;
-      const probe = document.createElement('div');
-      probe.style.cssText = 'position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;background:var(--background-page-default);pointer-events:none';
-      document.body.appendChild(probe);
-      const c = getComputedStyle(probe).backgroundColor;
-      probe.remove();
-      if (!c || c === 'transparent' || c === 'rgba(0, 0, 0, 0)') return;
-      let m = document.querySelector('meta[name="theme-color"]');
-      if (!m) { m = document.createElement('meta'); m.setAttribute('name', 'theme-color'); document.head.appendChild(m); }
-      m.setAttribute('content', c);
-    } catch (e) {}
-  }
-  function scheduleSync() { syncThemeColor(); setTimeout(syncThemeColor, 120); setTimeout(syncThemeColor, 500); }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', scheduleSync);
-  else scheduleSync();
-  try {
-    new MutationObserver(syncThemeColor).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-  } catch (e) {}
+  // Robust mobile viewport height: some mobile browsers report 100dvh a beat late (or
+  // inconsistently) around the address-bar show/hide transition, which can leave the
+  // bottom nav laid out below the true visible area on first paint. Track the real
+  // visible height in JS (falls back to 100dvh where unsupported) and keep it live on
+  // resize/orientation/keyboard changes.
+  const setAppHeight = () => {
+    const h = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
+    document.documentElement.style.setProperty('--app-vh', h + 'px');
+  };
+  setAppHeight();
+  window.addEventListener('resize', setAppHeight);
+  window.addEventListener('orientationchange', setAppHeight);
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', setAppHeight);
 })();

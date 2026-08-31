@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content">
 <script src="./support.js"></script>
 </head>
 <body>
@@ -18,18 +18,18 @@
     .hb-frame .cnc-tpl-base__container::-webkit-scrollbar { width: 0; height: 0; }
 
     .hb-hero { display: flex; flex-direction: column; gap: var(--spacing-size16); background: var(--background-panel-default); border-radius: var(--radius-default); padding: var(--spacing-size16); overflow: hidden; }
-    .hb-hero__toprow { position: relative; z-index: 2; display: flex; align-items: flex-start; gap: var(--spacing-size12); }
+    .hb-hero__toprow { position: relative; z-index: 3; display: flex; align-items: flex-start; gap: var(--spacing-size12); }
     .hb-hero__vehicletext { flex: 1 1 auto; min-width: 0; }
     .hb-hero__vehicletext span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .hb-hero__edit { flex: 0 0 auto; display: flex; align-items: center; gap: var(--spacing-size04); background: transparent; border: 0; padding: 0; cursor: pointer; color: var(--text-action-default); }
-    .hb-carrow { position: relative; width: calc(100% + var(--spacing-size32)); margin: calc(-1 * var(--spacing-size16) - 16px) calc(-1 * var(--spacing-size16)) -16px; aspect-ratio: 16 / 9; height: calc((100% + var(--spacing-size32)) * 9 / 16 - 24px); overflow: hidden; background: linear-gradient(to top, var(--background-panel-default) 0, var(--background-panel-default) 88px, #383838 88px, var(--background-panel-default) 100%); }
+    .hb-carrow { position: relative; width: calc(100% + var(--spacing-size32)); margin: calc(-1 * var(--spacing-size16) - 16px) calc(-1 * var(--spacing-size16)) -16px; aspect-ratio: 16 / 8.3; overflow: hidden; background: linear-gradient(to top, var(--background-panel-default) 0, var(--background-panel-default) 88px, #383838 88px, var(--background-panel-default) 100%); }
     .hb-carrow__img { position: absolute; top: 50%; transition: left 0.45s ease, transform 0.45s ease, height 0.45s ease; z-index: 1; }
     .hb-carrow__img--notransition { transition: none; }
-    .hb-carrow__img--left { left: 0%; height: 148px; transform: translate(-55%, calc(-50% + 16px)); }
-    .hb-carrow__img--right { left: 100%; height: 148px; transform: translate(-45%, calc(-50% + 16px)); }
-    .hb-carrow__img--offleft { left: 0%; height: 98px; transform: translate(-220%, calc(-50% + 16px)); }
-    .hb-carrow__img--offright { left: 100%; height: 98px; transform: translate(220%, calc(-50% + 16px)); }
-    .hb-carrow__img--center { left: 50%; height: 188px; transform: translate(-50%, calc(-50% + 24px)); z-index: 2; }
+    .hb-carrow__img--left { left: 0%; height: 148px; transform: translate(-55%, calc(-50% + 10px)); }
+    .hb-carrow__img--right { left: 100%; height: 148px; transform: translate(-45%, calc(-50% + 10px)); }
+    .hb-carrow__img--offleft { left: 0%; height: 98px; transform: translate(-220%, calc(-50% + 10px)); }
+    .hb-carrow__img--offright { left: 100%; height: 98px; transform: translate(220%, calc(-50% + 10px)); }
+    .hb-carrow__img--center { left: 50%; height: 188px; transform: translate(-50%, calc(-50% + 14px)); z-index: 2; }
     .hb-carrow__img img { display: block; height: 100%; width: auto; transform: scale(var(--car-scale, 1)); transform-origin: center; transition: transform 0.45s ease; }
     @keyframes hb-item-fade { from { opacity: 0; } to { opacity: 1; } }
     .hb-item-reveal { animation: hb-item-fade 0.3s ease 0.25s both; }
@@ -79,7 +79,7 @@
     .cnc-tpl-tray.cnc-tray-overlay { position: absolute; inset: 0; background: transparent; }
     .cnc-tray-overlay .cnc-tpl-tray__page { background: transparent; }
     .cnc-tray-overlay .cnc-tpl-tray__scrim { opacity: 0; transition: opacity 260ms ease; }
-    .cnc-tray-overlay .cnc-tpl-tray__tray { transform: translateY(100%); transition: transform 380ms cubic-bezier(0.22, 1, 0.36, 1); will-change: transform; }
+    .cnc-tray-overlay .cnc-tpl-tray__tray { transform: translateY(100%); transition: transform 380ms cubic-bezier(0.22, 1, 0.36, 1); will-change: transform; max-height: 100%; }
     .cnc-tray-overlay.cnc-tray-overlay--open .cnc-tpl-tray__scrim { opacity: 1; }
     .cnc-tray-overlay.cnc-tray-overlay--open .cnc-tpl-tray__tray { transform: translateY(0); }
     @media (prefers-reduced-motion: reduce) {
@@ -89,7 +89,7 @@
   <script>document.documentElement.setAttribute("data-theme", localStorage.getItem("cnc-theme") || "dark");</script>
 </helmet>
 
-<div class="hb-frame" style="position: relative; box-sizing: border-box; width: 430px; max-width: 100vw; height: 100dvh; overflow: hidden; background: var(--background-page-default);">
+<div class="hb-frame" style="position: relative; box-sizing: border-box; width: min(100vw, 430px); height: var(--app-vh, 100dvh); overflow: hidden; background: var(--background-page-default);">
 
   <x-import component-from-global-scope="CancaraDesignSystem_4b0109.BaseTemplate"
             title="Manage vehicle"
@@ -101,7 +101,7 @@
             active="{{ homeTab }}"
             on-tab-change="{{ onTab }}"
             base-path="_ds/cancara"
-            width="{{ frameW }}" height="100%" hint-size="430px,100%">
+            width="{{ frameW }}" height="100%" status-bar="{{ false }}" hint-size="100%,100%">
 
     <div class="cnc-l-page-end" data-screen-label="Mobility hub">
 
@@ -231,7 +231,7 @@
               page-content="{{ emptyPage }}"
               base-path="_ds/cancara"
               width="100%" height="100%"
-              hint-size="430px,100%">
+              hint-size="100%,100%">
 
       <sc-if value="{{ trayShowMenu }}" hint-placeholder-val="{{ true }}">
         <div style="padding-bottom: var(--spacing-size24);">
@@ -283,7 +283,7 @@ function doneCountOf(mob) { return 2 + mob.completedTasks.length; }
 function pctOf(doneCount) { return Math.round((doneCount / 4) * 100); }
 const CARS = [
   { id: "cadillac", src: "assets/images/cadillac-lyriq-carousel.png", alt: "Cadillac Lyriq", name: "Cadillac", scale: { center: 1, side: 1, off: 1 } },
-  { id: "renault", src: "assets/images/renault-rafale-front-trimmed.png", alt: "Renault Rafale", name: "Renault", scale: { center: 0.85, side: 0.7, off: 0.7 } },
+  { id: "renault", src: "assets/images/renault-rafale-front-trimmed.png", alt: "Renault Rafale", name: "Renault", scale: { center: 0.74, side: 0.74, off: 0.74 } },
   { id: "byd", src: "assets/images/byd-seal-carousel.png", alt: "BYD Seal", name: "BYD", scale: { center: 1, side: 1, off: 1 } },
 ];
 const DEFAULT_SLOTS = { renault: "left", byd: "center", cadillac: "right" };
@@ -294,6 +294,19 @@ const CAR_CONTENT = {
   byd: { completedTasks: ["insurance"], reg: "BY24 SDX" },
   cadillac: { completedTasks: ["insurance", "servicing"], reg: "CL24 LYX" },
 };
+
+function carsPageForCount(n) {
+  if (n >= 3) return "your-car-triple.dc.html";
+  if (n === 2) return "your-car-double.dc.html";
+  return "your-cars-single.dc.html";
+}
+function getVehicleCount() {
+  try {
+    const v = JSON.parse(localStorage.getItem("cnc-mobility-vehicles") || "null");
+    if (Array.isArray(v) && v.length) return v.length;
+  } catch (e) {}
+  return 1;
+}
 
 class Component extends DCLogic {
   constructor(props) {
@@ -337,7 +350,7 @@ class Component extends DCLogic {
       this.settleProgress();
     }
     if (!reducedMotion() && !localStorage.getItem(SEEN_KEY)) {
-      setTimeout(() => { this.rotateCars("left"); try { localStorage.setItem(SEEN_KEY, "1"); } catch (e) {} }, 2600);
+      setTimeout(() => { this.rotateCars("left"); try { localStorage.setItem(SEEN_KEY, "1"); } catch (e) {} }, 1300);
     }
   }
 
@@ -545,14 +558,18 @@ class Component extends DCLogic {
     };
     const links = CAR_LINKS[centeredId] || CAR_LINKS.renault;
     const items = [
-      { asset: "icon", icon: "Date & time/Calendar/Calendar", heading: "", title: titleWithDate("Tax", "06 Aug 25"), showDescription: false, tag: true, tagLabel: "Due in 28 days", onClick: () => { window.location.href = links.tax; } },
+      { asset: "icon", icon: "Date & time/Calendar/Calendar", heading: "", title: titleWithDate("Tax", centeredId === "renault" ? "21 Sep 26" : "06 Feb 27"), showDescription: false, tag: centeredId === "renault", tagLabel: "Due 21 days", onClick: () => { window.location.href = links.tax; } },
     ];
     // The row for whichever task JUST finished revealing gets a fade-in (space opens first via
     // the height tween, then this animation — delayed to start after — fades its content in).
     const justRevealed = animPhase === 5;
-    if (insListReady) items.push({ asset: "icon", icon: "Security/Shield/Shield", title: titleWithDate("Insurance", "09 Nov 25"), showDescription: false, className: (justRevealed && animTask === "insurance") ? "hb-item-reveal" : "", onClick: () => { window.location.href = links.insuranceDetail; } });
-    if (servListReady) items.push({ asset: "icon", icon: "Miscellaneous/Spanner/Spanner", title: titleWithDate("Servicing", "01 Dec 25"), showDescription: false, className: (justRevealed && animTask === "servicing") ? "hb-item-reveal" : "", onClick: () => { window.location.href = links.mot; } });
-    items.push({ asset: "icon", icon: "Documents/Document Success 1/Document Success 1", title: titleWithDate("MOT", "11 Dec 25"), showDescription: false, onClick: () => { window.location.href = links.mot; } });
+    const INSURANCE_DUE = { byd: { date: "14 Sep 26", days: 14 }, cadillac: { date: "05 Sep 26", days: 5 } };
+    const MOT_DUE = { byd: { date: "25 Sep 26", days: 25 } };
+    const insDue = INSURANCE_DUE[centeredId];
+    const motDue = MOT_DUE[centeredId];
+    if (insListReady) items.push({ asset: "icon", icon: "Security/Shield/Shield", title: titleWithDate("Insurance", insDue ? insDue.date : "09 May 27"), showDescription: false, tag: !!insDue, tagLabel: insDue ? "Due " + insDue.days + " days" : undefined, className: (justRevealed && animTask === "insurance") ? "hb-item-reveal" : "", onClick: () => { window.location.href = links.insuranceDetail; } });
+    if (servListReady) items.push({ asset: "icon", icon: "Miscellaneous/Spanner/Spanner", title: titleWithDate("Servicing", "01 Jun 27"), showDescription: false, className: (justRevealed && animTask === "servicing") ? "hb-item-reveal" : "", onClick: () => { window.location.href = links.mot; } });
+    items.push({ asset: "icon", icon: "Documents/Document Success 1/Document Success 1", title: titleWithDate("MOT", motDue ? motDue.date : "11 Jun 27"), showDescription: false, tag: !!motDue, tagLabel: motDue ? "Due " + motDue.days + " days" : undefined, onClick: () => { window.location.href = links.mot; } });
 
     const planItems = [
       { asset: "pictogram", pictogramIcon: "Finance/Piggy Bank/Piggy Bank", heading: "", title: "Set savings goals" },
@@ -569,7 +586,7 @@ class Component extends DCLogic {
 
     return {
       navTabValue: 1,
-      onNavTabChange: (i) => { window.location.href = i === 0 ? "overview.dc.html" : "your-cars-single.dc.html"; },
+      onNavTabChange: (i) => { window.location.href = i === 0 ? "overview.dc.html" : carsPageForCount(getVehicleCount()); },
       toggleTheme: () => {
         const el = document.documentElement;
         const next = el.getAttribute("data-theme") === "dark" ? "light" : "dark";
@@ -577,12 +594,12 @@ class Component extends DCLogic {
         try { localStorage.setItem("cnc-theme", next); } catch (e) {}
         this.setState({ theme: next });
       },
-      headerTrailing: ["Weather/Sun/Sun"],
+      headerTrailing: [],
       hasLeading: true,
       goBack: () => { window.location.href = "account-summary.dc.html"; },
       homeTab: null,
       onTab: (i) => { if (i === 0) window.location.href = "index.dc.html"; },
-      frameW: 430,
+      frameW: "100%",
 
       regValue: mob.reg,
       vehicleName: centeredCar.alt,
@@ -603,17 +620,15 @@ class Component extends DCLogic {
         return [{ id: gc.id + "-ghost", src: gc.src, alt: gc.alt, cls: cls.join(" "), scale: gc.scale[scaleKey] }];
       })() : []),
       carTotal: 3,
-      carActive: (CARS.find((c) => s.slots[c.id] === "center") || CARS[1]).page,
-      onCarPrev: () => this.rotateCars("left"),
-      onCarNext: () => this.rotateCars("right"),
+      carActive: CARS.findIndex((c) => s.slots[c.id] === "center") + 1,
+      onCarPrev: () => this.rotateCars("right"),
+      onCarNext: () => this.rotateCars("left"),
       onCarrowTouchStart: (e) => { this.touchStartX = e.touches[0].clientX; },
       onCarrowTouchEnd: (e) => {
         if (this.touchStartX == null) return;
         const dx = e.changedTouches[0].clientX - this.touchStartX;
         this.touchStartX = null;
         if (Math.abs(dx) < 30) return;
-        // Follow the finger: swipe left (dx<0) reveals the car to the left,
-        // swipe right reveals the car to the right.
         this.rotateCars(dx < 0 ? "left" : "right");
       },
 
