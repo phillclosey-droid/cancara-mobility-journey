@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content">
+<script src="../support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- @template name="Splash / Holding Page" description="Branded full-bleed holding screen for app launch / authentication. The splash artwork fills the device frame (cover), an OS status bar sits at the top, and the Lloyds logo + brand spinner + a two-line caption are centred on the page. The splash content is theme-INVARIANT: the spinner keeps its light-mode (black-ring) look, the status bar is pinned white, and the caption stays dark — in both app themes. The ROOT themes normally so the backdrop around the device frame follows the app theme, while the splash content itself stays pinned. Use it as a few-second hold before transitioning to the next page. Copy this folder to start a new holding screen." -->
+<helmet>
+  <script src="../ds-base.js"></script>
+  <style>
+    /* Body reset + backdrop. The ROOT themes normally (like the Journey Page), so the
+       browser/desk background follows the app theme — light desk in light, dark desk in
+       dark. Desk = --background-panel-pressed. The splash CONTENT stays theme-invariant
+       by pinning where needed: the status bar is held white (data-theme="dark" scope),
+       and the caption uses --text-action-inverse, which is dark in both themes. */
+    html, body { height: 100%; }
+    html body { margin: 0; background: var(--background-panel-pressed); display: flex; align-items: stretch; justify-content: center; }
+
+    /* Spinner pinned to its LIGHT-folder (black-ring) artwork in BOTH app themes. The
+       SpinnerSet swaps folders via `[data-theme="dark"] .cnc-spinnerset__img--*`, whose
+       descendant combinator still matches through the dark ROOT even inside a nested
+       light scope — so the folder must be forced here. These are display-only rules on
+       the component's own internals (no colour/token), same pattern as the Journey
+       Page's component-internal overrides. */
+    .splash-spinner .cnc-spinnerset__img--light { display: block !important; }
+    .splash-spinner .cnc-spinnerset__img--dark { display: none !important; }
+  </style>
+  <!-- Read the persisted theme (chosen on the Project Index) before paint so the
+       backdrop matches the journey's theme on arrival; default dark. The splash
+       CONTENT stays theme-invariant regardless (see the frame below). -->
+  <script>document.documentElement.setAttribute("data-theme", localStorage.getItem("cnc-theme") || "dark");</script>
+</helmet>
+
+<!-- The device frame: 430 wide, fills the viewport height, centred, clips content.
+     Stays light in both app themes. The splash artwork is the frame background —
+     CENTRED, proportions kept, COVER (always fills width + height). Multi-colour
+     source artwork referenced by URL from the asset library, never inlined. -->
+<div class="splash-frame" data-screen-label="Authenticating" style="position: relative; z-index: 1; box-sizing: border-box; width: min(100vw, 430px); height: var(--app-vh, 100dvh); overflow: hidden; background-color: var(--background-page-default); background-image: url('../_ds/cancara/assets/components/Brand/Splash Background/Splash Background.svg'); background-position: center center; background-size: cover; background-repeat: no-repeat; opacity: {{ splashOpacity }}; transition: opacity 600ms ease;">
+
+  <!-- Fake in-app status bar removed — the device's own native status bar shows through instead. -->
+
+  <!-- Centred group — logo + spinner + caption, at the true vertical AND horizontal
+       centre of the PAGE (absolute inset:0, so it ignores the status bar and centres
+       on the full frame). -->
+  <div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
+
+    <!-- Lloyds full logo — 140px wide, proportions kept (height auto). Multi-colour
+         brand mark referenced by URL, rendered verbatim as an <img> (never masked). -->
+    <img src="../_ds/cancara/assets/components/Brand/Lloyds Logo/Lloyds Logo.svg" alt="Lloyds" draggable="false" style="display: block; width: 140px; height: auto;">
+
+    <!-- Brand spinner — 32px below the logo. The .splash-spinner override (see helmet)
+         pins it to its light-folder (black-ring) artwork in BOTH app themes. -->
+    <span class="splash-spinner" style="display: block; margin-top: var(--spacing-size32);">
+      <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Spinner" on-colour="{{ onColour }}" base-path="../_ds/cancara" title="Authenticating" hint-size="64px,64px"></x-import>
+    </span>
+
+    <!-- Caption — 16px below the spinner, type Style 8, over two lines. Sentence case,
+         no full stop (brand voice). --text-action-inverse stays dark (#000 / #121212)
+         in BOTH app themes, so the caption reads on the light artwork either way. -->
+    <p class="type-style8" style="margin: var(--spacing-size08) 0 0; color: var(--text-action-inverse);">Authenticating<br>your device</p>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  // The toggle themes the ROOT — the backdrop follows the app theme. The splash CONTENT
+  // is pinned theme-invariant in the template (status bar white, spinner light-folder,
+  // caption dark), so only the desk around the frame changes.
+  state = { dissolving: false };
+
+  componentDidMount() {
+    setTimeout(() => {
+      this.setState({ dissolving: true });
+      setTimeout(() => { window.location.href = "account-summary.dc.html"; }, 600);
+    }, 4000);
+  }
+
+  renderVals() {
+    return {
+      // Browser-chrome theme toggle — flips the ROOT data-theme (the backdrop remaps)
+      // and PERSISTS the choice so it carries onward with the journey.
+      toggleTheme: () => {
+        const el = document.documentElement;
+        const next = el.getAttribute("data-theme") === "dark" ? "light" : "dark";
+        el.setAttribute("data-theme", next);
+        try { localStorage.setItem("cnc-theme", next); } catch (e) {}
+      },
+      onColour: false,   // Spinner stays light-folder via the data-theme="light" scope around it.
+      iconSize: 24,
+      iconPad: true,
+      splashOpacity: this.state.dissolving ? 0 : 1,
+    };
+  }
+}
+</script>
+</body>
+</html>

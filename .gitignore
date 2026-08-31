@@ -2,7 +2,11 @@
 .DS_Store
 
 # Claude Design canvas working files
+.thumbnail
 .thumbnail/
+
+# Dev QA screenshots (not part of the hosted site)
+screenshots/
 
 # Logs
 *.log

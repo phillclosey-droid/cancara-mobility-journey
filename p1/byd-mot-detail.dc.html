@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content">
+<script src="../support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <script src="../ds-base.js"></script>
+  <style>
+    html, body { height: 100%; }
+    html body { margin: 0; background: var(--background-panel-pressed); display: flex; align-items: stretch; justify-content: center; }
+    .md-frame .cnc-tpl-base__container { scrollbar-width: none; -ms-overflow-style: none; padding-top: var(--spacing-size08); }
+    .md-frame .cnc-tpl-base__container::-webkit-scrollbar { width: 0; height: 0; }
+    .dp-hero { position: relative; padding-top: calc(30px + var(--spacing-size16)) !important; padding-bottom: var(--spacing-size08) !important; }
+    .dp-hero__pictogram { position: absolute; top: -30px; left: var(--spacing-size16); transform: scale(1.5); transform-origin: top left; }
+    .dp-hero .cnc-accordion__header, .dp-hero .cnc-accordion__wrap { padding-left: 0; padding-right: 0; }
+    .dp-hero .cnc-divider { padding-top: 0; padding-bottom: 0; }
+    .dp-hint-flush .cnc-hint { padding-left: 0; padding-right: 0; }
+    .md-frame .cnc-npanel { max-width: none; width: 100%; }
+    .dp-mot-success .cnc-accordion__lead { color: var(--icon-sentiment-success); }
+    .dp-mot-fail .cnc-accordion__lead { color: var(--icon-sentiment-critical); }
+    .dp-mot-success .cnc-divider, .dp-mot-fail .cnc-divider { padding-top: 0; padding-bottom: 0; }
+    .dp-mot-success .cnc-accordion__heading, .dp-mot-fail .cnc-accordion__heading { display: none; }
+    .md-frame .cnc-ldpg { max-width: none; width: 100%; }
+    .dp-policy-row { padding: var(--spacing-size12) 0; border-bottom: var(--border-width-01) solid var(--border-generic-defaultalt01); }
+    .dp-policy-row:last-child { border-bottom: none; }
+    .dp-advisory { padding: var(--spacing-size12) var(--spacing-size16); border-left: 4px solid var(--border-sentiment-warning); border-radius: var(--radius-default); }
+    .cnc-ghostpanel.dp-ghost-noicon .cnc-ghostpanel__lead { display: none; }
+    .dp-hero .cnc-ghostpanel-wrap { padding: 0; width: 100%; height: 100%; }
+    .cnc-ghostpanel.dp-ghost-noicon { flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: var(--spacing-size08); height: 100%; box-sizing: border-box; }
+    .cnc-ghostpanel.dp-ghost-noicon .cnc-ghostpanel__trail { order: -1; }
+    .cnc-ghostpanel.dp-ghost-noicon .cnc-ghostpanel__text { align-items: center; }
+
+    /* FLAGGED OVERRIDE (owner-authorised): the real Accordion always renders a chevron (hardcoded,
+       no prop) — the OLD reference used plus/minus. Recolour-via-mask override to plus (closed) /
+       minus (open), same token-driven mask technique the component itself uses, referencing the
+       library by name — not a re-skin of the component's structure. */
+    .dp-acc-plus .cnc-accordion__chevron .cnc-icon span, .dp-acc-minus .cnc-accordion__chevron .cnc-icon span {
+      -webkit-mask-image: url("../_ds/cancara/assets/icons/Action/Plus/Plus.svg") !important;
+      mask-image: url("../_ds/cancara/assets/icons/Action/Plus/Plus.svg") !important;
+    }
+    .dp-acc-minus .cnc-accordion__chevron .cnc-icon span {
+      -webkit-mask-image: url("../_ds/cancara/assets/icons/Action/Minus/Minus.svg") !important;
+      mask-image: url("../_ds/cancara/assets/icons/Action/Minus/Minus.svg") !important;
+    }
+
+    /* Mileage chart — rebuilt to match the OLD reference: side scale labels, dashed gridlines,
+       full-width distributed bars, rounded bar tops, a marker dot at each bar's top. */
+    .dp-mileage { width: 100%; }
+    .dp-mileage__chart { position: relative; height: 120px; margin-left: 28px; }
+    .dp-mileage__grid { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: space-between; }
+    .dp-mileage__gridline { position: relative; }
+    .dp-mileage__gridlabel { position: absolute; left: -28px; top: -6px; width: 24px; text-align: right; color: var(--text-generic-subdued); }
+    .dp-mileage__dash { display: block; width: 100%; border-top: var(--border-width-01) dashed var(--border-generic-defaultalt01); }
+    .dp-mileage__bars { position: absolute; inset: 0; display: flex; align-items: flex-end; justify-content: space-evenly; }
+    .dp-mileage__barcol { display: flex; align-items: flex-end; height: 100%; }
+    .dp-mileage__bar { position: relative; width: 32px; border-radius: var(--radius-full) var(--radius-full) 0 0; }
+    .dp-mileage__bar--muted { background: var(--c-datavis-bluedefault); }
+    .dp-mileage__bar--brand { background: var(--c-datavis-purpledefault); }
+    .dp-mileage__dot { position: absolute; top: var(--spacing-size08); left: 50%; transform: translateX(-50%); width: 10px; height: 10px; border-radius: var(--radius-circle); background: var(--background-panel-default); }
+    .dp-mileage__labels { display: flex; justify-content: space-evenly; margin-left: 28px; margin-top: var(--spacing-size08); }
+    .dp-mileage__yearlabel { color: var(--text-generic-subdued); }
+  </style>
+  <script>document.documentElement.setAttribute("data-theme", localStorage.getItem("cnc-theme") || "dark");</script>
+</helmet>
+
+<div class="md-frame" style="position: relative; box-sizing: border-box; width: min(100vw, 430px); height: var(--app-vh, 100dvh); overflow: hidden; background: var(--background-page-default);">
+
+  <x-import component-from-global-scope="CancaraDesignSystem_4b0109.BaseTemplate"
+            title="MOT and Servicing"
+            leading-icon="{{ hasLeading }}"
+            leading-icon-name="Arrows/Arrow Left/Arrow Left"
+            on-leading="{{ goBack }}"
+            trailing="{{ headerTrailing }}"
+            on-trailing="{{ toggleTheme }}"
+            active="{{ homeTab }}"
+            on-tab-change="{{ onTab }}"
+            base-path="../_ds/cancara"
+            width="{{ frameW }}" height="100%" status-bar="{{ false }}" hint-size="100%,100%">
+
+    <div class="cnc-l-page-end" data-screen-label="MOT detail">
+
+      <section class="cnc-l-container" style="margin-bottom: var(--spacing-size08);">
+        <div class="cnc-l-flush">
+          <x-import component-from-global-scope="CancaraDesignSystem_4b0109.TwoTabsFixed" tab1-label="Overview" tab2-label="Your cars" value="{{ navTabValue }}" on-change="{{ onNavTabChange }}" width="100%" base-path="../_ds/cancara" hint-size="100%,48px"></x-import>
+        </div>
+      </section>
+
+<sc-if value="{{ alertVisible }}" hint-placeholder-val="{{ true }}">
+        <section class="cnc-l-container" style="margin-bottom: var(--spacing-size24);">
+          <x-import component-from-global-scope="CancaraDesignSystem_4b0109.NotificationPanel"
+                    type="primary" sentiment="warning" layout="title-message"
+                    title="Your MOT is due in 25 days" message="Let us know if you've already booked or completed it."
+                    dismiss="{{ true }}" on-dismiss="{{ dismissAlert }}"
+                    base-path="../_ds/cancara" hint-size="100%,64px"></x-import>
+        </section>
+      </sc-if>
+
+      <section class="cnc-l-container" style="{{ heroSectionStyle }}">
+        <div class="dp-hero cnc-l-panel">
+          <div class="dp-hero__pictogram">
+            <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Pictogram" asset="pictogram" style="default" icon="Security/ID/ID" base-path="../_ds/cancara" hint-size="40px,40px"></x-import>
+          </div>
+          <div class="cnc-l-row" style="gap: var(--spacing-size08); align-items: baseline;">
+            <span class="type-style3" style="color: var(--text-generic-default); font-family: var(--type-style5-family);">BYD Seal</span>
+            <span class="type-style8" style="color: var(--text-generic-subdued);">|</span>
+            <span class="type-style5" style="color: var(--text-generic-default);">BY24 SDX</span>
+          </div>
+          <div class="cnc-l-row" style="display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); align-items: stretch; gap: var(--spacing-size16);">
+            <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size08); padding: var(--spacing-size16); border-radius: var(--radius-default); border: var(--border-width-01) solid var(--border-generic-defaultalt01); min-width: 0; box-sizing: border-box; align-items: flex-start;">
+              <span class="type-style8" style="color: var(--text-generic-subdued);">MOT due</span>
+              <span class="type-style3" style="color: var(--text-generic-default);">25 Sep 2026</span>
+              <x-import component-from-global-scope="CancaraDesignSystem_4b0109.NotificationTag" type="warning" base-path="../_ds/cancara" hint-size="70px,24px">25 days</x-import>
+            </div>
+            <sc-if value="{{ serviceAdded }}" hint-placeholder-val="{{ false }}">
+              <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size08); padding: var(--spacing-size16); border-radius: var(--radius-default); border: var(--border-width-01) solid var(--border-generic-defaultalt01); min-width: 0; box-sizing: border-box; align-items: flex-start;">
+                <span class="type-style8" style="color: var(--text-generic-subdued);">Service due</span>
+                <span class="type-style3" style="color: var(--text-generic-default);">{{ serviceDateLabel }}</span>
+              </div>
+            </sc-if>
+            <sc-if value="{{ serviceNotAdded }}" hint-placeholder-val="{{ true }}">
+              <div style="min-width: 0; display: flex;">
+                <x-import component-from-global-scope="CancaraDesignSystem_4b0109.GhostPanel"
+                          heading="Service" description="Add date"
+                          action-icon="Action/Plus/Plus" action-label="Add"
+                          on-action="{{ goToServiceCapture }}" class-name="dp-ghost-noicon"
+                          base-path="../_ds/cancara" style="width: 100%;" hint-size="100%,100%"></x-import>
+              </div>
+            </sc-if>
+          </div>
+
+          <div class="dp-hint-flush">
+            <x-import component-from-global-scope="CancaraDesignSystem_4b0109.NotificationHint" type="secondary" text="You can get your MOT done up to 30 days before it's due." base-path="../_ds/cancara" hint-size="100%,64px"></x-import>
+          </div>
+
+          <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Divider" width="full" base-path="../_ds/cancara" hint-size="100%,1px"></x-import>
+
+          <div ref="{{ accordionWrapRef }}" class="{{ accordionChevronCls }}" style="{{ accordionWrapStyle }}">
+          <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Accordion"
+                    open="{{ accordionOpen }}" width="full" usage="single" position="middle" content="content-slot"
+                    icon="Navigation/Notifications/Notifications" label="Manage reminder"
+                    on-toggle="{{ toggleAccordion }}" base-path="../_ds/cancara" hint-size="100%,56px">
+            <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size16);">
+              <div class="cnc-l-col" style="--cnc-col-gap: 0;">
+                <div class="dp-policy-row cnc-l-row" style="justify-content: space-between;">
+                  <span class="type-style6" style="color: var(--text-generic-subdued);">MOT due</span>
+                  <span class="type-style6" style="color: var(--text-generic-default);">25 Sep 2026</span>
+                </div>
+                <div class="dp-policy-row cnc-l-row" style="justify-content: space-between;">
+                  <span class="type-style6" style="color: var(--text-generic-subdued);">Reminder</span>
+                  <span class="type-style6" style="color: var(--text-generic-default);">31 Aug 2026</span>
+                </div>
+              </div>
+              <x-import component-from-global-scope="CancaraDesignSystem_4b0109.ActionButton" variant="secondary" icon="Edit/Delete/Delete" base-path="../_ds/cancara" hint-size="100%,48px">Turn reminder off</x-import>
+            </div>
+          </x-import>
+          </div>
+        </div>
+      </section>
+
+      <section class="cnc-l-container">
+        <h2 class="type-style3" style="margin: 0;">Mileage history</h2>
+        <div class="cnc-l-panel" style="align-items: flex-start;">
+          <div class="cnc-l-row" style="align-items: baseline; --cnc-row-gap: var(--spacing-size04);">
+            <span class="type-style2" style="color: var(--text-generic-default);">11,886</span>
+            <span class="type-style6" style="color: var(--text-generic-subdued);">miles</span>
+          </div>
+          <span class="type-style8" style="color: var(--text-generic-subdued);">Mileage for your 2025 MOT</span>
+          <div class="dp-mileage" style="margin-top: var(--spacing-size16);">
+            <div class="dp-mileage__chart">
+              <div class="dp-mileage__grid">
+                <div class="dp-mileage__gridline"><span class="dp-mileage__gridlabel type-style9">12k</span><span class="dp-mileage__dash"></span></div>
+                <div class="dp-mileage__gridline"><span class="dp-mileage__gridlabel type-style9">8k</span><span class="dp-mileage__dash"></span></div>
+                <div class="dp-mileage__gridline"><span class="dp-mileage__gridlabel type-style9">4k</span><span class="dp-mileage__dash"></span></div>
+                <div class="dp-mileage__gridline"><span class="dp-mileage__gridlabel type-style9">0</span><span class="dp-mileage__dash"></span></div>
+              </div>
+              <div class="dp-mileage__bars">
+                <div class="dp-mileage__barcol">
+                  <div class="dp-mileage__bar dp-mileage__bar--muted" style="height: 60%;"><span class="dp-mileage__dot dp-mileage__dot--muted"></span></div>
+                </div>
+                <div class="dp-mileage__barcol">
+                  <div class="dp-mileage__bar dp-mileage__bar--brand" style="height: 90%;"><span class="dp-mileage__dot dp-mileage__dot--brand"></span></div>
+                </div>
+              </div>
+            </div>
+            <div class="dp-mileage__labels">
+              <span class="dp-mileage__yearlabel type-style9">2024</span>
+              <span class="dp-mileage__yearlabel type-style9">2025</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="cnc-l-container" style="margin-bottom: var(--spacing-size24);">
+        <div class="cnc-l-flush">
+          <x-import component-from-global-scope="CancaraDesignSystem_4b0109.TwoTabsFixed" tab1-label="Last MOT" tab2-label="All MOT's" value="{{ tabValue }}" on-change="{{ onTabChange }}" width="100%" base-path="../_ds/cancara" hint-size="100%,48px"></x-import>
+        </div>
+      </section>
+
+      <sc-if value="{{ showLastMot }}" hint-placeholder-val="{{ true }}">
+        <section class="cnc-l-container" style="margin-bottom: var(--spacing-size48);">
+          <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size16); align-items: flex-start;">
+            <x-import component-from-global-scope="CancaraDesignSystem_4b0109.NotificationTag" type="success" base-path="../_ds/cancara" hint-size="150px,24px">Passed 21 Oct 2024</x-import>
+            <h3 class="type-style5" style="margin: 0; color: var(--text-generic-default);">Advisories</h3>
+            <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size12); width: 100%;">
+              <div class="dp-advisory"><span class="type-style8" style="color: var(--text-generic-subdued);">Tyre slightly damaged/cracking or perishing. Both rear (5.2.3 (d) (ii)).</span></div>
+              <div class="dp-advisory"><span class="type-style8" style="color: var(--text-generic-subdued);">Nearside front coil spring corroded</span></div>
+              <div class="dp-advisory"><span class="type-style8" style="color: var(--text-generic-subdued);">Both front tyres wearing on inner edge.</span></div>
+            </div>
+          </div>
+        </section>
+      </sc-if>
+
+      <sc-if value="{{ showAllMots }}" hint-placeholder-val="{{ false }}">
+        <section class="cnc-l-container" style="margin-bottom: var(--spacing-size48);">
+          <div>
+            <div ref="{{ motWrapRef0 }}" class="{{ mot0Cls }}" style="{{ motWrapStyle0 }}"><x-import component-from-global-scope="CancaraDesignSystem_4b0109.Accordion" class="dp-mot-success" heading="" open="{{ motOpen0 }}" on-toggle="{{ toggleMot0 }}" usage="group" position="top" width="compact" label="Mot passed" subtitle="11 / 08 / 2024" icon="Sentiment system/Success/Success" content="text-only" body-text="Your vehicle passed its MOT inspection with no major issues." base-path="../_ds/cancara" hint-size="100%,64px"></x-import></div>
+            <div ref="{{ motWrapRef1 }}" class="{{ mot1Cls }}" style="{{ motWrapStyle1 }}"><x-import component-from-global-scope="CancaraDesignSystem_4b0109.Accordion" class="dp-mot-success" open="{{ motOpen1 }}" on-toggle="{{ toggleMot1 }}" usage="group" position="middle" width="compact" label="Mot passed" subtitle="11 / 08 / 2023" icon="Sentiment system/Success/Success" content="text-only" body-text="Your vehicle passed its MOT inspection with no major issues." base-path="../_ds/cancara" hint-size="100%,64px"></x-import></div>
+            <div ref="{{ motWrapRef2 }}" class="{{ mot2Cls }}" style="{{ motWrapStyle2 }}"><x-import component-from-global-scope="CancaraDesignSystem_4b0109.Accordion" class="dp-mot-fail" open="{{ motOpen2 }}" on-toggle="{{ toggleMot2 }}" usage="group" position="middle" width="compact" label="Mot failed" subtitle="11 / 08 / 2023" icon="Sentiment system/Cross/Cross" content="text-only" body-text="Your vehicle failed its MOT inspection and required repairs before passing." base-path="../_ds/cancara" hint-size="100%,64px"></x-import></div>
+            <div ref="{{ motWrapRef3 }}" class="{{ mot3Cls }}" style="{{ motWrapStyle3 }}"><x-import component-from-global-scope="CancaraDesignSystem_4b0109.Accordion" class="dp-mot-success" open="{{ motOpen3 }}" on-toggle="{{ toggleMot3 }}" usage="group" position="bottom" width="compact" label="Mot passed" subtitle="11 / 08 / 2022" icon="Sentiment system/Success/Success" content="text-only" body-text="Your vehicle passed its MOT inspection with no major issues." base-path="../_ds/cancara" hint-size="100%,64px"></x-import></div>
+          </div>
+        </section>
+      </sc-if>
+
+    </div>
+  </x-import>
+</div>
+</helmet>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+function carsPageForCount(n) {
+  if (n >= 3) return "your-car-triple.dc.html";
+  if (n === 2) return "your-car-double.dc.html";
+  return "your-cars-single.dc.html";
+}
+function getVehicleCount() {
+  try {
+    const v = JSON.parse(localStorage.getItem("cnc-mobility-vehicles") || "null");
+    if (Array.isArray(v) && v.length) return v.length;
+  } catch (e) {}
+  return 1;
+}
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.accordionWrapRef = React.createRef();
+    this.motWrapRefs = [React.createRef(), React.createRef(), React.createRef(), React.createRef()];
+    let serviceDate = null;
+    try {
+      const raw = JSON.parse(localStorage.getItem("cnc-service-byd") || "null");
+      if (raw && raw.date) serviceDate = raw.date;
+    } catch (e) {}
+    let servicingDone = false;
+    try {
+      const mob = JSON.parse(localStorage.getItem("cnc-mobility-state") || "null");
+      servicingDone = !!(mob && Array.isArray(mob.completedTasks) && mob.completedTasks.indexOf("servicing") !== -1);
+    } catch (e) {}
+    this.state = { accordionOpen: false, alertVisible: true, tab: 0, accordionWrapHeight: null, accordionAnimating: false, motOpen: [false, false, false, false], motWrapHeight: [null, null, null, null], motAnimating: [false, false, false, false], serviceDate, servicingDone };
+  }
+  toggleMotAt(i) {
+    const el = this.motWrapRefs[i].current;
+    const willOpen = !this.state.motOpen[i];
+    const reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) {
+      this.setState((st) => ({ motOpen: st.motOpen.map((v, idx) => idx === i ? willOpen : v) }));
+      return;
+    }
+    const curH = el ? el.getBoundingClientRect().height : null;
+    const setH = (h, animating) => this.setState((st) => ({
+      motWrapHeight: st.motWrapHeight.map((v, idx) => idx === i ? h : v),
+      motAnimating: st.motAnimating.map((v, idx) => idx === i ? animating : v),
+    }));
+    if (willOpen) {
+      setH(curH, false);
+      this.setState((st) => ({ motOpen: st.motOpen.map((v, idx) => idx === i ? true : v) }));
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        const newH = el ? el.scrollHeight : null;
+        setH(newH, true);
+        setTimeout(() => setH(null, false), 320);
+      }));
+    } else {
+      const headerEl = el ? el.querySelector(".cnc-accordion__header") : null;
+      const headerH = headerEl ? headerEl.getBoundingClientRect().height : curH;
+      setH(curH, false);
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        setH(headerH, true);
+        // Stay pinned at headerH (don't clear to null) — the closed accordion's natural height
+        // can differ by a px or two from this measurement, and clearing on the same tick as
+        // flipping motOpen false caused a visible snap at the end of the close tween.
+        setTimeout(() => {
+          this.setState((st) => ({ motOpen: st.motOpen.map((v, idx) => idx === i ? false : v) }));
+          setH(headerH, false);
+        }, 320);
+      }));
+    }
+  }
+  toggleAccordion() {
+    const el = this.accordionWrapRef.current;
+    const willOpen = !this.state.accordionOpen;
+    const reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) { this.setState({ accordionOpen: willOpen }); return; }
+    const curH = el ? el.getBoundingClientRect().height : null;
+    if (willOpen) {
+      this.setState({ accordionWrapHeight: curH, accordionAnimating: false, accordionOpen: true });
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        const newH = el ? el.scrollHeight : null;
+        this.setState({ accordionWrapHeight: newH, accordionAnimating: true });
+        setTimeout(() => this.setState({ accordionWrapHeight: null, accordionAnimating: false }), 320);
+      }));
+    } else {
+      const headerEl = el ? el.querySelector(".cnc-accordion__header") : null;
+      const headerH = headerEl ? headerEl.getBoundingClientRect().height : curH;
+      this.setState({ accordionWrapHeight: curH, accordionAnimating: false });
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        this.setState({ accordionWrapHeight: headerH, accordionAnimating: true });
+        setTimeout(() => this.setState({ accordionOpen: false, accordionWrapHeight: null, accordionAnimating: false }), 320);
+      }));
+    }
+  }
+  renderVals() {
+    const s = this.state;
+    return {
+      accordionWrapRef: this.accordionWrapRef,
+      accordionWrapStyle: s.accordionWrapHeight != null
+        ? { height: s.accordionWrapHeight + "px", overflow: "hidden", transition: s.accordionAnimating ? "height 300ms ease" : "none" }
+        : {},
+      navTabValue: 1,
+      onNavTabChange: (i) => { window.location.href = i === 0 ? "overview.dc.html" : carsPageForCount(getVehicleCount()); },
+      toggleTheme: () => {
+        const el = document.documentElement;
+        const next = el.getAttribute("data-theme") === "dark" ? "light" : "dark";
+        el.setAttribute("data-theme", next);
+        try { localStorage.setItem("cnc-theme", next); } catch (e) {}
+      },
+      headerTrailing: ["Weather/Sun/Sun"],
+      hasLeading: true,
+      goBack: () => { window.location.href = carsPageForCount(getVehicleCount()); },
+      homeTab: null,
+      onTab: (i) => { if (i === 0) window.location.href = "../index.dc.html"; },
+      frameW: "100%",
+      goToServiceCapture: () => { window.location.href = "byd-service-capture.dc.html"; },
+      serviceAdded: !!(s.servicingDone && s.serviceDate),
+      serviceNotAdded: !(s.servicingDone && s.serviceDate),
+      serviceDateLabel: s.serviceDate,
+
+      alertVisible: s.alertVisible,
+      dismissAlert: () => this.setState({ alertVisible: false }),
+      // The pictogram physically protrudes 30px above the hero panel no matter what — that's
+      // the minimum clearance needed so it's never clipped. With the alert showing, add the
+      // requested 24px visible gap on top of that; with it dismissed, the smaller flat 30px
+      // keeps the hero from sitting too far down the page.
+      heroSectionStyle: { marginTop: "calc(30px + var(--spacing-size24))" },
+
+      accordionOpen: s.accordionOpen,
+      accordionChevronCls: s.accordionOpen ? "dp-acc-minus" : "dp-acc-plus",
+      toggleAccordion: () => this.toggleAccordion(),
+      // Simplified from the OLD reference's bar chart: the source only gave relative bar heights
+      // for 2024/2025 (no per-year mileage figures), so rather than invent numbers this shows the
+      // one real reading provided, as a bespoke token-driven reading (not a misused list component).
+      // FLAG: no chart component exists in Cancara — a proper mileage trend visual needs a chart
+      // primitive the system doesn't have yet.
+
+      tabValue: s.tab,
+      onTabChange: (i) => this.setState({ tab: i }),
+      showLastMot: s.tab === 0,
+      showAllMots: s.tab === 1,
+
+      motOpen0: s.motOpen[0], motOpen1: s.motOpen[1], motOpen2: s.motOpen[2], motOpen3: s.motOpen[3],
+      mot0Cls: s.motOpen[0] ? "dp-acc-minus" : "dp-acc-plus",
+      mot1Cls: s.motOpen[1] ? "dp-acc-minus" : "dp-acc-plus",
+      mot2Cls: s.motOpen[2] ? "dp-acc-minus" : "dp-acc-plus",
+      mot3Cls: s.motOpen[3] ? "dp-acc-minus" : "dp-acc-plus",
+      toggleMot0: () => this.toggleMotAt(0),
+      toggleMot1: () => this.toggleMotAt(1),
+      toggleMot2: () => this.toggleMotAt(2),
+      toggleMot3: () => this.toggleMotAt(3),
+      motWrapRef0: this.motWrapRefs[0], motWrapRef1: this.motWrapRefs[1], motWrapRef2: this.motWrapRefs[2], motWrapRef3: this.motWrapRefs[3],
+      motWrapStyle0: s.motWrapHeight[0] != null ? { height: s.motWrapHeight[0] + "px", overflow: "hidden", transition: s.motAnimating[0] ? "height 300ms ease" : "none" } : {},
+      motWrapStyle1: s.motWrapHeight[1] != null ? { height: s.motWrapHeight[1] + "px", overflow: "hidden", transition: s.motAnimating[1] ? "height 300ms ease" : "none" } : {},
+      motWrapStyle2: s.motWrapHeight[2] != null ? { height: s.motWrapHeight[2] + "px", overflow: "hidden", transition: s.motAnimating[2] ? "height 300ms ease" : "none" } : {},
+      motWrapStyle3: s.motWrapHeight[3] != null ? { height: s.motWrapHeight[3] + "px", overflow: "hidden", transition: s.motAnimating[3] ? "height 300ms ease" : "none" } : {},
+    };
+  }
+}
+
+</script>
+</body>
+</html>

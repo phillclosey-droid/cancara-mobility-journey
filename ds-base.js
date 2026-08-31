@@ -1,7 +1,8 @@
 // Loads the bound Cancara design system into every page of this journey.
 // ONE line to edit: `base` points at the bound DS folder relative to this file.
 (() => {
-  const base = '_ds/cancara';
+  const scriptDir = document.currentScript.src.replace(/[^/]*$/, '');
+  const base = scriptDir + '_ds/cancara';
   // journey.css is the journey-page entry — it @imports styles.css (tokens, fonts,
   // base) plus layout.css + transitions.css (the assembly helpers). One link.
   for (const p of ["journey.css"]) {

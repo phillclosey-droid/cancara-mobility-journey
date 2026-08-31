@@ -26,6 +26,7 @@
     .pi-projects { display: flex; flex-direction: column; justify-content: center; gap: var(--spacing-size16); }
     .pi-projects .cnc-lag { max-width: none; }
     .pi-foot { display: flex; flex-direction: column; align-items: stretch; gap: var(--spacing-size16); }
+    .pi-foot .cnc-hint { max-width: none; }
     .pi-foot .cnc-divider { padding-top: var(--spacing-size08); padding-bottom: var(--spacing-size08); }
     .pi-foottext {
       text-align: center; text-transform: uppercase; color: var(--text-generic-subdued);
@@ -59,7 +60,8 @@
     </div>
 
     <div class="pi-projects">
-      <x-import component-from-global-scope="CancaraDesignSystem_4b0109.ListActionGroup" width="compact" base-path="_ds/cancara" items="{{ projectMobility }}" hint-size="100%,96px"></x-import>
+      <x-import component-from-global-scope="CancaraDesignSystem_4b0109.ListActionGroup" width="compact" base-path="_ds/cancara" items="{{ projectOne }}" hint-size="100%,80px"></x-import>
+      <x-import component-from-global-scope="CancaraDesignSystem_4b0109.ListActionGroup" width="compact" base-path="_ds/cancara" items="{{ projectTwo }}" hint-size="100%,80px"></x-import>
     </div>
 
     <div class="pi-foot">
@@ -109,7 +111,7 @@ class Component extends DCLogic {
       try { localStorage.setItem("cnc-theme", mode); } catch (e) {}
       document.documentElement.setAttribute("data-theme", mode);
     };
-    const advance = () => { window.location.href = this.state.pendingUrl || "account-summary.dc.html"; };
+    const advance = () => { window.location.href = this.state.pendingUrl || "p1/account-summary.dc.html"; };
 
     return {
       toggleTheme: () => {
@@ -128,14 +130,25 @@ class Component extends DCLogic {
       horseSize: 44,
       horseProps: { src: "_ds/cancara/assets/components/Bank Logo/Lloyds/Lloyds.svg" },
 
-      projectMobility: [{
+      projectOne: [{
         asset: "pictogram",
         pictogramIcon: "Travel/Car/Car",
         pictogramStyle: "primary",
+        showHeading: false,
         title: "Multiple cars - Prototype one",
         description: "Onboarding multiple cars with tab navigation",
         showDescription: true,
-        onClick: () => askTheme("splash.dc.html"),
+        onClick: () => askTheme("p1/splash.dc.html"),
+      }],
+      projectTwo: [{
+        asset: "pictogram",
+        pictogramIcon: "Travel/Van/Van",
+        pictogramStyle: "secondary",
+        showHeading: false,
+        title: "Multiple cars - Prototype two",
+        description: "Your cars handled in a bottom tray, no top tabs",
+        showDescription: true,
+        onClick: () => askTheme("p2/splash.dc.html"),
       }],
 
       showInstallHint: !this.state.standalone,

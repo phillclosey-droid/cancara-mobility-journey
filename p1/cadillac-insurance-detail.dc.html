@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content">
+<script src="../support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <script src="../ds-base.js"></script>
+  <style>
+    html, body { height: 100%; }
+    html body { margin: 0; background: var(--background-panel-pressed); display: flex; align-items: stretch; justify-content: center; }
+    .ind-frame .cnc-tpl-base__container { scrollbar-width: none; -ms-overflow-style: none; padding-top: var(--spacing-size08); }
+    .ind-frame .cnc-tpl-base__container::-webkit-scrollbar { width: 0; height: 0; }
+    .dp-hero { position: relative; padding-top: calc(var(--spacing-size16) + var(--spacing-size24)) !important; padding-bottom: var(--spacing-size08) !important; }
+    .dp-hero__pictogram { position: absolute; top: -30px; left: var(--spacing-size16); transform: scale(1.5); transform-origin: top left; }
+    .dp-hero .cnc-divider { padding-top: 0; padding-bottom: 0; }
+    .dp-hero .cnc-accordion__header, .dp-hero .cnc-accordion__wrap { padding-left: 0; padding-right: 0; }
+    .ind-frame .cnc-ldpg { max-width: none; width: 100%; }
+    .dp-policy-row { padding: var(--spacing-size12) 0; border-bottom: var(--border-width-01) solid var(--border-generic-defaultalt01); }
+    .dp-policy-row:last-child { border-bottom: none; }
+    .dp-modal-overlay {
+      position: absolute; inset: 0; z-index: 20;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 260ms ease;
+    }
+    .dp-modal-overlay--open { opacity: 1; pointer-events: auto; }
+    .dp-modal-overlay .cnc-cpm { width: 100%; height: 100%; }
+    @media (prefers-reduced-motion: reduce) { .dp-modal-overlay { transition: none; } }
+  </style>
+  <script>document.documentElement.setAttribute("data-theme", localStorage.getItem("cnc-theme") || "dark");</script>
+</helmet>
+
+<div class="ind-frame" style="position: relative; box-sizing: border-box; width: min(100vw, 430px); height: var(--app-vh, 100dvh); overflow: hidden; background: var(--background-page-default);">
+
+  <x-import component-from-global-scope="CancaraDesignSystem_4b0109.BaseTemplate"
+            title="Vehicle insurance"
+            leading-icon="{{ hasLeading }}"
+            leading-icon-name="Arrows/Arrow Left/Arrow Left"
+            on-leading="{{ goBack }}"
+            trailing="{{ headerTrailing }}"
+            on-trailing="{{ toggleTheme }}"
+            active="{{ homeTab }}"
+            on-tab-change="{{ onTab }}"
+            base-path="../_ds/cancara"
+            width="{{ frameW }}" height="100%" status-bar="{{ false }}" hint-size="100%,100%">
+
+    <div class="cnc-l-page-end" data-screen-label="Insurance detail">
+      <section class="cnc-l-container" style="margin-bottom: calc(var(--spacing-size24) + var(--spacing-size16));">
+        <div class="cnc-l-flush">
+          <x-import component-from-global-scope="CancaraDesignSystem_4b0109.TwoTabsFixed" tab1-label="Overview" tab2-label="Your cars" value="{{ navTabValue }}" on-change="{{ onNavTabChange }}" width="100%" base-path="../_ds/cancara" hint-size="100%,48px"></x-import>
+        </div>
+      </section>
+
+      <section class="cnc-l-container" style="margin-bottom: var(--spacing-size48);">
+        <div class="dp-hero cnc-l-panel">
+          <div class="dp-hero__pictogram">
+            <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Pictogram" asset="pictogram" style="default" icon="Security/Shield/Shield" base-path="../_ds/cancara" hint-size="40px,40px"></x-import>
+          </div>
+          <div class="cnc-l-row" style="gap: var(--spacing-size08); align-items: baseline;">
+            <span class="type-style3" style="color: var(--text-generic-default); font-family: var(--type-style5-family);">Cadillac Lyriq</span>
+            <span class="type-style8" style="color: var(--text-generic-subdued);">|</span>
+            <span class="type-style5" style="color: var(--text-generic-default);">CL24 LYX</span>
+          </div>
+          <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size04);">
+            <span class="type-style8" style="color: var(--text-generic-subdued);">Insurance expires</span>
+            <div class="cnc-l-row" style="justify-content: flex-start; align-items: center; --cnc-row-gap: var(--spacing-size08);">
+              <span class="type-style3" style="color: var(--text-generic-default);">05 Sep 2026</span>
+              <x-import component-from-global-scope="CancaraDesignSystem_4b0109.NotificationTag" type="warning" base-path="../_ds/cancara" hint-size="70px,24px">5 days</x-import>
+            </div>
+          </div>
+
+          <x-import component-from-global-scope="CancaraDesignSystem_4b0109.ActionButton" variant="primary" icon="Arrows/Arrow Right/Arrow Right" on-click="{{ openLeaveModal }}" base-path="../_ds/cancara" hint-size="100%,48px">Manage policy</x-import>
+
+          <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Divider" width="full" base-path="../_ds/cancara" hint-size="100%,1px"></x-import>
+
+          <div ref="{{ accordionWrapRef }}" style="{{ accordionWrapStyle }}">
+          <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Accordion"
+                    open="{{ accordionOpen }}" width="full" usage="single" position="middle" content="content-slot"
+                    icon="Navigation/Notifications/Notifications" label="Manage reminder"
+                    on-toggle="{{ toggleAccordion }}" base-path="../_ds/cancara" hint-size="100%,56px">
+            <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size16);">
+              <div class="cnc-l-col" style="--cnc-col-gap: 0;">
+                <div class="dp-policy-row cnc-l-row" style="justify-content: space-between;">
+                  <span class="type-style6" style="color: var(--text-generic-subdued);">Insured until</span>
+                  <span class="type-style6" style="color: var(--text-generic-default);">05 Sep 2026</span>
+                </div>
+                <div class="dp-policy-row cnc-l-row" style="justify-content: space-between;">
+                  <span class="type-style6" style="color: var(--text-generic-subdued);">Reminder</span>
+                  <span class="type-style6" style="color: var(--text-generic-default);">31 Aug 2026</span>
+                </div>
+              </div>
+              <x-import component-from-global-scope="CancaraDesignSystem_4b0109.ActionButton" variant="secondary" icon="Edit/Delete/Delete" base-path="../_ds/cancara" hint-size="100%,48px">Turn reminder off</x-import>
+            </div>
+          </x-import>
+          </div>
+        </div>
+      </section>
+
+      <section class="cnc-l-container">
+        <h2 class="type-style3" style="margin: 0;">Policy details</h2>
+        <div class="cnc-l-col" style="--cnc-col-gap: 0;">
+          <sc-for list="{{ policyRows }}" as="row" hint-placeholder-count="6">
+            <div class="dp-policy-row cnc-l-row" style="justify-content: space-between;">
+              <span class="type-style6" style="color: var(--text-generic-subdued);">{{ row.label }}</span>
+              <span class="type-style6" style="color: var(--text-generic-default); text-align: right;">{{ row.value }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+    </div>
+  </x-import>
+
+  <div class="{{ modalClass }}">
+    <x-import component-from-global-scope="CancaraDesignSystem_4b0109.CustomPopupModal"
+              sentiment="default" link-stack="2-horizontal"
+              title="You're about to leave Lloyds banking"
+              message="We'll send you to our insurance website to manage your policy."
+              primary-label="Cancel" secondary-label="Continue"
+              on-primary="{{ closeLeaveModal }}" on-secondary="{{ closeLeaveModal }}"
+              base-path="../_ds/cancara" hint-size="100%,100%"></x-import>
+  </div>
+</div>
+</helmet>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+function carsPageForCount(n) {
+  if (n >= 3) return "your-car-triple.dc.html";
+  if (n === 2) return "your-car-double.dc.html";
+  return "your-cars-single.dc.html";
+}
+function getVehicleCount() {
+  try {
+    const v = JSON.parse(localStorage.getItem("cnc-mobility-vehicles") || "null");
+    if (Array.isArray(v) && v.length) return v.length;
+  } catch (e) {}
+  return 1;
+}
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.accordionWrapRef = React.createRef();
+    this.state = { accordionOpen: false, modalOpen: false, accordionWrapHeight: null, accordionAnimating: false };
+  }
+  toggleAccordion() {
+    const el = this.accordionWrapRef.current;
+    const willOpen = !this.state.accordionOpen;
+    const reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) { this.setState({ accordionOpen: willOpen }); return; }
+    const curH = el ? el.getBoundingClientRect().height : null;
+    if (willOpen) {
+      this.setState({ accordionWrapHeight: curH, accordionAnimating: false, accordionOpen: true });
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        const newH = el ? el.scrollHeight : null;
+        this.setState({ accordionWrapHeight: newH, accordionAnimating: true });
+        setTimeout(() => this.setState({ accordionWrapHeight: null, accordionAnimating: false }), 320);
+      }));
+    } else {
+      const headerEl = el ? el.querySelector(".cnc-accordion__header") : null;
+      const headerH = headerEl ? headerEl.getBoundingClientRect().height : curH;
+      this.setState({ accordionWrapHeight: curH, accordionAnimating: false });
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        this.setState({ accordionWrapHeight: headerH, accordionAnimating: true });
+        setTimeout(() => this.setState({ accordionOpen: false, accordionWrapHeight: null, accordionAnimating: false }), 320);
+      }));
+    }
+  }
+  renderVals() {
+    const s = this.state;
+    return {
+      accordionWrapRef: this.accordionWrapRef,
+      accordionWrapStyle: s.accordionWrapHeight != null
+        ? { height: s.accordionWrapHeight + "px", overflow: "hidden", transition: s.accordionAnimating ? "height 300ms ease" : "none" }
+        : {},
+      navTabValue: 1,
+      onNavTabChange: (i) => { window.location.href = i === 0 ? "overview.dc.html" : carsPageForCount(getVehicleCount()); },
+      toggleTheme: () => {
+        const el = document.documentElement;
+        const next = el.getAttribute("data-theme") === "dark" ? "light" : "dark";
+        el.setAttribute("data-theme", next);
+        try { localStorage.setItem("cnc-theme", next); } catch (e) {}
+      },
+      headerTrailing: ["Weather/Sun/Sun"],
+      hasLeading: true,
+      goBack: () => { window.location.href = carsPageForCount(getVehicleCount()); },
+      homeTab: null,
+      onTab: (i) => { if (i === 0) window.location.href = "../index.dc.html"; },
+      frameW: "100%",
+
+      accordionOpen: s.accordionOpen,
+      toggleAccordion: () => this.toggleAccordion(),
+      policyRows: [
+        { label: "Provider", value: "Lloyds Bank" },
+        { label: "Expiry date", value: "05 Sep 2026" },
+        { label: "Policy type", value: "Comprehensive" },
+        { label: "Cost", value: "£640" },
+        { label: "Payment type", value: "Annual" },
+        { label: "Policy number", value: "ABC123456789" },
+      ],
+
+      modalClass: "dp-modal-overlay" + (s.modalOpen ? " dp-modal-overlay--open" : ""),
+      openLeaveModal: () => this.setState({ modalOpen: true }),
+      closeLeaveModal: () => this.setState({ modalOpen: false }),
+    };
+  }
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content">
+<script src="../support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<!-- @template name="Service Capture" description="Question-page: CalendarPicker for service date, Set reminder / Skip. Back to hub. Calendar opens as a centered, fading overlay (page-scoped — no generic overlay component exists)." -->
+<helmet>
+  <script src="../ds-base.js"></script>
+  <style>
+    html, body { height: 100%; }
+    html body { margin: 0; background: var(--background-panel-pressed); display: flex; align-items: stretch; justify-content: center; }
+    .sc-frame .cnc-tpl-base__container { scrollbar-width: none; -ms-overflow-style: none; padding-top: var(--spacing-size08); }
+    .sc-frame .cnc-tpl-base__container::-webkit-scrollbar { width: 0; height: 0; }
+    .sc-actionbar {
+      position: absolute; left: 0; right: 0;
+      bottom: var(--sc-nav-h, 0px);
+      z-index: 6;
+      box-sizing: border-box;
+      display: flex; flex-direction: column;
+      gap: var(--spacing-size16);
+      padding: var(--spacing-size16);
+      background: var(--background-page-default);
+    }
+    .sc-frame .cnc-tpl-base__container {
+      padding-bottom: calc(
+        var(--sc-bar-h, 0px) +
+        var(--spacing-size48) + var(--spacing-size16) + var(--spacing-size08) + var(--spacing-size04)
+      );
+    }
+    .sc-cal-overlay {
+      position: absolute; inset: 0; z-index: 20;
+      display: flex; align-items: center; justify-content: center;
+      background: transparent; opacity: 0; pointer-events: none;
+      transition: opacity 260ms ease, background 260ms ease;
+    }
+    .sc-cal-overlay--open {
+      background: var(--background-overlay-default); opacity: 1; pointer-events: auto;
+    }
+    .sc-cal-overlay__card {
+      transform: scale(0.94); transition: transform 260ms ease;
+      box-shadow: var(--shadow-elevation-03, 0 8px 24px rgba(0,0,0,0.24));
+      border-radius: var(--radius-medium);
+      overflow: hidden;
+    }
+    .sc-cal-overlay--open .sc-cal-overlay__card { transform: scale(1); }
+    @media (prefers-reduced-motion: reduce) {
+      .sc-cal-overlay, .sc-cal-overlay__card { transition: none; }
+    }
+  </style>
+  <script>document.documentElement.setAttribute("data-theme", localStorage.getItem("cnc-theme") || "dark");</script>
+</helmet>
+
+<div class="sc-frame" style="position: relative; box-sizing: border-box; width: min(100vw, 430px); height: var(--app-vh, 100dvh); overflow: hidden; background: var(--background-page-default);">
+
+  <x-import component-from-global-scope="CancaraDesignSystem_4b0109.BaseTemplate"
+            title="Set service reminder"
+            leading-icon="{{ hasLeading }}"
+            leading-icon-name="Arrows/Arrow Left/Arrow Left"
+            on-leading="{{ goBack }}"
+            trailing="{{ headerTrailing }}"
+            on-trailing="{{ toggleTheme }}"
+            active="{{ homeTab }}"
+            base-path="../_ds/cancara"
+            width="{{ frameW }}" height="100%" status-bar="{{ false }}" hint-size="100%,100%">
+
+    <div data-screen-label="Service capture">
+      
+      <section class="cnc-l-container">
+        <p class="type-style6" style="margin: 0; color: var(--text-generic-default);">Tell us when your next service is due, and we'll send a reminder 30 days before.</p>
+      </section>
+
+      <section class="cnc-l-container">
+        <div class="cnc-l-flush">
+          <x-import component-from-global-scope="CancaraDesignSystem_4b0109.CalendarPicker"
+                    label="Enter service date"
+                    value="{{ dateValue }}"
+                    hint="Not sure of the exact date? You can put an estimate for now. Just make sure you know the right date before you take out new insurance."
+                    interactive="{{ true }}"
+                    on-toggle="{{ onPickerToggle }}"
+                    dc-key="{{ calKey }}"
+                    base-path="../_ds/cancara"
+                    width="100%"
+                    hint-size="100%,140px"></x-import>
+        </div>
+      </section>
+    </div>
+  </x-import>
+
+  <div class="{{ overlayClass }}">
+    <div class="sc-cal-overlay__card">
+      <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Calendar"
+                instructions="Choose a date"
+                month="{{ monthLabel }}"
+                weeks="{{ weeks }}"
+                cancel-label="Cancel"
+                on-select-date="{{ selectDate }}"
+                on-prev-month="{{ prevMonth }}"
+                on-next-month="{{ nextMonth }}"
+                on-cancel="{{ closeCal }}"
+                base-path="../_ds/cancara"
+                hint-size="343px,424px"></x-import>
+    </div>
+  </div>
+
+  <div class="sc-actionbar">
+    <x-import component-from-global-scope="CancaraDesignSystem_4b0109.ActionButtonStack"
+              layout="primary-tertiary"
+              direction="vertical"
+              primary-label="Set reminder"
+              tertiary-label="Skip this step"
+              on-primary="{{ onSetReminder }}"
+              on-tertiary="{{ onSkip }}"
+              base-path="../_ds/cancara"
+              hint-size="100%,120px"></x-import>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+function buildWeeks(year, month, selDay) {
+  const today = new Date();
+  const first = new Date(year, month, 1).getDay();
+  const days = new Date(year, month + 1, 0).getDate();
+  const cells = [];
+  for (let i = 0; i < first; i++) cells.push({ state: "empty" });
+  for (let d = 1; d <= days; d++) {
+    let state = "default";
+    if (year === today.getFullYear() && month === today.getMonth() && d === today.getDate()) state = "today";
+    if (d === selDay) state = "selected";
+    cells.push({ state, date: d });
+  }
+  while (cells.length % 7 !== 0) cells.push({ state: "empty" });
+  const weeks = [];
+  for (let i = 0; i < cells.length; i += 7) weeks.push(cells.slice(i, i + 7));
+  return weeks;
+}
+
+function carsPageForCount(n) {
+  if (n >= 3) return "your-car-triple.dc.html";
+  if (n === 2) return "your-car-double.dc.html";
+  return "your-cars-single.dc.html";
+}
+function getVehicleCount() {
+  try {
+    const v = JSON.parse(localStorage.getItem("cnc-mobility-vehicles") || "null");
+    if (Array.isArray(v) && v.length) return v.length;
+  } catch (e) {}
+  return 1;
+}
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    const now = new Date();
+    this.state = { year: now.getFullYear(), month: now.getMonth(), selDay: null, calKey: 0, calOpen: false };
+  }
+
+  componentDidMount() {
+    const tick = () => {
+      const frame = document.querySelector(".sc-frame");
+      const nav = frame && frame.querySelector(".cnc-bottomnav");
+      const bar = frame && frame.querySelector(".sc-actionbar");
+      if (!frame || !nav || !bar) { this._raf = requestAnimationFrame(tick); return; }
+      const apply = () => {
+        frame.style.setProperty("--sc-nav-h", nav.offsetHeight + "px");
+        frame.style.setProperty("--sc-bar-h", bar.offsetHeight + "px");
+      };
+      apply();
+      this._ro = new ResizeObserver(apply);
+      this._ro.observe(nav);
+      this._ro.observe(bar);
+    };
+    tick();
+  }
+  componentWillUnmount() {
+    if (this._ro) this._ro.disconnect();
+    if (this._raf) cancelAnimationFrame(this._raf);
+  }
+
+  renderVals() {
+    const s = this.state;
+    const weeks = buildWeeks(s.year, s.month, s.selDay);
+
+    const prevMonth = () => this.setState((st) => st.month === 0 ? { year: st.year - 1, month: 11 } : { month: st.month - 1 });
+    const nextMonth = () => this.setState((st) => st.month === 11 ? { year: st.year + 1, month: 0 } : { month: st.month + 1 });
+    const selectDate = (d) => this.setState((st) => ({ selDay: d, calOpen: false, calKey: st.calKey + 1 }));
+    const closeCal = () => this.setState((st) => ({ calOpen: false, calKey: st.calKey + 1 }));
+
+    return {
+      navTabValue: 1,
+      onNavTabChange: (i) => { window.location.href = i === 0 ? "overview.dc.html" : carsPageForCount(getVehicleCount()); },
+      toggleTheme: () => {
+        const el = document.documentElement;
+        const next = el.getAttribute("data-theme") === "dark" ? "light" : "dark";
+        el.setAttribute("data-theme", next);
+        try { localStorage.setItem("cnc-theme", next); } catch (e) {}
+      },
+      headerTrailing: ["Weather/Sun/Sun"],
+      hasLeading: true,
+      goBack: () => { window.location.href = carsPageForCount(getVehicleCount()); },
+      homeTab: null,
+      frameW: "100%",
+
+      dateValue: s.selDay ? (s.selDay + " " + MONTHS[s.month].slice(0, 3) + " " + s.year) : "Select a date",
+      onPickerToggle: (open) => this.setState({ calOpen: open }),
+      calKey: "cp-" + s.calKey,
+
+      overlayClass: "sc-cal-overlay" + (s.calOpen ? " sc-cal-overlay--open" : ""),
+      monthLabel: MONTHS[s.month] + " " + s.year,
+      weeks,
+      selectDate, prevMonth, nextMonth, closeCal,
+
+      onSetReminder: () => {
+        if (s.selDay) {
+          try { localStorage.setItem("cnc-service-byd", JSON.stringify({ date: s.selDay + " " + MONTHS[s.month].slice(0, 3) + " " + s.year })); } catch (e) {}
+        }
+        window.location.href = "byd-service-capture-success.dc.html";
+      },
+      onSkip: () => { window.location.href = "your-car-double.dc.html"; },
+    };
+  }
+}
+
+</script>
+</body>
+</html>

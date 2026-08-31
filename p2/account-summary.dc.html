@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content">
+<script src="../support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- @template name="Account Summary — MVP Mobility Journey" description="Bank home page. Manage my car tile opens the onboarding tray: reg entry, search, vehicle result, connect, then hands off to the Mobility Hub." -->
+<helmet>
+  <script src="../ds-base.js"></script>
+  <style>
+    html, body { height: 100%; }
+    html body { margin: 0; background: var(--background-panel-pressed); display: flex; align-items: stretch; justify-content: center; }
+    .as-frame .cnc-tpl-base__container { scrollbar-width: none; -ms-overflow-style: none; }
+    .as-frame .cnc-tpl-base__container::-webkit-scrollbar { width: 0; height: 0; }
+    .as-frame .cnc-tilegrid__action { display: none; }
+    /* Double + Link-Description tile ships with its pictogram centred (align-self: center);
+       this variant should be left-justified — page-scoped override, component untouched. */
+    .as-frame .cnc-tile__cell--double.cnc-tile__cell--link-description > .cnc-tile__lead { align-self: flex-start; }
+    .as-frame .cnc-tile__cell--double.cnc-tile__cell--link-description > .cnc-tile__body { justify-content: flex-end; }
+
+    /* Onboarding tray overlay — same wired pattern as templates/journey-page-tray. */
+    .cnc-tpl-tray.cnc-tray-overlay { position: absolute; inset: 0; background: transparent; }
+    .cnc-tray-overlay .cnc-tpl-tray__page { background: transparent; }
+    .cnc-tray-overlay .cnc-tpl-tray__scrim { opacity: 0; transition: opacity 260ms ease; }
+    .cnc-tray-overlay .cnc-tpl-tray__tray { transform: translateY(100%); transition: transform 380ms cubic-bezier(0.22, 1, 0.36, 1); will-change: transform; max-height: 100%; }
+    .cnc-tray-overlay.cnc-tray-overlay--open .cnc-tpl-tray__scrim { opacity: 1; }
+    .cnc-tray-overlay.cnc-tray-overlay--open .cnc-tpl-tray__tray { transform: translateY(0); }
+    @media (prefers-reduced-motion: reduce) {
+      .cnc-tray-overlay .cnc-tpl-tray__scrim,
+      .cnc-tray-overlay .cnc-tpl-tray__tray { transition: none; }
+    }
+    .mv-spin { display: flex; justify-content: center; align-items: center; padding: var(--spacing-size48) 0; }
+    .mv-spin > span { transform: scale(1.8); }
+    @keyframes mv-step-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .mv-step { animation: mv-step-in 220ms ease; }
+    @media (prefers-reduced-motion: reduce) { .mv-step { animation: none; } }
+  </style>
+  <script>document.documentElement.setAttribute("data-theme", localStorage.getItem("cnc-theme") || "dark");</script>
+</helmet>
+
+<div class="as-frame" style="position: relative; box-sizing: border-box; width: min(100vw, 430px); height: var(--app-vh, 100dvh); overflow: hidden; background: var(--background-page-default);">
+
+  <x-import component-from-global-scope="CancaraDesignSystem_4b0109.BaseTemplate"
+            title="Hi Alex"
+            leading-icon="{{ hasLeading }}"
+            leading-icon-name="Arrows/Arrow Left/Arrow Left"
+            on-leading="{{ goBack }}"
+            trailing="{{ headerTrailing }}"
+            on-trailing="{{ onTrailing }}"
+            active="{{ homeTab }}"
+            base-path="../_ds/cancara"
+            width="{{ frameW }}" height="100%" status-bar="{{ false }}" hint-size="100%,100%">
+
+    <div class="cnc-l-page-end" data-screen-label="Account summary">
+
+      <section class="cnc-l-container" style="--cnc-container-gap: var(--spacing-size08);">
+        <div class="cnc-l-row">
+          <h1 class="type-style2" style="margin: 0; flex: 1 1 auto; min-width: 0; color: var(--text-generic-default);">Your accounts</h1>
+          <x-import component-from-global-scope="CancaraDesignSystem_4b0109.IconButton"
+                    icon="Edit/Reorder Accounts/Reorder Accounts"
+                    label="Reorder accounts"
+                    variant="tertiary"
+                    base-path="../_ds/cancara"
+                    hint-size="48px,48px"></x-import>
+        </div>
+
+        <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size16);">
+        <div class="cnc-l-panel" style="border: var(--border-width-01) solid var(--border-action-default);">
+          <div class="cnc-l-row">
+            <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size04);">
+              <span class="type-style7" style="color: var(--text-generic-default);">Club Lloyds</span>
+              <span class="type-style8" style="color: var(--text-generic-subdued);">30-91-83 / 54565656</span>
+            </div>
+            <span class="type-style2b" style="flex: 0 0 auto; color: var(--text-generic-default);">&pound;1,324</span>
+          </div>
+        </div>
+
+        <div class="cnc-l-panel" style="border: var(--border-width-01) solid var(--border-action-default);">
+          <div class="cnc-l-row">
+            <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size04);">
+              <span class="type-style7" style="color: var(--text-generic-default);">Monthly saver</span>
+              <span class="type-style8" style="color: var(--text-generic-subdued);">30-91-83 / 572123456</span>
+            </div>
+            <span class="type-style2b" style="flex: 0 0 auto; color: var(--text-generic-default);">&pound;2,124</span>
+          </div>
+        </div>
+
+        <div class="cnc-l-panel" style="border: var(--border-width-01) solid var(--border-action-default);">
+          <div class="cnc-l-row">
+            <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size04);">
+              <span class="type-style7" style="color: var(--text-generic-default);">Home Insurance</span>
+              <span class="type-style8" style="color: var(--text-generic-subdued);">EL1234567</span>
+            </div>
+            <span class="type-style2b" style="flex: 0 0 auto; color: var(--text-generic-default);">Gold status</span>
+          </div>
+        </div>
+        </div>
+      </section>
+
+      <section class="cnc-l-container">
+        <div class="cnc-l-flush">
+          <x-import component-from-global-scope="CancaraDesignSystem_4b0109.TileGrid"
+                    tile-preset="link-description"
+                    heading="More for you"
+                    rows="{{ spacesRows }}"
+                    base-path="../_ds/cancara"
+                    hint-size="100%,260px"></x-import>
+        </div>
+      </section>
+
+    </div>
+  </x-import>
+
+  <!-- ===================== ONBOARDING TRAY ===================== -->
+  <sc-if value="{{ trayMounted }}" hint-placeholder-val="{{ false }}">
+    <x-import component-from-global-scope="CancaraDesignSystem_4b0109.TrayTemplate"
+              data-screen-label="Manage my car — onboarding"
+              class-name="{{ trayClass }}"
+              title="Manage your vehicle"
+              leading-icon="{{ noLeading }}"
+              trailing-icon-name="Navigation/Close/Close"
+              on-trailing="{{ closeTray }}"
+              page-content="{{ emptyPage }}"
+              base-path="../_ds/cancara"
+              width="100%" height="100%"
+              hint-size="100%,100%">
+
+      <div ref="{{ stepWrapRef }}" style="{{ stepWrapStyle }}">
+
+        <!-- Step 1: intro rows + reg entry -->
+        <sc-if value="{{ stepIntro }}" hint-placeholder-val="{{ true }}">
+          <div class="mv-step">
+          <section class="cnc-l-container" style="margin-bottom: var(--spacing-size24);">
+            <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size24);">
+              <div class="cnc-l-row" style="align-items: flex-start; --cnc-row-gap: var(--spacing-size12);">
+                <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Pictogram" asset="pictogram" style="default" icon="Travel/Car/Car" base-path="../_ds/cancara" hint-size="40px,40px"></x-import>
+                <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size08); flex: 1 1 auto; min-width: 0;">
+                  <span class="type-style5" style="color: var(--text-generic-default);">Everything in one place</span>
+                  <span class="type-style9" style="color: var(--text-generic-subdued);">MOT, tax, insurance, servicing – simply reminded here in the Lloyds app.</span>
+                </div>
+              </div>
+              <div class="cnc-l-row" style="align-items: flex-start; --cnc-row-gap: var(--spacing-size12);">
+                <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Pictogram" asset="pictogram" style="default" icon="Miscellaneous/Settings/Settings" base-path="../_ds/cancara" hint-size="40px,40px"></x-import>
+                <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size08); flex: 1 1 auto; min-width: 0;">
+                  <span class="type-style5" style="color: var(--text-generic-default);">Ready for something new?</span>
+                  <span class="type-style9" style="color: var(--text-generic-subdued);">Explore your financing options and set your budget for your new vehicle.</span>
+                </div>
+              </div>
+              <div class="cnc-l-row" style="align-items: flex-start; --cnc-row-gap: var(--spacing-size12);">
+                <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Pictogram" asset="pictogram" style="default" icon="Cards/Card Linked/Card Linked" base-path="../_ds/cancara" hint-size="40px,40px"></x-import>
+                <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size08); flex: 1 1 auto; min-width: 0;">
+                  <span class="type-style5" style="color: var(--text-generic-default);">Connect and get going</span>
+                  <span class="type-style6" style="color: var(--text-generic-subdued);">Just pop in your registration number and you're on your way.</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="cnc-l-container" style="margin-bottom: var(--spacing-size24);">
+            <div class="cnc-l-flush">
+            <x-import component-from-global-scope="CancaraDesignSystem_4b0109.TextField"
+                      label="Enter registration"
+                      placeholder="e.g. AB12 CDE"
+                      interactive="{{ true }}"
+                      on-change="{{ setReg }}"
+                      base-path="../_ds/cancara"
+                      width="100%"
+                      hint-size="100%,80px"></x-import>
+            </div>
+          </section>
+
+          <section class="cnc-l-container">
+            <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size16);">
+              <x-import component-from-global-scope="CancaraDesignSystem_4b0109.ActionButton" variant="primary" disabled="{{ connectDisabled }}" on-click="{{ connectVehicle }}" base-path="../_ds/cancara" hint-size="100%,48px">Connect vehicle</x-import>
+              <x-import component-from-global-scope="CancaraDesignSystem_4b0109.ActionButton" variant="tertiary" on-click="{{ browseWithout }}" base-path="../_ds/cancara" hint-size="100%,48px">Browse without connecting</x-import>
+            </div>
+          </section>
+          </div>
+        </sc-if>
+
+        <!-- Step 2: searching spinner -->
+        <sc-if value="{{ stepSearching }}" hint-placeholder-val="{{ false }}">
+          <div class="mv-step">
+          <section class="cnc-l-container">
+            <div class="mv-spin">
+              <x-import component-from-global-scope="CancaraDesignSystem_4b0109.NativeSpinnerConfiguration" os="iOS" base-path="../_ds/cancara" title="Finding your vehicle" hint-size="24px,24px"></x-import>
+            </div>
+            <p class="type-style6" style="margin: 0; text-align: center; color: var(--text-generic-subdued);">Finding your vehicle</p>
+          </section>
+          </div>
+        </sc-if>
+
+        <!-- Step 3: vehicle result -->
+        <sc-if value="{{ stepResult }}" hint-placeholder-val="{{ false }}">
+          <div class="mv-step">
+          <section class="cnc-l-container" style="margin-bottom: var(--spacing-size16);">
+            <div class="cnc-l-panel" style="--cnc-panel-surface-pad: var(--spacing-size12); flex-direction: row; align-items: center; gap: var(--spacing-size16); background: var(--background-panel-secondary); border: var(--border-width-01) solid var(--border-generic-defaultalt01);">
+              <div style="flex: 0 0 auto; width: 96px; display: flex; align-items: center; justify-content: center;">
+                <img src="../assets/images/renault-rafale-front-trimmed.png" alt="Renault Rafale" style="width: 72px; height: auto; display: block;">
+              </div>
+              <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size04); flex: 1 1 auto; min-width: 0;">
+                <span class="type-style6" style="color: var(--text-generic-default); font-weight: 600;">Renault Rafale</span>
+                <span class="type-style6" style="color: var(--text-generic-default);">E-TECH 220hp</span>
+                <span class="type-style9" style="color: var(--text-generic-subdued); letter-spacing: 0.05em; text-transform: uppercase; margin-top: var(--spacing-size04);">{{ regValue }}</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="cnc-l-container">
+            <x-import component-from-global-scope="CancaraDesignSystem_4b0109.ActionButton" variant="primary" on-click="{{ finishConnect }}" base-path="../_ds/cancara" hint-size="100%,48px">Connect vehicle</x-import>
+          </section>
+          </div>
+        </sc-if>
+
+        <!-- Step 4: connecting loader -->
+        <sc-if value="{{ stepConnecting }}" hint-placeholder-val="{{ false }}">
+          <div class="mv-step">
+          <section class="cnc-l-container">
+            <div class="mv-spin">
+              <x-import component-from-global-scope="CancaraDesignSystem_4b0109.NativeSpinnerConfiguration" os="iOS" base-path="../_ds/cancara" title="Connecting your vehicle" hint-size="24px,24px"></x-import>
+            </div>
+            <p class="type-style6" style="margin: 0; text-align: center; color: var(--text-generic-subdued);">Connecting your vehicle</p>
+          </section>
+          </div>
+        </sc-if>
+
+      </div>
+
+    </x-import>
+  </sc-if>
+  <!-- ===================== /ONBOARDING TRAY ===================== -->
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    activeTab: 0,
+    trayMounted: false, trayOpen: false,
+    step: "intro", // intro | searching | result | connecting
+    reg: "",
+    stepWrapHeight: null, stepWrapAnimating: false, stepFade: 1,
+  };
+
+  constructor(props) {
+    super(props);
+    this.stepWrapRef = React.createRef();
+  }
+
+  // Cross-fade + height tween between tray steps instead of an instant content snap:
+  // lock the current height, fade out, swap the step, measure the new natural height,
+  // then tween the wrapper to it while fading the new content back in.
+  changeStepTo(newStep) {
+    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      this.setState({ step: newStep, stepWrapHeight: null, stepWrapAnimating: false, stepFade: 1 });
+      return;
+    }
+    const el = this.stepWrapRef.current;
+    const oldH = el ? el.getBoundingClientRect().height : null;
+    this.setState({ stepWrapHeight: oldH, stepWrapAnimating: false, stepFade: 0 });
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      this.setState({ stepWrapAnimating: true });
+      setTimeout(() => {
+        this.setState({ step: newStep });
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          // scrollHeight can't reveal a SMALLER natural height while still pinned to the old
+          // (larger) fixed height — it just reports the pinned height back. Briefly clear the
+          // fixed height to measure the new content's true size, then restore it before paint
+          // (synchronous, so no flash), then animate to the measured value.
+          let newH = null;
+          if (el) {
+            const prevHeight = el.style.height;
+            el.style.height = "auto";
+            newH = el.getBoundingClientRect().height;
+            el.style.height = prevHeight;
+          }
+          this.setState({ stepWrapHeight: newH, stepFade: 1 });
+          setTimeout(() => this.setState({ stepWrapHeight: null, stepWrapAnimating: false }), 340);
+        }));
+      }, 180);
+    }));
+  }
+
+  renderVals() {
+    const brk = (a, b) => React.createElement(React.Fragment, null, a, React.createElement("br"), b);
+    const s = this.state;
+    const toggleTheme = () => {
+      const el = document.documentElement;
+      const next = el.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      el.setAttribute("data-theme", next);
+      try { localStorage.setItem("cnc-theme", next); } catch (e) {}
+    };
+
+    const openTray = () => {
+      this.setState({ trayMounted: true, step: "intro", reg: "", stepWrapHeight: null, stepWrapAnimating: false, stepFade: 1 });
+      setTimeout(() => this.setState({ trayOpen: true }), 30);
+    };
+    // A car already onboarded → go straight to its hub page (picked by vehicle count);
+    // only a first-ever visit (nothing connected yet) opens the onboarding tray.
+    const manageVehicle = () => {
+      let mob = null, vehicles = [];
+      try { mob = JSON.parse(localStorage.getItem("cnc-mobility-state") || "null"); } catch (e) {}
+      try { const v = JSON.parse(localStorage.getItem("cnc-mobility-vehicles") || "null"); if (Array.isArray(v)) vehicles = v; } catch (e) {}
+      if (mob && mob.isConnected && vehicles.length > 0) {
+        const page = vehicles.length >= 3 ? "your-car-triple.dc.html" : vehicles.length === 2 ? "your-car-double.dc.html" : "overview.dc.html";
+        window.location.href = page;
+      } else {
+        openTray();
+      }
+    };
+    const closeTray = () => {
+      this.setState({ trayOpen: false });
+      setTimeout(() => this.setState({ trayMounted: false }), 420);
+    };
+
+    const connectVehicle = () => {
+      this.changeStepTo("searching");
+      setTimeout(() => this.changeStepTo("result"), 1400);
+    };
+    const finishConnect = () => {
+      this.changeStepTo("connecting");
+      setTimeout(() => {
+        // Spinner's done — slide the tray off and fade the scrim (same exit as closeTray),
+        // then navigate once that's finished instead of cutting straight to the next page.
+        this.setState({ trayOpen: false });
+        setTimeout(() => {
+          try {
+            localStorage.setItem("cnc-mobility-state", JSON.stringify({
+              isConnected: true,
+              completedTasks: [],
+              hasSeenInitialAnimation: false,
+              lastCompletedTask: null,
+            }));
+            localStorage.setItem("cnc-mobility-vehicles", JSON.stringify(["renault"]));
+          } catch (e) {}
+          window.location.href = "overview.dc.html";
+        }, 420);
+      }, 1200);
+    };
+    const browseWithout = () => {
+      try {
+        localStorage.setItem("cnc-mobility-state", JSON.stringify({
+          isConnected: false,
+          completedTasks: [],
+          hasSeenInitialAnimation: false,
+          lastCompletedTask: null,
+        }));
+        localStorage.setItem("cnc-mobility-vehicles", JSON.stringify(["renault"]));
+      } catch (e) {}
+      window.location.href = "overview.dc.html";
+    };
+
+    return {
+      goBack: () => { window.location.href = "../index.dc.html"; },
+      onTrailing: (i) => { if (i === 1) toggleTheme(); },
+
+      headerTrailing: ["Communication/Question Mark/Question Mark", "Weather/Sun/Sun"],
+      hasLeading: true,
+      homeTab: 0,
+      frameW: "100%",
+
+      spacesRows: [
+        [
+          { link: "Add accounts", description: "View your accounts with other banks", pictogram: "Cards/Two Cards/Two Cards", pictogramStyle: "secondaryalt01" },
+          { link: "Manage your vehicle", description: "Organise your vehicle admin, or plan your next purchase", pictogram: "Travel/Car/Car", pictogramStyle: "secondaryalt03", onClick: manageVehicle },
+        ],
+        [
+          { link: "Your credit score", description: "Check your credit score and track progress", pictogram: "Graphs/Credit Score/Credit Score", pictogramStyle: "primaryalt01" },
+          { link: "Travel", description: "Take advantage of all the travel services we offer", pictogram: "Travel/Holiday/Holiday", pictogramStyle: "secondaryalt04" },
+        ],
+      ],
+
+      // Tray controller
+      trayMounted: s.trayMounted,
+      trayClass: s.trayOpen ? "cnc-tray-overlay cnc-tray-overlay--open" : "cnc-tray-overlay",
+      emptyPage: React.createElement("span", { "aria-hidden": "true" }),
+      closeTray,
+      noLeading: false,
+
+      stepIntro: s.step === "intro",
+      stepSearching: s.step === "searching",
+      stepResult: s.step === "result",
+      stepConnecting: s.step === "connecting",
+
+      stepWrapRef: this.stepWrapRef,
+      stepWrapStyle: {
+        paddingBottom: "var(--spacing-size24)",
+        opacity: s.stepFade,
+        height: s.stepWrapHeight != null ? s.stepWrapHeight + "px" : undefined,
+        overflow: s.stepWrapHeight != null ? "hidden" : undefined,
+        transition: s.stepWrapAnimating ? "height 320ms ease, opacity 260ms ease" : "opacity 180ms ease",
+      },
+
+      regValue: s.reg || "VG23 TZM",
+      setReg: (v) => this.setState({ reg: v }),
+      connectDisabled: false,
+      connectVehicle,
+      finishConnect,
+      browseWithout,
+      spinnerSize: 64,
+      illoSize: 100,
+
+      iconSize: 24,
+      iconPad: true,
+    };
+  }
+}
+
+</script>
+</body>
+</html>
