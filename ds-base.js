@@ -33,29 +33,4 @@
   window.addEventListener('resize', setAppHeight);
   window.addEventListener('orientationchange', setAppHeight);
   if (window.visualViewport) window.visualViewport.addEventListener('resize', setAppHeight);
-
-  // Match the browser / native status-bar chrome to the PAGE background token
-  // (--background-page-default) so no stray brand-green band shows behind the native
-  // status bar. Reads the resolved token for the current theme and writes it to
-  // <meta name="theme-color">; re-runs when the theme is toggled.
-  const syncThemeColor = () => {
-    try {
-      if (!document.body) return;
-      const probe = document.createElement('div');
-      probe.style.cssText = 'position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;background:var(--background-page-default);pointer-events:none';
-      document.body.appendChild(probe);
-      const c = getComputedStyle(probe).backgroundColor;
-      probe.remove();
-      if (!c || c === 'transparent' || c === 'rgba(0, 0, 0, 0)') return;
-      let m = document.querySelector('meta[name="theme-color"]');
-      if (!m) { m = document.createElement('meta'); m.setAttribute('name', 'theme-color'); document.head.appendChild(m); }
-      m.setAttribute('content', c);
-    } catch (e) {}
-  };
-  const scheduleThemeColor = () => { syncThemeColor(); setTimeout(syncThemeColor, 120); setTimeout(syncThemeColor, 500); };
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', scheduleThemeColor);
-  else scheduleThemeColor();
-  try {
-    new MutationObserver(syncThemeColor).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-  } catch (e) {}
 })();

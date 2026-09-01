@@ -18,7 +18,7 @@
     .ov-frame .cnc-tpl-base__container::-webkit-scrollbar { width: 0; height: 0; }
     .ov-frame .cnc-lag { max-width: none; width: 100%; }
       .mv-menu-divider { padding-top: 0 !important; padding-bottom: 0 !important; }
-      .mv-menu-panel .cnc-panel { background: transparent; border-color: transparent; }
+      .cnc-panel.mv-menu-panel { background: transparent; border-color: transparent; }
   </style>
   <script>document.documentElement.setAttribute("data-theme", localStorage.getItem("cnc-theme") || "dark");</script>
   <style>
@@ -38,6 +38,7 @@
     .cnc-cartray .cnc-tpl-tray__content { scrollbar-width: none; -ms-overflow-style: none; background: var(--background-page-default); }
     .cnc-cartray .cnc-tpl-tray__content::-webkit-scrollbar { width: 0; height: 0; }
     .mv-spin { display: flex; justify-content: center; align-items: center; padding: var(--spacing-size48) 0; }
+    .mv-spin > span { transform: scale(3.6); }
     .cnc-cbtn.hero-fillbtn { width: 100%; }
     .cnc-npanel.hero-notif-noborder { border-width: 0 !important; }
     .cnc-cbtn.ov-sort-btn { padding-right: 0; }
@@ -53,7 +54,7 @@
     .hb-hero__edit { flex: 0 0 auto; display: flex; align-items: center; gap: var(--spacing-size04); background: transparent; border: 0; padding: 0; cursor: pointer; color: var(--text-action-default); }
     .hb-video-wrap { position: relative; width: calc(100% + var(--spacing-size32)); margin: calc(-1 * var(--spacing-size16)) calc(-1 * var(--spacing-size16)); aspect-ratio: 16 / 9; background: var(--background-panel-secondary); }
     .hb-video-wrap video { display: block; width: 100%; height: 100%; object-fit: cover; }
-    .hb-carrow { position: relative; width: calc(100% + var(--spacing-size32)); margin: calc(-1 * var(--spacing-size16) - 16px) calc(-1 * var(--spacing-size16)) -16px; aspect-ratio: 16 / 8.3; overflow: hidden; background: linear-gradient(to top, var(--background-panel-default) 0, var(--background-panel-default) 88px, var(--border-generic-defaultalt01) 88px, var(--background-panel-default) 100%); }
+    .hb-carrow { position: relative; width: calc(100% + var(--spacing-size32)); margin: calc(-1 * var(--spacing-size16) - 16px) calc(-1 * var(--spacing-size16)) -16px; aspect-ratio: 16 / 8.3; overflow: hidden; background: linear-gradient(to top, var(--background-page-default) 0, var(--background-page-default) 88px, var(--border-generic-defaultalt01) 88px, var(--background-page-default) 100%); }
     .hb-carrow__img { position: absolute; top: 50%; transition: left 0.45s ease, transform 0.45s ease, height 0.45s ease; z-index: 1; }
     .hb-carrow__img--notransition { transition: none; }
     .hb-carrow__img--left { left: 0%; height: 148px; transform: translate(-55%, calc(-50% + 10px)); }
@@ -95,7 +96,7 @@
 
     /* ---- Ported detail views (tax / insurance / mot) ---- */
     .dp-hero { position: relative; padding-top: calc(var(--spacing-size16) + var(--spacing-size24)) !important; padding-bottom: var(--spacing-size08) !important; }
-    .dp-hero__pictogram { position: absolute; top: -30px; left: 0; transform: scale(1.5); transform-origin: top left; }
+    .dp-hero__pictogram { position: absolute; top: -30px; left: var(--spacing-size16); transform: scale(1.5); transform-origin: top left; }
     .dp-policy-row { padding: var(--spacing-size12) 0; border-bottom: var(--border-width-01) solid var(--border-generic-defaultalt01); }
     .dp-policy-row:last-child { border-bottom: none; }
     .dp-hero .cnc-divider { padding-top: 0; padding-bottom: 0; }
@@ -206,7 +207,7 @@
                   </div>
                 </sc-if>
               </div>
-              <x-import component-from-global-scope="CancaraDesignSystem_4b0109.NotificationPanel" type="secondary" sentiment="info" layout="message-only" class-name="hero-notif-noborder" message="Your profile is not complete. Add your insurance and service dates." base-path="../_ds/cancara" hint-size="100%,48px"></x-import>
+              <x-import component-from-global-scope="CancaraDesignSystem_4b0109.NotificationPanel" style="max-width: none;" type="secondary" sentiment="info" layout="message-only" class-name="hero-notif-noborder" message="Your profile is not complete. Add your insurance and service dates." base-path="../_ds/cancara" hint-size="100%,48px"></x-import>
               <div class="cnc-l-row" style="--cnc-row-gap: var(--spacing-size16);">
                 <x-import component-from-global-scope="CancaraDesignSystem_4b0109.CompactButton" variant="secondary" size="small" icon-position="left" icon="Action/Plus/Plus" class-name="hero-fillbtn" on-click="{{ openTray }}" base-path="../_ds/cancara" style="flex:1" hint-size="auto,36px">Add car</x-import>
                 <x-import component-from-global-scope="CancaraDesignSystem_4b0109.CompactButton" variant="primary" size="small" icon-position="right" icon="Arrows/Arrow Right/Arrow Right" class-name="hero-fillbtn" on-click="{{ goToCars }}" base-path="../_ds/cancara" style="flex:1" hint-size="auto,36px">View cars</x-import>
@@ -355,8 +356,8 @@
             </sc-if>
 
             <sc-if value="{{ isMultiCar }}" hint-placeholder-val="{{ false }}">
-            <section class="cnc-l-container" style="margin-bottom: var(--spacing-size16);">
-              <div class="hb-hero">
+            <section class="cnc-l-container cnc-l-container--bleed" style="margin-bottom: var(--spacing-size16);">
+              <div class="hb-hero" style="background: none;">
                 <div class="hb-hero__toprow">
                   <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Pictogram" asset="pictogram" style="default" icon="Travel/Car/Car" base-path="../_ds/cancara" hint-size="40px,40px"></x-import>
                   <div class="hb-hero__vehicletext cnc-l-col" style="--cnc-col-gap: var(--spacing-size04);">
@@ -395,7 +396,7 @@
             </section>
             </sc-if>
 
-            <section class="cnc-l-container" style="margin-bottom: var(--spacing-size48);">
+            <section class="cnc-l-container" style="margin-bottom: var(--spacing-size32);">
               <div class="cnc-l-panel hb-hero-panel" ref="{{ heroRef }}" style="{{ heroStyle }}">
                 <sc-if value="{{ showProgress }}" hint-placeholder-val="{{ true }}">
                   <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size08); opacity: {{ completionFadeOpacity }}; transition: opacity 0.4s ease; width: 100%;">
@@ -439,6 +440,7 @@
                     <x-import component-from-global-scope="CancaraDesignSystem_4b0109.NotificationPanel"
                               type="primary" sentiment="success" layout="message-only"
                               message="You're up to date. We'll email you 30 days before your next due date."
+                              style="max-width: none;"
                               base-path="../_ds/cancara"
                               hint-size="100%,56px"></x-import>
                   </div>
@@ -454,8 +456,8 @@
               </div>
             </section>
 
-            <section class="cnc-l-container" style="margin-bottom: var(--spacing-size48);">
-              <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size16);">
+            <section class="cnc-l-container" style="margin-bottom: var(--spacing-size32);">
+              <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size08);">
                 <div class="cnc-l-row" style="justify-content: space-between; align-items: center;">
                   <h2 class="type-style3" style="margin: 0; color: var(--text-generic-default);">Finance</h2>
                   <x-import component-from-global-scope="CancaraDesignSystem_4b0109.CompactButton" variant="tertiary" size="small" class-name="ov-remove-fin" base-path="../_ds/cancara" hint-size="auto,36px">Remove</x-import>
@@ -474,7 +476,7 @@
                   <button type="button" style="position: relative; overflow: hidden; display: flex; align-items: center; gap: var(--spacing-size16); width: 100%; background: var(--border-generic-brand); border: 0; padding: var(--spacing-size16); text-align: left; cursor: pointer; box-sizing: border-box; margin: 0;">
                     <div style="position: absolute; top: 0; left: 0; bottom: 0; width: 96px; border-radius: 0 var(--radius-default) var(--radius-default) 0; background: var(--border-sentiment-success); pointer-events: none;"></div>
                     <div style="position: absolute; top: 50%; left: 48px; width: 260px; height: 260px; border-radius: 50%; background: var(--border-generic-brand); transform: translateY(-50%); pointer-events: none;"></div>
-                    <x-import component-from-global-scope="CancaraDesignSystem_4b0109.SpotIllustration" illustration="Default Alt 01/Switching/Switching" size="64" base-path="../_ds/cancara" title="Switch and spend less" style="position: relative; z-index: 1;" hint-size="64px,64px"></x-import>
+                    <x-import component-from-global-scope="CancaraDesignSystem_4b0109.SpotIllustration" illustration="Default Alt 01/Switching/Switching" size="64" base-path="../_ds/cancara" title="Switch and spend less" style="position: relative; z-index: 1; mix-blend-mode: multiply;" hint-size="64px,64px"></x-import>
                     <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size04); flex: 1 1 auto; min-width: 0; position: relative; z-index: 1;">
                       <span class="type-style6" style="font-weight: 600; color: #000000;">Switch and spend less?</span>
                       <span class="type-style8" style="color: #000000;">Switch your finance provider and you could spend less each month. Get a quote today.</span>
@@ -496,9 +498,11 @@
 
         <!-- MANAGE MENU -->
         <sc-if value="{{ viewIsManageMenu }}" hint-placeholder-val="{{ false }}">
-          <div class="mv-step">
+          <div class="mv-step" style="margin-bottom: calc(-1 * var(--spacing-size32));">
             <div>
               <div class="cnc-l-flush">
+                <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Panel" class-name="mv-menu-panel" asset="icon" icon="Action/Plus/Plus" heading="Add a new vehicle" description="" on-click="{{ openTray }}" base-path="../_ds/cancara" hint-size="100%,64px"></x-import>
+                <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Divider" width="full" class-name="mv-menu-divider" base-path="../_ds/cancara" hint-size="100%,1px"></x-import>
                 <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Panel" class-name="mv-menu-panel" asset="icon" icon="Action/Minus Alt 01/Minus Alt 01" heading="Remove vehicle" description="" on-click="{{ openManageRemove }}" base-path="../_ds/cancara" hint-size="100%,64px"></x-import>
                 <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Divider" width="full" class-name="mv-menu-divider" base-path="../_ds/cancara" hint-size="100%,1px"></x-import>
                 <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Panel" class-name="mv-menu-panel" asset="icon" icon="Travel/Car/Car" heading="Connect a different vehicle" description="" base-path="../_ds/cancara" hint-size="100%,64px"></x-import>
@@ -530,7 +534,16 @@
 
         <!-- TAX DETAIL -->
         <sc-if value="{{ viewIsTax }}" hint-placeholder-val="{{ false }}">
-          <div class="mv-step">
+          <div class="mv-step" style="padding-top: var(--spacing-size32);">
+            <sc-if value="{{ taxAlertVisible }}" hint-placeholder-val="{{ true }}">
+              <section class="cnc-l-container" style="margin-bottom: var(--spacing-size16); position: relative; z-index: 1;">
+                <x-import component-from-global-scope="CancaraDesignSystem_4b0109.NotificationPanel"
+                          type="primary" sentiment="warning" layout="title-message"
+                          title="Your tax is due in 21 days" message="Let us know if you've already renewed it."
+                          dismiss="{{ true }}" on-dismiss="{{ dismissAlert }}" style="max-width: none;"
+                          base-path="../_ds/cancara" hint-size="100%,64px"></x-import>
+              </section>
+            </sc-if>
             <section class="cnc-l-container">
             <div class="dp-hero cnc-l-panel">
               <div class="dp-hero__pictogram">
@@ -544,8 +557,10 @@
               <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size04);">
                 <span class="type-style8" style="color: var(--text-generic-subdued);">Tax expires</span>
                 <div class="cnc-l-row" style="justify-content: flex-start; align-items: center; --cnc-row-gap: var(--spacing-size08);">
-                  <span class="type-style3" style="color: var(--text-generic-default);">21 Sep 2026</span>
+                  <span class="type-style3" style="color: var(--text-generic-default);">{{ taxDateLabel }}</span>
+                  <sc-if value="{{ taxShowPill }}" hint-placeholder-val="{{ true }}">
                   <x-import component-from-global-scope="CancaraDesignSystem_4b0109.NotificationTag" type="warning" base-path="../_ds/cancara" hint-size="70px,24px">21 days</x-import>
+                  </sc-if>
                 </div>
               </div>
               <x-import component-from-global-scope="CancaraDesignSystem_4b0109.ActionButton" variant="primary" icon="Arrows/Arrow Right/Arrow Right" on-click="{{ openLeaveModal }}" base-path="../_ds/cancara" hint-size="100%,48px">Tax your vehicle</x-import>
@@ -562,7 +577,7 @@
                   <div class="cnc-l-col" style="--cnc-col-gap: 0;">
                     <div class="dp-policy-row cnc-l-row" style="justify-content: space-between;">
                       <span class="type-style6" style="color: var(--text-generic-subdued);">Taxed until</span>
-                      <span class="type-style6" style="color: var(--text-generic-default);">21 Sep 2026</span>
+                      <span class="type-style6" style="color: var(--text-generic-default);">{{ taxDateLabel }}</span>
                     </div>
                     <div class="dp-policy-row cnc-l-row" style="justify-content: space-between;">
                       <span class="type-style6" style="color: var(--text-generic-subdued);">Reminder</span>
@@ -580,7 +595,16 @@
 
         <!-- INSURANCE DETAIL -->
         <sc-if value="{{ viewIsInsuranceDetail }}" hint-placeholder-val="{{ false }}">
-          <div class="mv-step">
+          <div class="mv-step" style="padding-top: var(--spacing-size16);">
+            <sc-if value="{{ insuranceAlertVisible }}" hint-placeholder-val="{{ true }}">
+              <section class="cnc-l-container" style="margin-bottom: calc(var(--spacing-size16) + 30px); position: relative; z-index: 1;">
+                <x-import component-from-global-scope="CancaraDesignSystem_4b0109.NotificationPanel"
+                          type="primary" sentiment="warning" layout="title-message"
+                          title="{{ insuranceAlertTitle }}" message="Let us know if you've already renewed your policy."
+                          dismiss="{{ true }}" on-dismiss="{{ dismissAlert }}" style="max-width: none;"
+                          base-path="../_ds/cancara" hint-size="100%,64px"></x-import>
+              </section>
+            </sc-if>
             <section class="cnc-l-container">
             <div class="dp-hero cnc-l-panel">
               <div class="dp-hero__pictogram">
@@ -594,8 +618,10 @@
               <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size04);">
                 <span class="type-style8" style="color: var(--text-generic-subdued);">Insurance expires</span>
                 <div class="cnc-l-row" style="justify-content: flex-start; align-items: center; --cnc-row-gap: var(--spacing-size08);">
-                  <span class="type-style3" style="color: var(--text-generic-default);">21 Sep 2026</span>
-                  <x-import component-from-global-scope="CancaraDesignSystem_4b0109.NotificationTag" type="warning" base-path="../_ds/cancara" hint-size="70px,24px">21 days</x-import>
+                  <span class="type-style3" style="color: var(--text-generic-default);">{{ insuranceDateLabel }}</span>
+                  <sc-if value="{{ insuranceShowPill }}" hint-placeholder-val="{{ true }}">
+                  <x-import component-from-global-scope="CancaraDesignSystem_4b0109.NotificationTag" type="warning" base-path="../_ds/cancara" hint-size="70px,24px">{{ insurancePillLabel }}</x-import>
+                  </sc-if>
                 </div>
               </div>
               <x-import component-from-global-scope="CancaraDesignSystem_4b0109.ActionButton" variant="primary" icon="Arrows/Arrow Right/Arrow Right" on-click="{{ openLeaveModal }}" base-path="../_ds/cancara" hint-size="100%,48px">Manage policy</x-import>
@@ -609,7 +635,7 @@
                   <div class="cnc-l-col" style="--cnc-col-gap: 0;">
                     <div class="dp-policy-row cnc-l-row" style="justify-content: space-between;">
                       <span class="type-style6" style="color: var(--text-generic-subdued);">Insured until</span>
-                      <span class="type-style6" style="color: var(--text-generic-default);">31 Aug 2026</span>
+                      <span class="type-style6" style="color: var(--text-generic-default);">{{ insuranceDateLabel }}</span>
                     </div>
                     <div class="dp-policy-row cnc-l-row" style="justify-content: space-between;">
                       <span class="type-style6" style="color: var(--text-generic-subdued);">Reminder</span>
@@ -638,13 +664,13 @@
 
         <!-- MOT DETAIL -->
         <sc-if value="{{ viewIsMot }}" hint-placeholder-val="{{ false }}">
-          <div class="mv-step">
-            <sc-if value="{{ alertVisible }}" hint-placeholder-val="{{ true }}">
-              <section class="cnc-l-container" style="margin-bottom: var(--spacing-size24);">
+          <div class="mv-step" style="padding-top: var(--spacing-size32);">
+            <sc-if value="{{ motAlertVisible }}" hint-placeholder-val="{{ true }}">
+              <section class="cnc-l-container" style="margin-bottom: calc(var(--spacing-size16) + 30px); position: relative; z-index: 1;">
                 <x-import component-from-global-scope="CancaraDesignSystem_4b0109.NotificationPanel"
                           type="primary" sentiment="warning" layout="title-message"
-                          title="Your MOT is due in 30 days" message="Let us know if you've already booked or completed it."
-                          dismiss="{{ true }}" on-dismiss="{{ dismissAlert }}"
+                          title="{{ motAlertTitle }}" message="Let us know if you've already booked or completed it."
+                          dismiss="{{ true }}" on-dismiss="{{ dismissAlert }}" style="max-width: none;"
                           base-path="../_ds/cancara" hint-size="100%,64px"></x-import>
               </section>
             </sc-if>
@@ -661,7 +687,7 @@
               <div class="cnc-l-row" style="display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); align-items: stretch; gap: var(--spacing-size16);">
                 <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size08); padding: var(--spacing-size16); border-radius: var(--radius-default); border: var(--border-width-01) solid var(--border-generic-defaultalt01); min-width: 0; box-sizing: border-box; align-items: flex-start;">
                   <span class="type-style8" style="color: var(--text-generic-subdued);">MOT due</span>
-                  <span class="type-style3" style="color: var(--text-generic-default);">11 Jun 2027</span>
+                  <span class="type-style3" style="color: var(--text-generic-default);">{{ motDateLabel }}</span>
                 </div>
                 <div style="min-width: 0; display: flex;">
                   <x-import component-from-global-scope="CancaraDesignSystem_4b0109.GhostPanel"
@@ -683,7 +709,7 @@
                   <div class="cnc-l-col" style="--cnc-col-gap: 0;">
                     <div class="dp-policy-row cnc-l-row" style="justify-content: space-between;">
                       <span class="type-style6" style="color: var(--text-generic-subdued);">MOT due</span>
-                      <span class="type-style6" style="color: var(--text-generic-default);">11 Jun 2027</span>
+                      <span class="type-style6" style="color: var(--text-generic-default);">{{ motDateLabel }}</span>
                     </div>
                     <div class="dp-policy-row cnc-l-row" style="justify-content: space-between;">
                       <span class="type-style6" style="color: var(--text-generic-subdued);">Reminder</span>
@@ -723,6 +749,12 @@
                     <span class="dp-mileage__yearlabel type-style9">2025</span>
                   </div>
                 </div>
+              </div>
+            </section>
+
+            <section class="cnc-l-container">
+              <div class="cnc-l-flush">
+                <x-import component-from-global-scope="CancaraDesignSystem_4b0109.TwoTabsFixed" tab1-label="Last MOT" tab2-label="All MOT's" value="{{ motTabValue }}" on-change="{{ onMotTabChange }}" width="100%" base-path="../_ds/cancara" hint-size="100%,48px"></x-import>
               </div>
             </section>
 
@@ -819,7 +851,7 @@
           <div class="mv-step">
             <section class="cnc-l-container">
               <div class="ct-center">
-                <x-import component-from-global-scope="CancaraDesignSystem_4b0109.SpotIllustration" illustration="Default Alt 01/Tick/Tick" size="128" base-path="../_ds/cancara" title="Success" hint-size="128px,128px"></x-import>
+                <x-import component-from-global-scope="CancaraDesignSystem_4b0109.SpotIllustration" illustration="Default Alt 01/Tick/Tick" size="128" base-path="../_ds/cancara" title="Success" style="mix-blend-mode: multiply;" hint-size="128px,128px"></x-import>
                 <h1 class="type-style3" style="margin: 0; color: var(--text-generic-default);">You've added your insurance reminder</h1>
                 <p class="type-style6" style="margin: 0; max-width: 340px; color: var(--text-generic-default);">We'll be in touch 30 days before it expires.<br>You can edit the details whenever you like.</p>
               </div>
@@ -835,7 +867,7 @@
           <div class="mv-step">
             <section class="cnc-l-container">
               <div class="ct-center">
-                <x-import component-from-global-scope="CancaraDesignSystem_4b0109.SpotIllustration" illustration="Default Alt 01/Tick/Tick" size="128" base-path="../_ds/cancara" title="Success" hint-size="128px,128px"></x-import>
+                <x-import component-from-global-scope="CancaraDesignSystem_4b0109.SpotIllustration" illustration="Default Alt 01/Tick/Tick" size="128" base-path="../_ds/cancara" title="Success" style="mix-blend-mode: multiply;" hint-size="128px,128px"></x-import>
                 <h1 class="type-style3" style="margin: 0; color: var(--text-generic-default);">You've added your service reminder.</h1>
                 <p class="type-style6" style="margin: 0; max-width: 340px; color: var(--text-generic-default);">We'll be in touch 30 days before the due date.<br>You can change the details whenever you like.</p>
               </div>
@@ -903,6 +935,7 @@
                       placeholder="e.g. AB12 CDE"
                       interactive="{{ true }}"
                       on-change="{{ setReg }}"
+                      on-focus="{{ onRegFocus }}"
                       base-path="../_ds/cancara"
                       width="100%"
                       hint-size="100%,80px"></x-import>
@@ -911,7 +944,7 @@
 
           <section class="cnc-l-container">
             <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size16);">
-              <x-import component-from-global-scope="CancaraDesignSystem_4b0109.ActionButton" variant="primary" disabled="{{ connectDisabled }}" on-click="{{ connectVehicle }}" base-path="../_ds/cancara" hint-size="100%,48px">Connect vehicle</x-import>
+              <x-import component-from-global-scope="CancaraDesignSystem_4b0109.ActionButton" variant="primary" disabled="{{ connectDisabled }}" on-click="{{ connectVehicle }}" base-path="../_ds/cancara" hint-size="100%,48px">{{ connectButtonLabel }}</x-import>
               <x-import component-from-global-scope="CancaraDesignSystem_4b0109.ActionButton" variant="tertiary" on-click="{{ browseWithout }}" base-path="../_ds/cancara" hint-size="100%,48px">Browse without connecting</x-import>
             </div>
           </section>
@@ -1111,7 +1144,7 @@ class Component extends DCLogic {
       listLockedHeight: null, listAnimating: false, completionFading: false,
       accordionOpen: false, accordionWrapHeight: null, accordionAnimating: false,
       modalOpen: false,
-      alertVisible: false, motTab: 0,
+      alertVisible: true, motTab: 0,
       motOpen: [false, false, false, false], motWrapHeight: [null, null, null, null], motAnimating: [false, false, false, false],
       calYear: new Date().getFullYear(), calMonth: new Date().getMonth(), calSelDay: null, calKey: 0, calOpen: false,
       detailCarId: null,
@@ -1319,6 +1352,22 @@ class Component extends DCLogic {
       this.setState({ animPhase: 6, animTask: null });
     });
   }
+  runReturnAnimation2(target, prevPct, task) {
+    if (reducedMotion()) { this.setState({ animPhase: 6, animTask: null }); return; }
+    const is100 = target >= 100;
+    this.setState({ pct: prevPct, animPhase: 1, animTask: task, noBarTransition: true });
+    setTimeout(() => this.setState({ noBarTransition: false }), 20);
+    const t = (ms, fn) => setTimeout(fn, ms);
+    t(450, () => this.setState({ pct: target }));
+    t(1700, () => this.setState({ animPhase: 2 }));
+    t(is100 ? 2450 : 2600, () => this.setState({ animPhase: 3 }));
+    t(is100 ? 2850 : 3000, () => {
+      if (is100) this.swapToCompletion();
+      else { this.setState({ animPhase: 4 }); setTimeout(() => this.setState({ ghostDomGone: true }), 400); }
+    });
+    t(is100 ? 2450 : 3400, () => this.animateListReveal());
+    t(3800, () => this.setState({ animPhase: 6, animTask: null }));
+  }
   swapToCompletion() {
     const el = this.heroRef.current;
     this.setState({ completionFading: true });
@@ -1448,7 +1497,7 @@ class Component extends DCLogic {
     ).map((it, i) => Object.assign({}, it, { onSelect: () => onCarFilterChange(i), borderColor: it.selected ? "var(--border-generic-brand)" : "var(--border-generic-defaultalt01)" }));
     const openSortTray = () => { this.setState({ sortTrayMounted: true }); setTimeout(() => this.setState({ sortTrayOpen: true }), 30); };
     const closeSortTray = () => { this.setState({ sortTrayOpen: false }); setTimeout(() => this.setState({ sortTrayMounted: false }), 420); };
-    const openTray = () => { this.setState({ trayMounted: true, step: "intro", reg: "", stepWrapHeight: null, stepWrapAnimating: false, stepFade: 1 }); setTimeout(() => this.setState({ trayOpen: true }), 30); };
+    const openTray = () => { this.setState({ trayMounted: true, step: "intro", reg: "", stepWrapHeight: null, stepWrapAnimating: false, stepFade: 1, regFocused: false }); setTimeout(() => this.setState({ trayOpen: true }), 30); };
     const closeTray = () => { this.setState({ trayOpen: false }); setTimeout(() => this.setState({ trayMounted: false }), 420); };
     const changeStepTo = (newStep) => {
       if (reducedMotion()) { this.setState({ step: newStep, stepWrapHeight: null, stepWrapAnimating: false, stepFade: 1 }); return; }
@@ -1587,12 +1636,22 @@ class Component extends DCLogic {
           return { id: c.id, src: c.src, alt: c.alt, cls: "hb-carrow__img hb-carrow__img--" + slot, scale: c.scale[scaleKey], opacity: 1 };
         });
     const openMultiDetail = (view) => { this.setState({ detailCarId: centeredId2 }); this.pushView(view); };
+    const INSURANCE_DUE2 = { byd: { date: "14 Sep 26", days: 14 }, cadillac: { date: "05 Sep 26", days: 5 } };
+    const MOT_DUE2 = { byd: { date: "25 Sep 26", days: 25 } };
+    const insDue2 = INSURANCE_DUE2[centeredId2];
+    const motDue2 = MOT_DUE2[centeredId2];
+    const insT2 = tileState("insurance", hasIns2);
+    const servT2 = tileState("servicing", hasServ2);
+    const insExpand2 = hasServ2 && !(animTask === "servicing" && animPhase < 4);
+    const servExpand2 = hasIns2 && !(animTask === "insurance" && animPhase < 4);
+    const multiAnimActive = !!animTask && animPhase < 6;
+    const pct2Display = multiAnimActive ? s.pct : Math.round(doneCount2 / 4 * 100);
     const multiItems = [
       { asset: "icon", icon: "Date & time/Calendar/Calendar", heading: "", title: titleWithDate("Tax", centeredId2 === "renault" ? "21 Sep 26" : "06 Feb 27"), showDescription: false, tag: centeredId2 === "renault", tagLabel: "Due 21 days", onClick: () => openMultiDetail("tax") },
     ];
-    if (hasIns2) multiItems.push({ asset: "icon", icon: "Security/Shield/Shield", title: titleWithDate("Insurance", "14 Sep 26"), showDescription: false, tag: true, tagLabel: "Due 14 days", onClick: () => openMultiDetail("insuranceDetail") });
+    if (hasIns2) multiItems.push({ asset: "icon", icon: "Security/Shield/Shield", title: titleWithDate("Insurance", insDue2 ? insDue2.date : "09 May 27"), showDescription: false, tag: !!insDue2, tagLabel: insDue2 ? "Due " + insDue2.days + " days" : undefined, onClick: () => openMultiDetail("insuranceDetail") });
     if (hasServ2) multiItems.push({ asset: "icon", icon: "Miscellaneous/Spanner/Spanner", title: titleWithDate("Servicing", "01 Jun 27"), showDescription: false, onClick: () => openMultiDetail("motDetail") });
-    multiItems.push({ asset: "icon", icon: "Documents/Document Success 1/Document Success 1", title: titleWithDate("MOT", "11 Jun 27"), showDescription: false, onClick: () => openMultiDetail("motDetail") });
+    multiItems.push({ asset: "icon", icon: "Documents/Document Success 1/Document Success 1", title: titleWithDate("MOT", motDue2 ? motDue2.date : "11 Jun 27"), showDescription: false, tag: !!motDue2, tagLabel: motDue2 ? "Due " + motDue2.days + " days" : undefined, onClick: () => openMultiDetail("motDetail") });
 
     const weeks = buildWeeks(s.calYear, s.calMonth, s.calSelDay);
     const prevMonth = () => this.setState((st) => st.calMonth === 0 ? { calYear: st.calYear - 1, calMonth: 11 } : { calMonth: st.calMonth - 1 });
@@ -1640,6 +1699,8 @@ class Component extends DCLogic {
       stepIntro: s.step === "intro", stepSearching: s.step === "searching", stepResult: s.step === "result", stepConnecting: s.step === "connecting",
       setReg: (v) => this.setState({ reg: v }),
       connectDisabled: false,
+      connectButtonLabel: s.regFocused ? "Search" : "Connect vehicle",
+      onRegFocus: () => this.setState({ regFocused: true }),
       regValue: isMultiCar ? mob2.reg : (s.reg || "VG23 TZM"),
       vehicleCount,
       vehicleCountLabel: vehicleCount + (vehicleCount === 1 ? " car" : " cars"),
@@ -1731,10 +1792,10 @@ class Component extends DCLogic {
       showInsuranceGhost: insT.visible, showServicingGhost: servT.visible,
       insuranceGhostClass: [insExpand ? "hb-ghost--expanded" : "", insT.added ? "hb-ghost-added" : "", insT.fading ? "hb-ghost-fade" : "", insT.collapsed ? "hb-ghost-collapsed" : ""].filter(Boolean).join(" "),
       servicingGhostClass: [servExpand ? "hb-ghost--expanded" : "", servT.added ? "hb-ghost-added" : "", servT.fading ? "hb-ghost-fade" : "", servT.collapsed ? "hb-ghost-collapsed" : ""].filter(Boolean).join(" "),
-      insuranceDesc: insT.added ? "Added" : "Get reminder",
-      servicingDesc: servT.added ? "Added" : "Keep track",
-      insuranceActionIcon: insT.added ? "Action/Tick/Tick" : "Action/Plus/Plus",
-      servicingActionIcon: servT.added ? "Action/Tick/Tick" : "Action/Plus/Plus",
+      insuranceDesc: isMultiCar ? (insT2.added ? "Added" : "Get reminder") : (insT.added ? "Added" : "Get reminder"),
+      servicingDesc: isMultiCar ? (servT2.added ? "Added" : "Keep track") : (servT.added ? "Added" : "Keep track"),
+      insuranceActionIcon: isMultiCar ? (insT2.added ? "Action/Tick/Tick" : "Action/Plus/Plus") : (insT.added ? "Action/Tick/Tick" : "Action/Plus/Plus"),
+      servicingActionIcon: isMultiCar ? (servT2.added ? "Action/Tick/Tick" : "Action/Plus/Plus") : (servT.added ? "Action/Tick/Tick" : "Action/Plus/Plus"),
       goInsurance: () => this.pushView("insuranceCapture"),
       goServicing: () => this.pushView("serviceCapture"),
       reminderItems: items,
@@ -1759,6 +1820,17 @@ class Component extends DCLogic {
       ],
 
       alertVisible: s.alertVisible,
+      taxAlertVisible: s.alertVisible && ((s.detailCarId || centeredId2) === "renault"),
+      taxDateLabel: (s.detailCarId || centeredId2) === "renault" ? "21 Sep 2026" : "06 Feb 2027",
+      taxShowPill: (s.detailCarId || centeredId2) === "renault",
+      insuranceAlertVisible: s.alertVisible && !!insDue2,
+      insuranceAlertTitle: insDue2 ? ("Your insurance is due in " + insDue2.days + " days") : "",
+      insuranceDateLabel: (s.detailCarId || centeredId2) === "byd" ? "14 Sep 2026" : (s.detailCarId || centeredId2) === "cadillac" ? "05 Sep 2026" : "09 May 2027",
+      insuranceShowPill: !!insDue2,
+      insurancePillLabel: insDue2 ? (insDue2.days + " days") : "",
+      motAlertVisible: s.alertVisible && !!motDue2,
+      motAlertTitle: motDue2 ? ("Your MOT is due in " + motDue2.days + " days") : "Your MOT is due soon",
+      motDateLabel: (s.detailCarId || centeredId2) === "byd" ? "25 Sep 2026" : "11 Jun 2027",
       dismissAlert: () => this.setState({ alertVisible: false }),
       motTabValue: s.motTab,
       onMotTabChange: (i) => this.setState({ motTab: i }),
@@ -1787,11 +1859,14 @@ class Component extends DCLogic {
         if (s.detailCarId && isMultiCar) {
           const prog = readCarProgress();
           const cur = prog[s.detailCarId] || {};
+          const prevDone = 2 + (cur.completedTasks || []).length;
           const tasks = Array.from(new Set((cur.completedTasks || []).concat(["insurance"])));
           prog[s.detailCarId] = Object.assign({}, cur, { completedTasks: tasks });
           writeCarProgress(prog);
+          const newDone = 2 + tasks.length;
           this.setState({ detailCarId: null });
           this.jumpToHub();
+          setTimeout(() => this.runReturnAnimation2(pctOf(newDone), pctOf(Math.max(2, newDone - 1)), "insurance"), 60);
           return;
         }
         const next = Object.assign({}, this.mob);
@@ -1805,11 +1880,14 @@ class Component extends DCLogic {
         if (s.detailCarId && isMultiCar) {
           const prog = readCarProgress();
           const cur = prog[s.detailCarId] || {};
+          const prevDone = 2 + (cur.completedTasks || []).length;
           const tasks = Array.from(new Set((cur.completedTasks || []).concat(["servicing"])));
           prog[s.detailCarId] = Object.assign({}, cur, { completedTasks: tasks });
           writeCarProgress(prog);
+          const newDone = 2 + tasks.length;
           this.setState({ detailCarId: null });
           this.jumpToHub();
+          setTimeout(() => this.runReturnAnimation2(pctOf(newDone), pctOf(Math.max(2, newDone - 1)), "servicing"), 60);
           return;
         }
         const next = Object.assign({}, this.mob);
@@ -1824,16 +1902,16 @@ class Component extends DCLogic {
 
       // ---- Multi-car (2 cars) overrides for the hub view ----
       reminderItems: isMultiCar ? multiItems : items,
-      showProgress: isMultiCar ? doneCount2 < 4 : !(s.pct >= 100 && completionReady),
-      progressHeadline: isMultiCar ? ("Your " + centeredCar2.name + " profile is " + Math.round(doneCount2 / 4 * 100) + "% complete") : ("Your Renault profile is " + s.pct + "% complete"),
-      progressWidth: isMultiCar ? (Math.round(doneCount2 / 4 * 100) + "%") : (s.pct + "%"),
+      showProgress: isMultiCar ? !(pct2Display >= 100 && completionReady) : !(s.pct >= 100 && completionReady),
+      progressHeadline: isMultiCar ? ("Your " + centeredCar2.name + " profile is " + pct2Display + "% complete") : ("Your Renault profile is " + s.pct + "% complete"),
+      progressWidth: isMultiCar ? (pct2Display + "%") : (s.pct + "%"),
       progressSubtext: isMultiCar ? (doneCount2 + " of 4 tasks completed") : (doneCount + " of 4 tasks completed"),
-      showCompletion: isMultiCar ? doneCount2 >= 4 : (s.pct >= 100 && completionReady),
-      showGhostRow: isMultiCar ? !(hasIns2 && hasServ2) : (!bothAdded || (animTask && animPhase < 4)),
-      showInsuranceGhost: isMultiCar ? !hasIns2 : insT.visible,
-      showServicingGhost: isMultiCar ? !hasServ2 : servT.visible,
-      insuranceGhostClass: isMultiCar ? "" : [insExpand ? "hb-ghost--expanded" : "", insT.added ? "hb-ghost-added" : "", insT.fading ? "hb-ghost-fade" : "", insT.collapsed ? "hb-ghost-collapsed" : ""].filter(Boolean).join(" "),
-      servicingGhostClass: isMultiCar ? "" : [servExpand ? "hb-ghost--expanded" : "", servT.added ? "hb-ghost-added" : "", servT.fading ? "hb-ghost-fade" : "", servT.collapsed ? "hb-ghost-collapsed" : ""].filter(Boolean).join(" "),
+      showCompletion: isMultiCar ? (pct2Display >= 100 && completionReady) : (s.pct >= 100 && completionReady),
+      showGhostRow: isMultiCar ? (!(hasIns2 && hasServ2) || (multiAnimActive && animPhase < 4)) : (!bothAdded || (animTask && animPhase < 4)),
+      showInsuranceGhost: isMultiCar ? insT2.visible : insT.visible,
+      showServicingGhost: isMultiCar ? servT2.visible : servT.visible,
+      insuranceGhostClass: isMultiCar ? [insExpand2 ? "hb-ghost--expanded" : "", insT2.added ? "hb-ghost-added" : "", insT2.fading ? "hb-ghost-fade" : "", insT2.collapsed ? "hb-ghost-collapsed" : ""].filter(Boolean).join(" ") : [insExpand ? "hb-ghost--expanded" : "", insT.added ? "hb-ghost-added" : "", insT.fading ? "hb-ghost-fade" : "", insT.collapsed ? "hb-ghost-collapsed" : ""].filter(Boolean).join(" "),
+      servicingGhostClass: isMultiCar ? [servExpand2 ? "hb-ghost--expanded" : "", servT2.added ? "hb-ghost-added" : "", servT2.fading ? "hb-ghost-fade" : "", servT2.collapsed ? "hb-ghost-collapsed" : ""].filter(Boolean).join(" ") : [servExpand ? "hb-ghost--expanded" : "", servT.added ? "hb-ghost-added" : "", servT.fading ? "hb-ghost-fade" : "", servT.collapsed ? "hb-ghost-collapsed" : ""].filter(Boolean).join(" "),
       goInsurance: () => { if (isMultiCar) openMultiDetail("insuranceCapture"); else this.pushView("insuranceCapture"); },
       goServicing: () => { if (isMultiCar) openMultiDetail("serviceCapture"); else this.pushView("serviceCapture"); },
     };

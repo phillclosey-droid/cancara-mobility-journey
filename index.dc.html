@@ -39,7 +39,14 @@
     .pi-frame .cnc-cpm { animation: pi-cpm-fade 260ms ease; }
     @media (prefers-reduced-motion: reduce) { .pi-frame .cnc-cpm { animation: none; } }
   </style>
-  <script>document.documentElement.setAttribute("data-theme", localStorage.getItem("cnc-theme") || "dark");</script>
+  <script>
+    (function () {
+      var mode = localStorage.getItem("cnc-theme") || "dark";
+      document.documentElement.setAttribute("data-theme", mode);
+      var meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute("content", mode === "dark" ? "#121212" : "#F1F1F1");
+    })();
+  </script>
   <script>
     // Home always resets this journey back to "onboard your first car" square one.
     try {
@@ -119,6 +126,8 @@ class Component extends DCLogic {
         const next = el.getAttribute("data-theme") === "dark" ? "light" : "dark";
         el.setAttribute("data-theme", next);
         try { localStorage.setItem("cnc-theme", next); } catch (e) {}
+        const meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.setAttribute("content", next === "dark" ? "#121212" : "#F1F1F1");
       },
 
       pickerMounted: this.state.pickerMounted,

@@ -31,6 +31,7 @@
       .cnc-tray-overlay .cnc-tpl-tray__scrim, .cnc-tray-overlay .cnc-tpl-tray__tray { transition: none; }
     }
     .mv-spin { display: flex; justify-content: center; align-items: center; padding: var(--spacing-size48) 0; }
+    .mv-spin > span { transform: scale(3.6); }
     .cnc-cbtn.hero-fillbtn { width: 100%; }
     .cnc-npanel.hero-notif-noborder { border-width: 0 !important; }
     .cnc-cbtn.ov-sort-btn { padding-right: 0; }
@@ -222,6 +223,7 @@
                       placeholder="e.g. AB12 CDE"
                       interactive="{{ true }}"
                       on-change="{{ setReg }}"
+                      on-focus="{{ onRegFocus }}"
                       base-path="../_ds/cancara"
                       width="100%"
                       hint-size="100%,80px"></x-import>
@@ -230,7 +232,7 @@
 
           <section class="cnc-l-container">
             <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size16);">
-              <x-import component-from-global-scope="CancaraDesignSystem_4b0109.ActionButton" variant="primary" disabled="{{ connectDisabled }}" on-click="{{ connectVehicle }}" base-path="../_ds/cancara" hint-size="100%,48px">Connect vehicle</x-import>
+              <x-import component-from-global-scope="CancaraDesignSystem_4b0109.ActionButton" variant="primary" disabled="{{ connectDisabled }}" on-click="{{ connectVehicle }}" base-path="../_ds/cancara" hint-size="100%,48px">{{ connectButtonLabel }}</x-import>
               <x-import component-from-global-scope="CancaraDesignSystem_4b0109.ActionButton" variant="tertiary" on-click="{{ browseWithout }}" base-path="../_ds/cancara" hint-size="100%,48px">Browse without connecting</x-import>
             </div>
           </section>
@@ -468,7 +470,7 @@ class Component extends DCLogic {
     };
 
     const openTray = () => {
-      this.setState({ trayMounted: true, step: "intro", reg: "", stepWrapHeight: null, stepWrapAnimating: false, stepFade: 1 });
+      this.setState({ trayMounted: true, step: "intro", reg: "", stepWrapHeight: null, stepWrapAnimating: false, stepFade: 1, regFocused: false });
       setTimeout(() => this.setState({ trayOpen: true }), 30);
     };
     const closeTray = () => {
@@ -545,6 +547,8 @@ class Component extends DCLogic {
       stepConnecting: s.step === "connecting",
       setReg: (v) => this.setState({ reg: v }),
       connectDisabled: false,
+      connectButtonLabel: s.regFocused ? "Search" : "Connect vehicle",
+      onRegFocus: () => this.setState({ regFocused: true }),
       regValue: s.reg || nextCar.reg,
       vehicleCount,
       vehicleCountLabel: vehicleCount + (vehicleCount === 1 ? " car" : " cars"),

@@ -33,7 +33,7 @@
       .cnc-tray-overlay .cnc-tpl-tray__tray { transition: none; }
     }
     .mv-spin { display: flex; justify-content: center; align-items: center; padding: var(--spacing-size48) 0; }
-    .mv-spin > span { transform: scale(1.8); }
+    .mv-spin > span { transform: scale(3.6); }
     @keyframes mv-step-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
     .mv-step { animation: mv-step-in 220ms ease; }
     @media (prefers-reduced-motion: reduce) { .mv-step { animation: none; } }
@@ -51,6 +51,7 @@
             trailing="{{ headerTrailing }}"
             on-trailing="{{ onTrailing }}"
             active="{{ homeTab }}"
+            on-tab-change="{{ onTab }}"
             base-path="../_ds/cancara"
             width="{{ frameW }}" height="100%" status-bar="{{ false }}" hint-size="100%,100%">
 
@@ -133,7 +134,7 @@
         <!-- Step 1: intro rows + reg entry -->
         <sc-if value="{{ stepIntro }}" hint-placeholder-val="{{ true }}">
           <div class="mv-step">
-          <section class="cnc-l-container" style="margin-bottom: var(--spacing-size24);">
+          <section class="cnc-l-container" style="margin-bottom: var(--spacing-size24); overflow: hidden; max-height: {{ statementsMaxHeight }}; opacity: {{ statementsOpacity }}; transition: opacity 220ms ease, max-height 320ms ease;">
             <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size24);">
               <div class="cnc-l-row" style="align-items: flex-start; --cnc-row-gap: var(--spacing-size12);">
                 <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Pictogram" asset="pictogram" style="default" icon="Travel/Car/Car" base-path="../_ds/cancara" hint-size="40px,40px"></x-import>
@@ -166,6 +167,8 @@
                       placeholder="e.g. AB12 CDE"
                       interactive="{{ true }}"
                       on-change="{{ setReg }}"
+                      on-focus="{{ onRegFocus }}"
+                      on-blur="{{ onRegBlur }}"
                       base-path="../_ds/cancara"
                       width="100%"
                       hint-size="100%,80px"></x-import>
@@ -174,7 +177,7 @@
 
           <section class="cnc-l-container">
             <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size16);">
-              <x-import component-from-global-scope="CancaraDesignSystem_4b0109.ActionButton" variant="primary" disabled="{{ connectDisabled }}" on-click="{{ connectVehicle }}" base-path="../_ds/cancara" hint-size="100%,48px">Connect vehicle</x-import>
+              <x-import component-from-global-scope="CancaraDesignSystem_4b0109.ActionButton" variant="primary" disabled="{{ connectDisabled }}" on-click="{{ connectVehicle }}" base-path="../_ds/cancara" hint-size="100%,48px">{{ connectButtonLabel }}</x-import>
               <x-import component-from-global-scope="CancaraDesignSystem_4b0109.ActionButton" variant="tertiary" on-click="{{ browseWithout }}" base-path="../_ds/cancara" hint-size="100%,48px">Browse without connecting</x-import>
             </div>
           </section>
@@ -204,8 +207,7 @@
               <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size04); flex: 1 1 auto; min-width: 0;">
                 <span class="type-style6" style="color: var(--text-generic-default); font-weight: 600;">Renault Rafale</span>
                 <span class="type-style6" style="color: var(--text-generic-default);">E-TECH 220hp</span>
-                <span class="type-style9" style="color: var(--text-generic-subdued); letter-spacing: 0.05em; text-transform: uppercase; margin-top: var(--spacing-size04);">{{ regValue }}</span>
-              </div>
+                <span class="type-style9" style="color: var(--text-generic-subdued); letter-spacing: 0.05em; text-transform: uppercase; margin-top: var(--spacing-size04); display: inline-block; padding: 2px var(--spacing-size08); border: var(--border-width-01) solid var(--border-generic-defaultalt01); border-radius: var(--radius-small); align-self: flex-start;">{{ regValue }}</span>              </div>
             </div>
           </section>
 
@@ -242,6 +244,7 @@ class Component extends DCLogic {
     step: "intro", // intro | searching | result | connecting
     reg: "",
     stepWrapHeight: null, stepWrapAnimating: false, stepFade: 1,
+    regFocused: false,
   };
 
   constructor(props) {
@@ -294,7 +297,7 @@ class Component extends DCLogic {
     };
 
     const openTray = () => {
-      this.setState({ trayMounted: true, step: "intro", reg: "", stepWrapHeight: null, stepWrapAnimating: false, stepFade: 1 });
+      this.setState({ trayMounted: true, step: "intro", reg: "", stepWrapHeight: null, stepWrapAnimating: false, stepFade: 1, regFocused: false });
       setTimeout(() => this.setState({ trayOpen: true }), 30);
     };
     // A car already onboarded → go straight to its hub page (picked by vehicle count);
@@ -310,6 +313,8 @@ class Component extends DCLogic {
         openTray();
       }
     };
+    const onRegFocus = () => this.setState({ regFocused: true });
+    const onRegBlur = () => {};
     const closeTray = () => {
       this.setState({ trayOpen: false });
       setTimeout(() => this.setState({ trayMounted: false }), 420);
@@ -359,6 +364,7 @@ class Component extends DCLogic {
       headerTrailing: ["Communication/Question Mark/Question Mark", "Weather/Sun/Sun"],
       hasLeading: true,
       homeTab: 0,
+      onTab: (i) => { if (i === 0) window.location.href = "../index.dc.html"; },
       frameW: "100%",
 
       spacesRows: [
@@ -378,6 +384,10 @@ class Component extends DCLogic {
       emptyPage: React.createElement("span", { "aria-hidden": "true" }),
       closeTray,
       noLeading: false,
+      onRegFocus,
+      onRegBlur,
+      statementsOpacity: s.regFocused ? 0 : 1,
+      statementsMaxHeight: s.regFocused ? "0px" : "1000px",
 
       stepIntro: s.step === "intro",
       stepSearching: s.step === "searching",
@@ -396,6 +406,7 @@ class Component extends DCLogic {
       regValue: s.reg || "VG23 TZM",
       setReg: (v) => this.setState({ reg: v }),
       connectDisabled: false,
+      connectButtonLabel: s.regFocused ? "Search" : "Connect vehicle",
       connectVehicle,
       finishConnect,
       browseWithout,

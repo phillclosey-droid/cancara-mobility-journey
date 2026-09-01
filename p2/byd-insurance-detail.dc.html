@@ -49,6 +49,16 @@
 
     <div class="cnc-l-page-end" data-screen-label="Insurance detail">
       
+      <sc-if value="{{ alertVisible }}" hint-placeholder-val="{{ true }}">
+        <section class="cnc-l-container" style="margin-bottom: var(--spacing-size24);">
+          <x-import component-from-global-scope="CancaraDesignSystem_4b0109.NotificationPanel"
+                    type="primary" sentiment="warning" layout="title-message"
+                    title="Your insurance is due in 14 days" message="Let us know if you've already renewed your policy."
+                    dismiss="{{ true }}" on-dismiss="{{ dismissAlert }}"
+                    base-path="../_ds/cancara" hint-size="100%,64px"></x-import>
+        </section>
+      </sc-if>
+
       <section class="cnc-l-container" style="margin-bottom: var(--spacing-size48);">
         <div class="dp-hero cnc-l-panel">
           <div class="dp-hero__pictogram">
@@ -138,7 +148,7 @@ class Component extends DCLogic {
   constructor(props) {
     super(props);
     this.accordionWrapRef = React.createRef();
-    this.state = { accordionOpen: false, modalOpen: false, accordionWrapHeight: null, accordionAnimating: false };
+    this.state = { accordionOpen: false, modalOpen: false, accordionWrapHeight: null, accordionAnimating: false, alertVisible: true };
   }
   toggleAccordion() {
     const el = this.accordionWrapRef.current;
@@ -167,6 +177,8 @@ class Component extends DCLogic {
     const s = this.state;
     return {
       accordionWrapRef: this.accordionWrapRef,
+      alertVisible: s.alertVisible,
+      dismissAlert: () => this.setState({ alertVisible: false }),
       accordionWrapStyle: s.accordionWrapHeight != null
         ? { height: s.accordionWrapHeight + "px", overflow: "hidden", transition: s.accordionAnimating ? "height 300ms ease" : "none" }
         : {},

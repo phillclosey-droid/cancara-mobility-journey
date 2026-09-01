@@ -187,6 +187,12 @@
         </section>
       </sc-if>
 
+      <section class="cnc-l-container" style="margin-bottom: var(--spacing-size24);">
+        <div class="cnc-l-flush">
+          <x-import component-from-global-scope="CancaraDesignSystem_4b0109.TwoTabsFixed" tab1-label="Last MOT" tab2-label="All MOT's" value="{{ tabValue }}" on-change="{{ onTabChange }}" width="100%" base-path="../_ds/cancara" hint-size="100%,48px"></x-import>
+        </div>
+      </section>
+
       <sc-if value="{{ showAllMots }}" hint-placeholder-val="{{ false }}">
         <section class="cnc-l-container" style="margin-bottom: var(--spacing-size48);">
           <div>
