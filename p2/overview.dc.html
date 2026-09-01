@@ -207,7 +207,7 @@
                   </div>
                 </sc-if>
               </div>
-              <x-import component-from-global-scope="CancaraDesignSystem_4b0109.NotificationPanel" style="max-width: none;" type="secondary" sentiment="info" layout="message-only" class-name="hero-notif-noborder" message="Your profile is not complete. Add your insurance and service dates." base-path="../_ds/cancara" hint-size="100%,48px"></x-import>
+              <x-import component-from-global-scope="CancaraDesignSystem_4b0109.NotificationPanel" style="max-width: none;" type="secondary" sentiment="info" layout="message-only" class-name="hero-notif-noborder" message="{{ heroNotifMessage }}" base-path="../_ds/cancara" hint-size="100%,48px"></x-import>
               <div class="cnc-l-row" style="--cnc-row-gap: var(--spacing-size16);">
                 <x-import component-from-global-scope="CancaraDesignSystem_4b0109.CompactButton" variant="secondary" size="small" icon-position="left" icon="Action/Plus/Plus" class-name="hero-fillbtn" on-click="{{ openTray }}" base-path="../_ds/cancara" style="flex:1" hint-size="auto,36px">Add car</x-import>
                 <x-import component-from-global-scope="CancaraDesignSystem_4b0109.CompactButton" variant="primary" size="small" icon-position="right" icon="Arrows/Arrow Right/Arrow Right" class-name="hero-fillbtn" on-click="{{ goToCars }}" base-path="../_ds/cancara" style="flex:1" hint-size="auto,36px">View cars</x-import>
@@ -1238,20 +1238,17 @@ class Component extends DCLogic {
     if (reducedMotion()) { this.setState((st) => ({ viewStack: mutateStack(st.viewStack) })); return; }
     const el = this.hubViewRef.current;
     const oldH = el ? el.getBoundingClientRect().height : null;
-    this.setState({ hubViewHeight: oldH, hubViewAnimating: false, hubFade: 0 });
+    this.setState({ hubViewHeight: oldH, hubViewAnimating: true, hubFade: 0.55 });
     setTimeout(() => {
-      this.setState({ hubViewAnimating: true });
+      this.setState((st) => ({ viewStack: mutateStack(st.viewStack) }));
       setTimeout(() => {
-        this.setState((st) => ({ viewStack: mutateStack(st.viewStack) }));
-        setTimeout(() => {
-          let newH = null;
-          const el2 = this.hubViewRef.current;
-          if (el2) { const prevHeight = el2.style.height; el2.style.height = "auto"; newH = el2.getBoundingClientRect().height; el2.style.height = prevHeight; }
-          this.setState({ hubViewHeight: newH, hubFade: 1 });
-          setTimeout(() => this.setState({ hubViewHeight: null, hubViewAnimating: false }), 340);
-        }, 20);
-      }, 180);
-    }, 20);
+        let newH = null;
+        const el2 = this.hubViewRef.current;
+        if (el2) { const prevHeight = el2.style.height; el2.style.height = "auto"; newH = el2.getBoundingClientRect().height; el2.style.height = prevHeight; }
+        this.setState({ hubViewHeight: newH, hubFade: 1 });
+        setTimeout(() => this.setState({ hubViewHeight: null, hubViewAnimating: false }), 340);
+      }, 20);
+    }, 120);
   }
   rotateCars2(dir) {
     if (this.state.carRotating) return;
@@ -1531,10 +1528,12 @@ class Component extends DCLogic {
           } catch (e) {}
           this.setState({ trayMounted: false, carsIn: false });
           // Replay the hero slide-in for the new car count, then auto-open the hub tray.
-          setTimeout(() => {
+          // Double rAF guarantees the "off" position actually paints before flipping back,
+          // so every car (not just the newly-added one) visibly re-animates in.
+          requestAnimationFrame(() => requestAnimationFrame(() => {
             this.setState({ carsIn: true });
             this.scheduleAutoOpenTray();
-          }, 20);
+          }));
         }, 420);
       }, 1200);
     };
@@ -1715,6 +1714,11 @@ class Component extends DCLogic {
       nextCarImg: nextCar.img, nextCarAlt: nextCar.alt, nextCarModel: nextCar.model,
       showHeroCar: vehicleCount === 1,
       showOneCar: vehicleCount === 1, showTwoCars: vehicleCount >= 2, showThreeCars: vehicleCount >= 3,
+      heroNotifMessage: vehicleCount >= 3
+        ? "Add your Renault insurance and service date, and your BYD service date."
+        : vehicleCount === 2
+        ? "Add your Renault insurance and service date, and your BYD service date."
+        : "Your Renault profile is not complete. Add your insurance and service dates.",
       renault1Style, renault2Style, bydStyle, cadillacStyle,
       goToCars: () => this.openCarTray(),
       attentionAlerts: [
