@@ -22,7 +22,9 @@
     .hb-hero__vehicletext { flex: 1 1 auto; min-width: 0; }
     .hb-hero__vehicletext span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .hb-hero__edit { flex: 0 0 auto; display: flex; align-items: center; gap: var(--spacing-size04); background: transparent; border: 0; padding: 0; cursor: pointer; color: var(--text-action-default); }
-    .hb-video-wrap { position: relative; width: calc(100% + var(--spacing-size32)); margin: calc(-1 * var(--spacing-size16)) calc(-1 * var(--spacing-size16)); aspect-ratio: 16 / 9; background: var(--background-panel-secondary); }
+    .hb-video-wrap { position: relative; width: calc(100% + var(--spacing-size32)); margin: calc(-1 * var(--spacing-size16)) calc(-1 * var(--spacing-size16)); aspect-ratio: 16 / 9; background: var(--background-panel-secondary); touch-action: none; cursor: grab; }
+    .hb-video-wrap.hb-video-wrap--scrubbing { cursor: grabbing; }
+    .hb-video-wrap { -webkit-user-select: none; user-select: none; }
     .hb-video-wrap video { display: block; width: 100%; height: 100%; object-fit: cover; }
     @keyframes hb-item-fade { from { opacity: 0; } to { opacity: 1; } }
     .hb-item-reveal { animation: hb-item-fade 0.3s ease 0.25s both; }
@@ -74,7 +76,7 @@
       .hb-ghostrow > div.hb-ghost-added .cnc-ghostpanel__trail { transition: none; }
     }
 
-    .cnc-tpl-tray.cnc-tray-overlay { position: absolute; inset: 0; background: transparent; }
+    .cnc-tpl-tray.cnc-tray-overlay { position: absolute; inset: 0; background: transparent; z-index: 10; }
     .cnc-tray-overlay .cnc-tpl-tray__page { background: transparent; }
     .cnc-tray-overlay .cnc-tpl-tray__scrim { opacity: 0; transition: opacity 260ms ease; }
     .cnc-tray-overlay .cnc-tpl-tray__tray { transform: translateY(100%); transition: transform 380ms cubic-bezier(0.22, 1, 0.36, 1); will-change: transform; max-height: 100%; }
@@ -84,7 +86,7 @@
       .cnc-tray-overlay .cnc-tpl-tray__scrim, .cnc-tray-overlay .cnc-tpl-tray__tray { transition: none; }
     }
     .cnc-tray-overlay .cnc-tpl-tray__content { overflow: hidden; }
-      .mv-menu-divider { padding-top: 0; padding-bottom: 0; }
+      .mv-menu-divider { padding-top: 0; padding-bottom: 0; margin: var(--spacing-size08) 0; }
   </style>
   <script>document.documentElement.setAttribute("data-theme", localStorage.getItem("cnc-theme") || "dark");</script>
 </helmet>
@@ -118,7 +120,7 @@
               <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Pictogram" asset="pictogram" style="default" icon="Travel/Car/Car" base-path="../_ds/cancara" hint-size="40px,40px"></x-import>
               <div class="hb-hero__vehicletext cnc-l-col" style="--cnc-col-gap: var(--spacing-size04);">
                 <span class="type-style5" style="color: var(--text-generic-default);">Renault Rafale</span>
-                <span class="type-style8" style="color: var(--text-generic-subdued);">{{ regValue }}</span>
+                <span class="type-style8" style="color: var(--text-generic-subdued); display: inline-block; padding: 2px var(--spacing-size08); border: var(--border-width-01) solid var(--border-generic-defaultalt01); border-radius: var(--radius-small); align-self: flex-start;">{{ regValue }}</span>
               </div>
               <button type="button" class="hb-hero__edit" onClick="{{ openManageTray }}" style="gap: 2px;">
                 <span class="type-style8">Manage</span>
@@ -126,7 +128,7 @@
               </button>
             </div>
 
-            <div class="hb-video-wrap">
+            <div class="{{ videoWrapClass }}" onPointerDown="{{ onScrubStart }}" onPointerMove="{{ onScrubMove }}" onPointerUp="{{ onScrubEnd }}" onPointerCancel="{{ onScrubEnd }}">
               <video ref="{{ videoRef }}" src="{{ videoSrc }}" muted="{{ alwaysMuted }}" playsinline preload="auto" onLoadedMetadata="{{ onVideoLoaded }}" onEnded="{{ onVideoEnded }}"></video>
             </div>
 
@@ -250,12 +252,13 @@
               width="100%" height="100%"
               hint-size="100%,100%">
 
+      <div ref="{{ trayViewRef }}" style="{{ trayViewStyle }}">
+
+
       <sc-if value="{{ trayShowMenu }}" hint-placeholder-val="{{ true }}">
         <div style="padding-bottom: var(--spacing-size24);">
           <div class="cnc-l-flush">
             <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Panel" asset="icon" icon="Action/Minus Alt 01/Minus Alt 01" heading="Remove vehicle" description="" on-click="{{ showRemoveVehicle }}" base-path="../_ds/cancara" hint-size="100%,64px"></x-import>
-            <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Divider" width="full" class-name="mv-menu-divider" base-path="../_ds/cancara" hint-size="100%,1px"></x-import>
-            <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Panel" asset="icon" icon="Travel/Car/Car" heading="Connect a different vehicle" description="" base-path="../_ds/cancara" hint-size="100%,64px"></x-import>
           </div>
         </div>
       </sc-if>
@@ -277,6 +280,9 @@
           </section>
         </div>
       </sc-if>
+
+
+      </div>
 
     </x-import>
   </sc-if>
@@ -317,6 +323,7 @@ class Component extends DCLogic {
   constructor(props) {
     super(props);
     this.videoRef = React.createRef();
+    this.trayViewRef = React.createRef();
     this.heroRef = React.createRef();
     this.listRef = React.createRef();
     this.hasPlayedOnce = false;
@@ -343,6 +350,7 @@ class Component extends DCLogic {
       heroLockedHeight: null, heroAnimating: false, notifVisible: false, ghostDomGone: false,
       listLockedHeight: null, listAnimating: false, completionFading: false,
       trayMounted: false, trayOpen: false, trayView: "menu",
+      trayViewHeight: null, trayViewAnimating: false, trayViewFade: 1,
     };
   }
 
@@ -462,6 +470,30 @@ class Component extends DCLogic {
     });
   }
 
+  onScrubStart(e) {
+    const v = this.videoRef.current;
+    if (!v || !v.duration) return;
+    try { e.currentTarget.setPointerCapture && e.currentTarget.setPointerCapture(e.pointerId); } catch (err) {}
+    v.pause();
+    this._scrub = { startX: e.clientX, startTime: v.currentTime, width: e.currentTarget.getBoundingClientRect().width };
+    this.setState({ videoScrubbing: true });
+  }
+  onScrubMove(e) {
+    if (!this._scrub) return;
+    const v = this.videoRef.current;
+    if (!v || !v.duration) return;
+    const dx = e.clientX - this._scrub.startX;
+    const dt = (dx / this._scrub.width) * v.duration;
+    const target = Math.min(v.duration - 0.03, Math.max(0, this._scrub.startTime + dt));
+    if (Math.abs(target - v.currentTime) < 0.033) return;
+    v.currentTime = target;
+  }
+  onScrubEnd() {
+    if (!this._scrub) return;
+    this._scrub = null;
+    this.hasPlayedOnce = true;
+    this.setState({ videoScrubbing: false });
+  }
   onVideoLoaded(e) {
     const v = e.target;
     v.muted = true;
@@ -488,6 +520,45 @@ class Component extends DCLogic {
     const v = e && e.target;
     if (v) { try { v.currentTime = Math.max(0, (v.duration || 0) - 0.03); } catch (e2) {} v.pause(); }
     if (!this.hasPlayedOnce) { this.hasPlayedOnce = true; this.runInitialAnimation(); }
+  }
+
+  clearTrayViewTimers() {
+    (this._trayViewTimers || []).forEach((id) => clearTimeout(id));
+    (this._trayViewRafs || []).forEach((id) => cancelAnimationFrame(id));
+    this._trayViewTimers = [];
+    this._trayViewRafs = [];
+  }
+  changeTrayViewTo(newView) {
+    this.clearTrayViewTimers();
+    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      this.setState({ trayView: newView, trayViewHeight: null, trayViewAnimating: false, trayViewFade: 1 });
+      return;
+    }
+    const el = this.trayViewRef.current;
+    const oldH = el ? el.getBoundingClientRect().height : null;
+    this.setState({ trayViewHeight: oldH, trayViewAnimating: false, trayViewFade: 0 });
+    const r1 = requestAnimationFrame(() => {
+      const r2 = requestAnimationFrame(() => {
+        this.setState({ trayViewAnimating: true });
+        const t1 = setTimeout(() => {
+          this.setState({ trayView: newView });
+          const r3 = requestAnimationFrame(() => {
+            const r4 = requestAnimationFrame(() => {
+              const newH = el ? el.scrollHeight : null;
+              this.setState({ trayViewHeight: newH, trayViewFade: 1 });
+              const t2 = setTimeout(() => this.setState({ trayViewHeight: null, trayViewAnimating: false }), 340);
+              this._trayViewTimers.push(t2);
+            });
+            this._trayViewRafs.push(r4);
+          });
+          this._trayViewRafs.push(r3);
+        }, 180);
+        this._trayViewTimers.push(t1);
+      });
+      this._trayViewRafs.push(r2);
+    });
+    this._trayViewRafs = [r1];
+    this._trayViewTimers = [];
   }
 
   renderVals() {
@@ -547,8 +618,8 @@ class Component extends DCLogic {
       { asset: "pictogram", pictogramIcon: "Security/Shield/Shield", title: "Get a motor insurance quote" },
     ];
 
-    const openManageTray = () => { this.setState({ trayMounted: true, trayView: "menu" }); setTimeout(() => this.setState({ trayOpen: true }), 30); };
-    const closeTray = () => { this.setState({ trayOpen: false }); setTimeout(() => this.setState({ trayMounted: false }), 420); };
+    const openManageTray = () => { this.clearTrayViewTimers(); this.setState({ trayMounted: true, trayView: "menu", trayViewHeight: null, trayViewAnimating: false, trayViewFade: 1 }); setTimeout(() => this.setState({ trayOpen: true }), 30); };
+    const closeTray = () => { this.clearTrayViewTimers(); this.setState({ trayOpen: false, trayViewHeight: null, trayViewAnimating: false, trayViewFade: 1 }); setTimeout(() => this.setState({ trayMounted: false }), 420); };
     const disconnectVehicle = () => {
       const next = Object.assign({}, mob, { isConnected: false });
       this.mob = next; writeState(next);
@@ -575,6 +646,10 @@ class Component extends DCLogic {
       regValue: mob.reg || "VG23 TZM",
 
       videoRef: this.videoRef,
+      videoWrapClass: "hb-video-wrap" + (s.videoScrubbing ? " hb-video-wrap--scrubbing" : ""),
+      onScrubStart: (e) => this.onScrubStart(e),
+      onScrubMove: (e) => this.onScrubMove(e),
+      onScrubEnd: (e) => this.onScrubEnd(e),
       alwaysMuted: true,
       videoSrc: (function () {
         const canWebm = (function () {
@@ -627,8 +702,15 @@ class Component extends DCLogic {
       openManageTray, closeTray, disconnectVehicle,
       trayShowMenu: s.trayView === "menu",
       trayShowRemove: s.trayView === "remove",
-      showRemoveVehicle: () => this.setState({ trayView: "remove" }),
-      showMenu: () => this.setState({ trayView: "menu" }),
+      showRemoveVehicle: () => this.changeTrayViewTo("remove"),
+      showMenu: () => this.changeTrayViewTo("menu"),
+      trayViewRef: this.trayViewRef,
+      trayViewStyle: {
+        opacity: s.trayViewFade,
+        height: s.trayViewHeight != null ? s.trayViewHeight + "px" : undefined,
+        overflow: s.trayViewHeight != null ? "hidden" : undefined,
+        transition: s.trayViewAnimating ? "height 320ms ease, opacity 260ms ease" : "opacity 180ms ease",
+      },
       noLeading: false,
     };
   }

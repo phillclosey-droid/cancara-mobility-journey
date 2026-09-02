@@ -54,6 +54,7 @@
       localStorage.removeItem("cnc-mobility-vehicles");
       localStorage.removeItem("cnc-carousel2-seen");
       localStorage.removeItem("cnc-carousel3-seen");
+      localStorage.removeItem("cnc-car-progress");
     } catch (e) {}
   </script>
 </helmet>
@@ -67,8 +68,8 @@
     </div>
 
     <div class="pi-projects">
-      <x-import component-from-global-scope="CancaraDesignSystem_4b0109.ListActionGroup" width="compact" base-path="_ds/cancara" items="{{ projectOne }}" hint-size="100%,80px"></x-import>
       <x-import component-from-global-scope="CancaraDesignSystem_4b0109.ListActionGroup" width="compact" base-path="_ds/cancara" items="{{ projectTwo }}" hint-size="100%,80px"></x-import>
+      <x-import component-from-global-scope="CancaraDesignSystem_4b0109.ListActionGroup" width="compact" base-path="_ds/cancara" items="{{ projectOne }}" hint-size="100%,80px"></x-import>
     </div>
 
     <div class="pi-foot">
@@ -144,7 +145,7 @@ class Component extends DCLogic {
         pictogramIcon: "Travel/Car/Car",
         pictogramStyle: "primary",
         showHeading: false,
-        title: "Multiple cars - Prototype one",
+        title: "Multiple cars - Tabs navigation",
         description: "Onboarding multiple cars with tab navigation",
         showDescription: true,
         onClick: () => askTheme("p1/splash.dc.html"),
@@ -154,8 +155,8 @@ class Component extends DCLogic {
         pictogramIcon: "Travel/Van/Van",
         pictogramStyle: "secondary",
         showHeading: false,
-        title: "Multiple cars - Prototype two",
-        description: "Your cars handled in a bottom tray, no top tabs",
+        title: "Multiple cars - Tray navigation",
+        description: "Onboarding multiple cars with tray navigation",
         showDescription: true,
         onClick: () => askTheme("p2/splash.dc.html"),
       }],

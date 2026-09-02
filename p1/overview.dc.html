@@ -260,7 +260,7 @@
               <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size04); flex: 1 1 auto; min-width: 0;">
                 <span class="type-style6" style="color: var(--text-generic-default); font-weight: 600;">{{ nextCarAlt }}</span>
                 <span class="type-style6" style="color: var(--text-generic-default);">{{ nextCarModel }}</span>
-                <span class="type-style9" style="color: var(--text-generic-subdued); letter-spacing: 0.05em; text-transform: uppercase; margin-top: var(--spacing-size04);">{{ regValue }}</span>
+                <span class="type-style9" style="color: var(--text-generic-subdued); letter-spacing: 0.05em; text-transform: uppercase; margin-top: var(--spacing-size04); display: inline-block; padding: 2px var(--spacing-size08); border: var(--border-width-01) solid var(--border-generic-defaultalt01); border-radius: var(--radius-small); align-self: flex-start;">{{ regValue }}</span>
               </div>
             </div>
           </section>
@@ -488,7 +488,7 @@ class Component extends DCLogic {
         setTimeout(() => {
           try {
             localStorage.setItem("cnc-mobility-state", JSON.stringify({
-              isConnected: true, completedTasks: ["servicing"], hasSeenInitialAnimation: true, lastCompletedTask: null,
+              isConnected: true, completedTasks: [], hasSeenInitialAnimation: true, lastCompletedTask: null,
             }));
             const updated = vehicles.slice();
             if (updated.indexOf(nextCarId) === -1) updated.push(nextCarId);

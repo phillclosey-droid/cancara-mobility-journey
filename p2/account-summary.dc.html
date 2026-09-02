@@ -134,7 +134,7 @@
         <!-- Step 1: intro rows + reg entry -->
         <sc-if value="{{ stepIntro }}" hint-placeholder-val="{{ true }}">
           <div class="mv-step">
-          <section class="cnc-l-container" style="margin-bottom: var(--spacing-size24); overflow: hidden; max-height: {{ statementsMaxHeight }}; opacity: {{ statementsOpacity }}; transition: opacity 220ms ease, max-height 320ms ease;">
+          <section class="cnc-l-container" style="margin-bottom: {{ statementsMarginBottom }}; overflow: hidden; max-height: {{ statementsMaxHeight }}; opacity: {{ statementsOpacity }}; transition: opacity 220ms ease, max-height 320ms ease, margin-bottom 320ms ease;">
             <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size24);">
               <div class="cnc-l-row" style="align-items: flex-start; --cnc-row-gap: var(--spacing-size12);">
                 <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Pictogram" asset="pictogram" style="default" icon="Travel/Car/Car" base-path="../_ds/cancara" hint-size="40px,40px"></x-import>
@@ -241,7 +241,8 @@
 class Component extends DCLogic {
   state = {
     activeTab: 0,
-    trayMounted: false, trayOpen: false,
+    trayMounted: new URLSearchParams(window.location.search).get("connect") === "1",
+    trayOpen: false,
     step: "intro", // intro | searching | result | connecting
     reg: "",
     stepWrapHeight: null, stepWrapAnimating: false, stepFade: 1,
@@ -251,6 +252,9 @@ class Component extends DCLogic {
   constructor(props) {
     super(props);
     this.stepWrapRef = React.createRef();
+  }
+  componentDidMount() {
+    if (this.state.trayMounted) setTimeout(() => this.setState({ trayOpen: true }), 30);
   }
 
   // Cross-fade + height tween between tray steps instead of an instant content snap:
@@ -273,13 +277,11 @@ class Component extends DCLogic {
           // (larger) fixed height — it just reports the pinned height back. Briefly clear the
           // fixed height to measure the new content's true size, then restore it before paint
           // (synchronous, so no flash), then animate to the measured value.
-          let newH = null;
-          if (el) {
-            const prevHeight = el.style.height;
-            el.style.height = "auto";
-            newH = el.getBoundingClientRect().height;
-            el.style.height = prevHeight;
-          }
+          // scrollHeight reads the true content height directly, even while the element
+          // is still clipped to the OLD fixed height with overflow:hidden — no need to
+          // toggle height:auto (that forces a synchronous reflow that resets the transition's
+          // "from" reference, causing a silent snap instead of an interpolated resize).
+          const newH = el ? el.scrollHeight : null;
           this.setState({ stepWrapHeight: newH, stepFade: 1 });
           setTimeout(() => this.setState({ stepWrapHeight: null, stepWrapAnimating: false }), 340);
         }));
@@ -308,7 +310,7 @@ class Component extends DCLogic {
       try { mob = JSON.parse(localStorage.getItem("cnc-mobility-state") || "null"); } catch (e) {}
       try { const v = JSON.parse(localStorage.getItem("cnc-mobility-vehicles") || "null"); if (Array.isArray(v)) vehicles = v; } catch (e) {}
       if (mob && mob.isConnected && vehicles.length > 0) {
-        const page = vehicles.length >= 3 ? "your-car-triple.dc.html" : vehicles.length === 2 ? "your-car-double.dc.html" : "overview.dc.html";
+        const page = vehicles.length >= 3 ? "overview.dc.html" : vehicles.length === 2 ? "overview.dc.html" : "overview.dc.html";
         window.location.href = page;
       } else {
         openTray();
@@ -389,6 +391,7 @@ class Component extends DCLogic {
       onRegBlur,
       statementsOpacity: s.regFocused ? 0 : 1,
       statementsMaxHeight: s.regFocused ? "0px" : "1000px",
+      statementsMarginBottom: s.regFocused ? "0px" : "var(--spacing-size24)",
 
       stepIntro: s.step === "intro",
       stepSearching: s.step === "searching",

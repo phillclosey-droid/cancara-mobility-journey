@@ -84,9 +84,9 @@ function readState() {
 function writeState(s) { try { localStorage.setItem(STATE_KEY, JSON.stringify(s)); } catch (e) {} }
 
 function carsPageForCount(n) {
-  if (n >= 3) return "your-car-triple.dc.html";
-  if (n === 2) return "your-car-double.dc.html";
-  return "your-cars-single.dc.html";
+  if (n >= 3) return "overview.dc.html";
+  if (n === 2) return "overview.dc.html";
+  return "overview.dc.html";
 }
 function getVehicleCount() {
   try {
@@ -140,7 +140,7 @@ class Component extends DCLogic {
         if (mob.completedTasks.indexOf("servicing") === -1) mob.completedTasks.push("servicing");
         mob.lastCompletedTask = "servicing";
         writeState(mob);
-        window.location.href = "your-cars-single.dc.html";
+        window.location.href = "overview.dc.html";
       },
     };
   }

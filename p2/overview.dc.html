@@ -17,7 +17,7 @@
     .ov-frame .cnc-tpl-base__container { scrollbar-width: none; -ms-overflow-style: none; -webkit-overflow-scrolling: touch; touch-action: pan-y; padding-top: var(--spacing-size08); }
     .ov-frame .cnc-tpl-base__container::-webkit-scrollbar { width: 0; height: 0; }
     .ov-frame .cnc-lag { max-width: none; width: 100%; }
-      .mv-menu-divider { padding-top: 0 !important; padding-bottom: 0 !important; }
+      .mv-menu-divider { padding-top: 0 !important; padding-bottom: 0 !important; margin: var(--spacing-size08) 0; }
       .cnc-panel.mv-menu-panel { background: transparent; border-color: transparent; }
   </style>
   <script>document.documentElement.setAttribute("data-theme", localStorage.getItem("cnc-theme") || "dark");</script>
@@ -27,6 +27,7 @@
     .cnc-tray-overlay .cnc-tpl-tray__scrim { opacity: 0; transition: opacity 260ms ease; }
     .cnc-tray-overlay .cnc-tpl-tray__tray { transform: translateY(100%); transition: transform 380ms cubic-bezier(0.22, 1, 0.36, 1); will-change: transform; max-height: 100%; }
     .cnc-tray-overlay .cnc-tpl-tray__content { padding-bottom: var(--spacing-size32); }
+    .cnc-cartray--tightbottom .cnc-tpl-tray__content { padding-bottom: var(--spacing-size08); }
     .cnc-tray-overlay.cnc-tray-overlay--open .cnc-tpl-tray__scrim { opacity: 1; }
     .cnc-tray-overlay.cnc-tray-overlay--open .cnc-tpl-tray__tray { transform: translateY(0); }
     @media (prefers-reduced-motion: reduce) {
@@ -52,7 +53,9 @@
     .hb-hero__vehicletext { flex: 1 1 auto; min-width: 0; }
     .hb-hero__vehicletext span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .hb-hero__edit { flex: 0 0 auto; display: flex; align-items: center; gap: var(--spacing-size04); background: transparent; border: 0; padding: 0; cursor: pointer; color: var(--text-action-default); }
-    .hb-video-wrap { position: relative; width: calc(100% + var(--spacing-size32)); margin: calc(-1 * var(--spacing-size16)) calc(-1 * var(--spacing-size16)); aspect-ratio: 16 / 9; background: var(--background-panel-secondary); }
+    .hb-video-wrap { position: relative; width: calc(100% + var(--spacing-size32)); margin: calc(-1 * var(--spacing-size16)) calc(-1 * var(--spacing-size16)); aspect-ratio: 16 / 9; background: var(--background-panel-secondary); touch-action: none; cursor: grab; }
+    .hb-video-wrap.hb-video-wrap--scrubbing { cursor: grabbing; }
+    .hb-video-wrap { -webkit-user-select: none; user-select: none; }
     .hb-video-wrap video { display: block; width: 100%; height: 100%; object-fit: cover; }
     .hb-carrow { position: relative; width: calc(100% + var(--spacing-size32)); margin: calc(-1 * var(--spacing-size16) - 16px) calc(-1 * var(--spacing-size16)) -16px; aspect-ratio: 16 / 8.3; overflow: hidden; background: linear-gradient(to top, var(--background-page-default) 0, var(--background-page-default) 88px, var(--border-generic-defaultalt01) 88px, var(--background-page-default) 100%); }
     .hb-carrow__img { position: absolute; top: 50%; transition: left 0.45s ease, transform 0.45s ease, height 0.45s ease; z-index: 1; }
@@ -348,7 +351,7 @@
                     <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Icon" name="Navigation/Kebab Menu/Kebab Menu" size="16" base-path="../_ds/cancara" style="transform: rotate(90deg);" hint-size="16px,16px"></x-import>
                   </button>
                 </div>
-                <div class="hb-video-wrap">
+                <div class="{{ videoWrapClass }}" onPointerDown="{{ onScrubStart }}" onPointerMove="{{ onScrubMove }}" onPointerUp="{{ onScrubEnd }}" onPointerCancel="{{ onScrubEnd }}">
                   <video ref="{{ videoRef }}" src="{{ videoSrc }}" muted="{{ alwaysMuted }}" playsinline preload="auto" onLoadedMetadata="{{ onVideoLoaded }}" onEnded="{{ onVideoEnded }}"></video>
                 </div>
               </div>
@@ -460,29 +463,58 @@
               <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size08);">
                 <div class="cnc-l-row" style="justify-content: space-between; align-items: center;">
                   <h2 class="type-style3" style="margin: 0; color: var(--text-generic-default);">Finance</h2>
-                  <x-import component-from-global-scope="CancaraDesignSystem_4b0109.CompactButton" variant="tertiary" size="small" class-name="ov-remove-fin" base-path="../_ds/cancara" hint-size="auto,36px">Remove</x-import>
+                  <sc-if value="{{ financeIsOriginal }}" hint-placeholder-val="{{ true }}">
+                    <x-import component-from-global-scope="CancaraDesignSystem_4b0109.CompactButton" variant="tertiary" size="small" class-name="ov-remove-fin" base-path="../_ds/cancara" hint-size="auto,36px">Remove</x-import>
+                  </sc-if>
                 </div>
                 <div style="border-radius: var(--radius-medium); overflow: hidden;">
-                  <div class="cnc-l-panel" style="border-radius: 0;">
-                    <div class="cnc-l-row" style="align-items: flex-start;">
-                      <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Pictogram" asset="pictogram" style="primary" icon="Navigation/Search/Search" base-path="../_ds/cancara" hint-size="40px,40px"></x-import>
-                      <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size08);">
-                        <span class="type-style6" style="font-weight: 600; color: var(--text-generic-default);">It looks like you may already have car finance</span>
-                        <span class="type-style8" style="color: var(--text-generic-subdued);">You can connect it to your {{ vehicleName }} profile.</span>
+                  <sc-if value="{{ financeIsPCP }}" hint-placeholder-val="{{ false }}">
+                    <div class="cnc-l-panel" style="border-radius: 0;">
+                      <div class="cnc-l-row" style="align-items: flex-start;">
+                        <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Pictogram" asset="pictogram" style="primary" icon="Finance/Coins/Coins" base-path="../_ds/cancara" hint-size="40px,40px"></x-import>
+                        <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size08); flex: 1 1 auto; min-width: 0;">
+                          <div class="cnc-l-row" style="justify-content: space-between; align-items: baseline; width: 100%;">
+                            <span class="type-style6" style="font-weight: 600; color: var(--text-generic-default);">PCP Finance</span>
+                            <span class="type-style6" style="font-weight: 600; color: var(--text-generic-default); white-space: nowrap;">£150.00</span>
+                          </div>
+                          <span class="type-style8" style="color: var(--text-generic-subdued);">Lloyds Bank</span>
+                        </div>
                       </div>
+                      <x-import component-from-global-scope="CancaraDesignSystem_4b0109.CompactButton" variant="secondary" size="small" icon-position="right" icon="Share/Links/Links" class-name="ov-fin-addbtn" base-path="../_ds/cancara" style="width: 100%;" hint-size="100%,48px">Manage your finance</x-import>
                     </div>
-                    <x-import component-from-global-scope="CancaraDesignSystem_4b0109.CompactButton" variant="secondary" size="small" icon-position="right" icon="Share/Links/Links" class-name="ov-fin-addbtn" base-path="../_ds/cancara" style="width: 100%;" hint-size="100%,48px">Add your finance</x-import>
-                  </div>
-                  <button type="button" style="position: relative; overflow: hidden; display: flex; align-items: center; gap: var(--spacing-size16); width: 100%; background: var(--border-generic-brand); border: 0; padding: var(--spacing-size16); text-align: left; cursor: pointer; box-sizing: border-box; margin: 0;">
-                    <div style="position: absolute; top: 0; left: 0; bottom: 0; width: 96px; border-radius: 0 var(--radius-default) var(--radius-default) 0; background: var(--border-sentiment-success); pointer-events: none;"></div>
-                    <div style="position: absolute; top: 50%; left: 48px; width: 260px; height: 260px; border-radius: 50%; background: var(--border-generic-brand); transform: translateY(-50%); pointer-events: none;"></div>
-                    <x-import component-from-global-scope="CancaraDesignSystem_4b0109.SpotIllustration" illustration="Default Alt 01/Switching/Switching" size="64" base-path="../_ds/cancara" title="Switch and spend less" style="position: relative; z-index: 1; mix-blend-mode: multiply;" hint-size="64px,64px"></x-import>
-                    <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size04); flex: 1 1 auto; min-width: 0; position: relative; z-index: 1;">
-                      <span class="type-style6" style="font-weight: 600; color: #000000;">Switch and spend less?</span>
-                      <span class="type-style8" style="color: #000000;">Switch your finance provider and you could spend less each month. Get a quote today.</span>
+                    <button type="button" style="position: relative; overflow: hidden; display: flex; align-items: center; gap: var(--spacing-size16); width: 100%; background: var(--border-generic-brand); border: 0; padding: var(--spacing-size16); text-align: left; cursor: pointer; box-sizing: border-box; margin: 0;">
+                      <div style="position: absolute; top: 0; left: 0; bottom: 0; width: 96px; border-radius: 0 var(--radius-default) var(--radius-default) 0; background: var(--border-sentiment-success); pointer-events: none;"></div>
+                      <div style="position: absolute; top: 50%; left: 48px; width: 260px; height: 260px; border-radius: 50%; background: var(--border-generic-brand); transform: translateY(-50%); pointer-events: none;"></div>
+                      <x-import component-from-global-scope="CancaraDesignSystem_4b0109.SpotIllustration" illustration="Default Alt 01/Upcoming Payments/Upcoming Payments" size="64" base-path="../_ds/cancara" title="Get prepared" style="position: relative; z-index: 1; mix-blend-mode: multiply;" hint-size="64px,64px"></x-import>
+                      <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size04); flex: 1 1 auto; min-width: 0; position: relative; z-index: 1;">
+                        <span class="type-style6" style="font-weight: 600; color: #000000;">Get prepared</span>
+                        <span class="type-style8" style="color: #000000;">You're coming to the end of your agreement, let's explore your options.</span>
+                      </div>
+                      <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Icon" name="Arrows/Chevron Right/Chevron Right" size="16" color="#000000" base-path="../_ds/cancara" style="position: relative; z-index: 1;" hint-size="16px,16px"></x-import>
+                    </button>
+                  </sc-if>
+                  <sc-if value="{{ financeIsOriginal }}" hint-placeholder-val="{{ true }}">
+                    <div class="cnc-l-panel" style="border-radius: 0;">
+                      <div class="cnc-l-row" style="align-items: flex-start;">
+                        <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Pictogram" asset="pictogram" style="primary" icon="Navigation/Search/Search" base-path="../_ds/cancara" hint-size="40px,40px"></x-import>
+                        <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size08);">
+                          <span class="type-style6" style="font-weight: 600; color: var(--text-generic-default);">{{ financeTitle }}</span>
+                          <span class="type-style8" style="color: var(--text-generic-subdued);">You can connect it to your {{ vehicleName }} profile.</span>
+                        </div>
+                      </div>
+                      <x-import component-from-global-scope="CancaraDesignSystem_4b0109.CompactButton" variant="secondary" size="small" icon-position="right" icon="Share/Links/Links" class-name="ov-fin-addbtn" base-path="../_ds/cancara" style="width: 100%;" hint-size="100%,48px">Add your finance</x-import>
                     </div>
-                    <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Icon" name="Arrows/Chevron Right/Chevron Right" size="16" color="#000000" base-path="../_ds/cancara" style="position: relative; z-index: 1;" hint-size="16px,16px"></x-import>
-                  </button>
+                    <button type="button" style="position: relative; overflow: hidden; display: flex; align-items: center; gap: var(--spacing-size16); width: 100%; background: var(--border-generic-brand); border: 0; padding: var(--spacing-size16); text-align: left; cursor: pointer; box-sizing: border-box; margin: 0;">
+                      <div style="position: absolute; top: 0; left: 0; bottom: 0; width: 96px; border-radius: 0 var(--radius-default) var(--radius-default) 0; background: var(--border-sentiment-success); pointer-events: none;"></div>
+                      <div style="position: absolute; top: 50%; left: 48px; width: 260px; height: 260px; border-radius: 50%; background: var(--border-generic-brand); transform: translateY(-50%); pointer-events: none;"></div>
+                      <x-import component-from-global-scope="CancaraDesignSystem_4b0109.SpotIllustration" illustration="Default Alt 01/Switching/Switching" size="64" base-path="../_ds/cancara" title="Switch and spend less" style="position: relative; z-index: 1; mix-blend-mode: multiply;" hint-size="64px,64px"></x-import>
+                      <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size04); flex: 1 1 auto; min-width: 0; position: relative; z-index: 1;">
+                        <span class="type-style6" style="font-weight: 600; color: #000000;">Switch and spend less?</span>
+                        <span class="type-style8" style="color: #000000;">Switch your finance provider and you could spend less each month. Get a quote today.</span>
+                      </div>
+                      <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Icon" name="Arrows/Chevron Right/Chevron Right" size="16" color="#000000" base-path="../_ds/cancara" style="position: relative; z-index: 1;" hint-size="16px,16px"></x-import>
+                    </button>
+                  </sc-if>
                 </div>
               </div>
             </section>
@@ -498,14 +530,12 @@
 
         <!-- MANAGE MENU -->
         <sc-if value="{{ viewIsManageMenu }}" hint-placeholder-val="{{ false }}">
-          <div class="mv-step" style="margin-bottom: calc(-1 * var(--spacing-size32));">
+          <div class="mv-step">
             <div>
               <div class="cnc-l-flush">
                 <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Panel" class-name="mv-menu-panel" asset="icon" icon="Action/Plus/Plus" heading="Add a new vehicle" description="" on-click="{{ openTray }}" base-path="../_ds/cancara" hint-size="100%,64px"></x-import>
                 <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Divider" width="full" class-name="mv-menu-divider" base-path="../_ds/cancara" hint-size="100%,1px"></x-import>
                 <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Panel" class-name="mv-menu-panel" asset="icon" icon="Action/Minus Alt 01/Minus Alt 01" heading="Remove vehicle" description="" on-click="{{ openManageRemove }}" base-path="../_ds/cancara" hint-size="100%,64px"></x-import>
-                <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Divider" width="full" class-name="mv-menu-divider" base-path="../_ds/cancara" hint-size="100%,1px"></x-import>
-                <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Panel" class-name="mv-menu-panel" asset="icon" icon="Travel/Car/Car" heading="Connect a different vehicle" description="" base-path="../_ds/cancara" hint-size="100%,64px"></x-import>
               </div>
             </div>
           </div>
@@ -972,7 +1002,7 @@
               <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size04); flex: 1 1 auto; min-width: 0;">
                 <span class="type-style6" style="color: var(--text-generic-default); font-weight: 600;">{{ nextCarAlt }}</span>
                 <span class="type-style6" style="color: var(--text-generic-default);">{{ nextCarModel }}</span>
-                <span class="type-style9" style="color: var(--text-generic-subdued); letter-spacing: 0.05em; text-transform: uppercase; margin-top: var(--spacing-size04);">{{ regValue }}</span>
+                <span class="type-style9" style="color: var(--text-generic-subdued); letter-spacing: 0.05em; text-transform: uppercase; margin-top: var(--spacing-size04); display: inline-block; padding: 2px var(--spacing-size08); border: var(--border-width-01) solid var(--border-generic-defaultalt01); border-radius: var(--radius-small); align-self: flex-start;">{{ regValue }}</span>
               </div>
             </div>
           </section>
@@ -1005,7 +1035,7 @@
     <x-import component-from-global-scope="CancaraDesignSystem_4b0109.TrayTemplate"
               data-screen-label="Filter by car"
               class-name="{{ sortTrayClass }}"
-              title="Filter alerts"
+              title="Sort by car"
               leading-icon="{{ noLeading }}"
               trailing-icon-name="Navigation/Close/Close"
               on-trailing="{{ closeSortTray }}"
@@ -1065,9 +1095,9 @@ function buildWeeks(year, month, selDay) {
   return weeks;
 }
 function carsPageForCount(n) {
-  if (n >= 3) return "your-car-triple.dc.html";
-  if (n === 2) return "your-car-double.dc.html";
-  return "your-cars-single.dc.html";
+  if (n >= 3) return "overview.dc.html";
+  if (n === 2) return "overview.dc.html";
+  return "overview.dc.html";
 }
 const CARS2 = [
   { id: "renault", src: "../assets/images/renault-rafale-front-trimmed.png", alt: "Renault Rafale", name: "Renault", scale: { center: 0.74, side: 0.74, off: 0.74 } },
@@ -1194,7 +1224,8 @@ class Component extends DCLogic {
   // ---- Single-car hub tray: open/close + view stack with crossfade ----
   openCarTray(opts) {
     const skipRotate = !opts || !opts.autoRotate;
-    this.setState({ carTrayMounted: true, viewStack: ["hub"], trayAtRest: false });
+    this.clearHubViewTimers();
+    this.setState({ carTrayMounted: true, viewStack: ["hub"], trayAtRest: false, hubViewHeight: null, hubViewAnimating: false, hubFade: 1 });
     setTimeout(() => this.setState({ carTrayOpen: true }), 30);
     setTimeout(() => {
       this.setState({ trayAtRest: true });
@@ -1206,9 +1237,18 @@ class Component extends DCLogic {
     }, 430);
   }
   closeCarTray() {
-    this.setState({ carTrayOpen: false, trayAtRest: false });
+    this.clearHubViewTimers();
+    this.setState({ carTrayOpen: false, trayAtRest: false, hubViewHeight: null, hubViewAnimating: false, hubFade: 1 });
     this.hasPlayedOnce = false;
     setTimeout(() => this.setState({ carTrayMounted: false, viewStack: ["hub"] }), 420);
+  }
+  clearHubViewTimers() {
+    (this._hubViewTimers || []).forEach((id) => clearTimeout(id));
+    this._hubViewTimers = [];
+    this._hubViewMeasurePending = false;
+  }
+  componentDidUpdate() {
+    this.measureHubViewIfPending();
   }
   // Car starts spinning only once the tray has actually reached its resting position
   // (not on load, not mid-slide) — a fresh spin every time the tray opens.
@@ -1236,19 +1276,28 @@ class Component extends DCLogic {
   }
   changeHubViewTo(mutateStack) {
     if (reducedMotion()) { this.setState((st) => ({ viewStack: mutateStack(st.viewStack) })); return; }
+    this.clearHubViewTimers();
     const el = this.hubViewRef.current;
     const oldH = el ? el.getBoundingClientRect().height : null;
     this.setState({ hubViewHeight: oldH, hubViewAnimating: true, hubFade: 0.55 });
-    setTimeout(() => {
+    const t1 = setTimeout(() => {
+      // Flag the swap; componentDidUpdate measures once React has actually
+      // committed the new content to the DOM — a guarantee no fixed-delay
+      // timer or rAF count can give (both are timing guesses; this is exact).
+      this._hubViewMeasurePending = true;
       this.setState((st) => ({ viewStack: mutateStack(st.viewStack) }));
-      setTimeout(() => {
-        let newH = null;
-        const el2 = this.hubViewRef.current;
-        if (el2) { const prevHeight = el2.style.height; el2.style.height = "auto"; newH = el2.getBoundingClientRect().height; el2.style.height = prevHeight; }
-        this.setState({ hubViewHeight: newH, hubFade: 1 });
-        setTimeout(() => this.setState({ hubViewHeight: null, hubViewAnimating: false }), 340);
-      }, 20);
     }, 120);
+    this._hubViewTimers = [t1];
+  }
+  measureHubViewIfPending() {
+    if (!this._hubViewMeasurePending) return;
+    this._hubViewMeasurePending = false;
+    let newH = null;
+    const el2 = this.hubViewRef.current;
+    if (el2) { const prevHeight = el2.style.height; el2.style.height = "auto"; newH = el2.getBoundingClientRect().height; el2.style.height = prevHeight; }
+    this.setState({ hubViewHeight: newH, hubFade: 1 });
+    const t3 = setTimeout(() => this.setState({ hubViewHeight: null, hubViewAnimating: false }), 340);
+    this._hubViewTimers.push(t3);
   }
   rotateCars2(dir) {
     if (this.state.carRotating) return;
@@ -1396,8 +1445,41 @@ class Component extends DCLogic {
       }, 20);
     }, 20);
   }
+  onScrubStart(e) {
+    const v = this.videoRef.current;
+    if (!v || !v.duration) return;
+    try { e.currentTarget.setPointerCapture && e.currentTarget.setPointerCapture(e.pointerId); } catch (err) {}
+    v.pause();
+    this._scrub = { startX: e.clientX, startTime: v.currentTime, width: e.currentTarget.getBoundingClientRect().width };
+    this.setState({ videoScrubbing: true });
+  }
+  onScrubMove(e) {
+    if (!this._scrub) return;
+    const v = this.videoRef.current;
+    if (!v || !v.duration) return;
+    const dx = e.clientX - this._scrub.startX;
+    // Full wrapper width dragged = full clip length — same left/right sweep as the auto-spin.
+    const dt = (dx / this._scrub.width) * v.duration;
+    const target = Math.min(v.duration - 0.03, Math.max(0, this._scrub.startTime + dt));
+    // Skip sub-frame seeks (each one forces a real decode) — anything smaller than ~1 frame
+    // at 30fps is invisible anyway, and issuing it just adds decode load that makes a fast
+    // drag feel jumpy/behind. A real change always goes through immediately, no added delay.
+    if (Math.abs(target - v.currentTime) < 0.033) return;
+    v.currentTime = target;
+  }
+  onScrubEnd() {
+    if (!this._scrub) return;
+    this._scrub = null;
+    this.hasPlayedOnce = true;
+    this.setState({ videoScrubbing: false });
+  }
   onVideoLoaded(e) {
     e.target.muted = true;
+    if (this.hasPlayedOnce) {
+      try { e.target.currentTime = Math.max(0, (e.target.duration || 0) - 0.03); } catch (err) {}
+      e.target.pause();
+      return;
+    }
     this.trySpin();
   }
   onVideoEnded(e) {
@@ -1479,8 +1561,8 @@ class Component extends DCLogic {
     if (!vehicles.length) vehicles = ["renault"];
     const vehicleCount = vehicles.length;
     const NEXT_CAR = {
-      byd: { img: "../assets/images/byd-seal-carousel.png", alt: "BYD Seal", model: "Design 82.5kWh", reg: "BY24 SDX", dest: "your-car-double.dc.html" },
-      cadillac: { img: "../assets/images/cadillac-lyriq-carousel.png", alt: "Cadillac Lyriq", model: "Luxury 340hp", reg: "CL24 LYX", dest: "your-car-triple.dc.html" },
+      byd: { img: "../assets/images/byd-seal-carousel.png", alt: "BYD Seal", model: "Design 82.5kWh", reg: "BY24 SDX", dest: "overview.dc.html" },
+      cadillac: { img: "../assets/images/cadillac-lyriq-carousel.png", alt: "Cadillac Lyriq", model: "Luxury 340hp", reg: "CL24 LYX", dest: "overview.dc.html" },
     };
     const nextCarId = vehicles.indexOf("byd") === -1 ? "byd" : (vehicles.indexOf("cadillac") === -1 ? "cadillac" : null);
     const nextCar = NEXT_CAR[nextCarId] || NEXT_CAR.cadillac;
@@ -1521,7 +1603,7 @@ class Component extends DCLogic {
         this.setState({ trayOpen: false });
         setTimeout(() => {
           try {
-            localStorage.setItem("cnc-mobility-state", JSON.stringify({ isConnected: true, completedTasks: ["servicing"], hasSeenInitialAnimation: true, lastCompletedTask: null }));
+            localStorage.setItem("cnc-mobility-state", JSON.stringify({ isConnected: true, completedTasks: [], hasSeenInitialAnimation: true, lastCompletedTask: null }));
             const updated = vehicles.slice();
             if (updated.indexOf(nextCarId) === -1) updated.push(nextCarId);
             localStorage.setItem("cnc-mobility-vehicles", JSON.stringify(updated));
@@ -1539,7 +1621,7 @@ class Component extends DCLogic {
     };
     const browseWithout = () => {
       try { localStorage.setItem("cnc-mobility-state", JSON.stringify({ isConnected: false, completedTasks: [], hasSeenInitialAnimation: false, lastCompletedTask: null })); } catch (e) {}
-      window.location.href = "your-car-double.dc.html";
+      window.location.href = "overview.dc.html";
     };
     this.changeFilterTo = (newFilter) => {
       if (reducedMotion()) { this.setState({ carFilter: newFilter, alertsWrapHeight: null, alertsAnimating: false, alertsFade: 1 }); return; }
@@ -1730,7 +1812,7 @@ class Component extends DCLogic {
 
       // ---- Single-car hub tray ----
       carTrayMounted: s.carTrayMounted,
-      carTrayClass: (s.carTrayOpen ? "cnc-tray-overlay cnc-tray-overlay--open " : "cnc-tray-overlay ") + "cnc-cartray",
+      carTrayClass: (s.carTrayOpen ? "cnc-tray-overlay cnc-tray-overlay--open " : "cnc-tray-overlay ") + "cnc-cartray" + (currentView === "manageMenu" ? " cnc-cartray--tightbottom" : ""),
       carTrayTitle: currentView === "hub" ? (vehicleCount >= 2 ? "Your cars" : "Your car") : (VIEW_TITLES[currentView] || "Manage vehicle"),
       carTrayHasLeading: s.viewStack.length > 1,
       popView: () => this.popView(),
@@ -1743,7 +1825,10 @@ class Component extends DCLogic {
         transition: s.hubViewAnimating ? "height 320ms ease, opacity 260ms ease" : "opacity 180ms ease",
       },
       isSingleCar, isMultiCar,
+      financeIsPCP: isMultiCar && centeredId2 === "cadillac",
+      financeIsOriginal: !(isMultiCar && centeredId2 === "cadillac"),
       vehicleName: isMultiCar ? centeredCar2.alt : "Renault Rafale",
+      financeTitle: "Does the " + (isMultiCar ? centeredCar2.alt : "Renault Rafale") + " have finance?",
       carsRender,
       carTotal: isTripleCar ? 3 : 2,
       carActive: activeCars.findIndex((c) => c.id === centeredId2) + 1,
@@ -1776,6 +1861,10 @@ class Component extends DCLogic {
       viewIsServiceSuccess: currentView === "serviceSuccess",
 
       videoRef: this.videoRef,
+      videoWrapClass: "hb-video-wrap" + (s.videoScrubbing ? " hb-video-wrap--scrubbing" : ""),
+      onScrubStart: (e) => this.onScrubStart(e),
+      onScrubMove: (e) => this.onScrubMove(e),
+      onScrubEnd: (e) => this.onScrubEnd(e),
       alwaysMuted: true,
       videoSrc: (function () {
         const canWebm = (function () { try { const t = document.createElement("video").canPlayType('video/webm; codecs="vp8, vorbis"'); return !!t && t !== ""; } catch (e) { return false; } })();
