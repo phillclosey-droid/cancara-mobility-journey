@@ -9,7 +9,7 @@
 <link rel="icon" href="assets/pwa/icon-192.png">
 <meta name="theme-color" content="#121212">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Lloyds Cancara">
+<meta name="apple-mobile-web-app-title" content="Multiple Cars">
 </head>
 <body>
 <x-dc>
@@ -70,6 +70,7 @@
     <div class="pi-projects">
       <x-import component-from-global-scope="CancaraDesignSystem_4b0109.ListActionGroup" width="compact" base-path="_ds/cancara" items="{{ projectTwo }}" hint-size="100%,80px"></x-import>
       <x-import component-from-global-scope="CancaraDesignSystem_4b0109.ListActionGroup" width="compact" base-path="_ds/cancara" items="{{ projectOne }}" hint-size="100%,80px"></x-import>
+      <x-import component-from-global-scope="CancaraDesignSystem_4b0109.ListActionGroup" width="compact" base-path="_ds/cancara" items="{{ projectSavings }}" hint-size="100%,80px"></x-import>
     </div>
 
     <div class="pi-foot">
@@ -159,6 +160,16 @@ class Component extends DCLogic {
         description: "Onboarding multiple cars with tray navigation",
         showDescription: true,
         onClick: () => askTheme("p2/splash.dc.html"),
+      }],
+      projectSavings: [{
+        asset: "pictogram",
+        pictogramIcon: "Finance/Piggy Bank/Piggy Bank",
+        pictogramStyle: "secondary",
+        showHeading: false,
+        title: "Savings goals",
+        description: "Rewards, Savings goals and Mobility",
+        showDescription: true,
+        onClick: () => askTheme("savings-goals/splash/Splash.dc.html"),
       }],
 
       showInstallHint: !this.state.standalone,
