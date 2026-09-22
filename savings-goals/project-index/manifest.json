@@ -1,7 +1,8 @@
 {
   "name": "Lloyds Cancara Designs",
   "short_name": "Lloyds Cancara",
-  "start_url": "ProjectIndex.dc.html",
+  "start_url": "/cancara-mobility-journey/savings-goals/",
+  "scope": "/cancara-mobility-journey/savings-goals/",
   "display": "standalone",
   "background_color": "#121212",
   "theme_color": "#121212",
