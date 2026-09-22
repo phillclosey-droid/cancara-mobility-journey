@@ -4,7 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="./support.js"></script>
-<style id="responsive-frame-fix">/* keep the app frame within the viewport on phones; 430px cap on desktop */.cnc-tpl-base,.cnc-tpl-base__container{width:min(100vw,430px)!important;max-width:100%!important;}/* hide the design-system light/dark preview toggle (not part of the app) */button[aria-label="Toggle light or dark mode"]{display:none!important;}</style>
 </head>
 <body>
 <x-dc>
@@ -81,13 +80,18 @@
     .hb-video-wrap { -webkit-user-select: none; user-select: none; }
     .hb-video-wrap video { display: block; width: 100%; height: 100%; object-fit: cover; }
     .hb-carrow { position: relative; width: calc(100% + var(--spacing-size32)); margin: calc(-1 * var(--spacing-size16) - 16px) calc(-1 * var(--spacing-size16)) -16px; aspect-ratio: 16 / 8.3; overflow: hidden; background: linear-gradient(to top, var(--background-page-default) 0, var(--background-page-default) 88px, var(--border-generic-defaultalt01) 88px, var(--background-page-default) 100%); }
-    .hb-carrow__img { position: absolute; top: 50%; transition: left 0.45s ease, transform 0.45s ease, height 0.45s ease; z-index: 1; }
+    /* Vertical position is pinned via `top` (not a transform percentage of the
+       image's OWN height) so it never reads the image's live height mid-transition
+       — Safari recomputes translateY(-50%) against the animating box each frame
+       and visibly dips/snaps; Chrome/Android happened not to show it, but this
+       fixes the actual cause rather than papering over one engine. */
+    .hb-carrow__img { position: absolute; transition: left 0.45s ease, top 0.45s ease, transform 0.45s ease, height 0.45s ease; z-index: 1; }
     .hb-carrow__img--notransition { transition: none; }
-    .hb-carrow__img--left { left: 0%; height: 148px; transform: translate(-55%, calc(-50% + 10px)); }
-    .hb-carrow__img--right { left: 100%; height: 148px; transform: translate(-45%, calc(-50% + 10px)); }
-    .hb-carrow__img--offleft { left: 0%; height: 98px; transform: translate(-220%, calc(-50% + 10px)); }
-    .hb-carrow__img--offright { left: 100%; height: 98px; transform: translate(220%, calc(-50% + 10px)); }
-    .hb-carrow__img--center { left: 50%; height: 188px; transform: translate(-50%, calc(-50% + 14px)); z-index: 2; }
+    .hb-carrow__img--left { left: 0%; top: calc(50% - 64px); height: 148px; transform: translateX(-55%); }
+    .hb-carrow__img--right { left: 100%; top: calc(50% - 64px); height: 148px; transform: translateX(-45%); }
+    .hb-carrow__img--offleft { left: 0%; top: calc(50% - 39px); height: 98px; transform: translateX(-220%); }
+    .hb-carrow__img--offright { left: 100%; top: calc(50% - 39px); height: 98px; transform: translateX(220%); }
+    .hb-carrow__img--center { left: 50%; top: calc(50% - 80px); height: 188px; transform: translateX(-50%); z-index: 2; }
     .hb-carrow__img img { display: block; height: 100%; width: auto; transform: scale(var(--car-scale, 1)); transform-origin: center; transition: transform 0.45s ease; }
     @keyframes hb-item-fade { from { opacity: 0; } to { opacity: 1; } }
     .hb-item-reveal { animation: hb-item-fade 0.3s ease 0.25s both; }
@@ -224,7 +228,7 @@
                   </div>
                 </sc-if>
                 <sc-if value="{{ showTwoCars }}" hint-placeholder-val="{{ false }}">
-                  <div style="position: relative; z-index: 0; width: 340px; height: 120px; overflow: hidden; margin-right: calc(-1 * var(--spacing-size16) - 46px);">
+                  <div style="position: relative; z-index: 0; width: 340px; height: 120px; overflow: hidden; margin-right: calc(-1 * var(--spacing-size16) - 16px);">
                     <sc-if value="{{ showThreeCars }}" hint-placeholder-val="{{ false }}">
                       <img src="./assets/cadillac-angle.png" alt="Cadillac Lyriq" style="{{ cadillacStyle }}">
                     </sc-if>
@@ -412,7 +416,7 @@
                   </button>
                 </div>
                 <div class="{{ videoWrapClass }}" onPointerDown="{{ onScrubStart }}" onPointerMove="{{ onScrubMove }}" onPointerUp="{{ onScrubEnd }}" onPointerCancel="{{ onScrubEnd }}">
-                  <video ref="{{ videoRef }}" src="{{ videoSrc }}" muted="{{ alwaysMuted }}" playsinline preload="auto" onLoadedMetadata="{{ onVideoLoaded }}" onEnded="{{ onVideoEnded }}"></video>
+                  <video ref="{{ videoRef }}" src="{{ videoSrc }}" muted="{{ alwaysMuted }}" playsInline webkit-playsinline="true" preload="auto" onLoadedMetadata="{{ onVideoLoaded }}" onEnded="{{ onVideoEnded }}"></video>
                 </div>
               </div>
             </section>
@@ -1327,9 +1331,21 @@ class Component extends DCLogic {
       this.finishSpin();
       return;
     }
-    if (!v || v.readyState < 1) return;
+    if (!v) return;
+    // iOS Safari sometimes never fires loadedmetadata if the video was laid out
+    // at zero size while the tray was closed (readyState stays 0 forever).
+    // Force a fresh load once it's actually visible, then retry shortly after.
+    if (v.readyState < 1) {
+      this._spinRetries = (this._spinRetries || 0) + 1;
+      if (this._spinRetries > 40) { this.hasPlayedOnce = true; this.finishSpin(); return; }
+      try { v.load(); } catch (e) {}
+      setTimeout(() => this.trySpin(), 60);
+      return;
+    }
     this.hasPlayedOnce = true;
     try { v.currentTime = 0; } catch (e) {}
+    v.muted = true;
+    v.playsInline = true;
     const p = v.play();
     if (p && p.catch) p.catch(() => this.finishSpin());
   }
@@ -1618,9 +1634,9 @@ class Component extends DCLogic {
     const driveEase = "cubic-bezier(0.16,1,0.3,1)";
     const drive = (finalX, ms) => ({ transform: "translateX(" + (carsIn ? finalX : finalX + 160) + "px)", transition: "transform " + ms + "ms " + driveEase });
     const renault1Style = Object.assign({ position: "absolute", left: 0, top: -4, width: 280, height: "auto", zIndex: 1, marginRight: "calc(-1 * var(--spacing-size16))" }, drive(12, 550));
-    const renault2Style = Object.assign({ position: "absolute", left: 0, top: -2, width: 224, height: "auto", zIndex: 1 }, drive(172, 550));
-    const bydStyle = Object.assign({ position: "absolute", left: 108, top: 14, width: 188, height: "auto", zIndex: 0 }, drive(0, 1100));
-    const cadillacStyle = Object.assign({ position: "absolute", left: 48, top: 10, width: 180, height: "auto", zIndex: -1 }, drive(0, 1650));
+    const renault2Style = Object.assign({ position: "absolute", left: 0, top: -2, width: 224, height: "auto", zIndex: 1 }, drive(142, 550));
+    const bydStyle = Object.assign({ position: "absolute", left: 78, top: 14, width: 188, height: "auto", zIndex: 0 }, drive(0, 1100));
+    const cadillacStyle = Object.assign({ position: "absolute", left: 18, top: 10, width: 180, height: "auto", zIndex: -1 }, drive(0, 1650));
     let vehicles = [];
     try { const v = JSON.parse(localStorage.getItem("cnc-mobility-vehicles") || "null"); if (Array.isArray(v) && v.length) vehicles = v; } catch (e) {}
     if (!vehicles.length) vehicles = ["renault"];

@@ -4,7 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="./support.js"></script>
-<style id="responsive-frame-fix">/* keep the app frame within the viewport on phones; 430px cap on desktop */.cnc-tpl-base,.cnc-tpl-base__container{width:min(100vw,430px)!important;max-width:100%!important;}/* hide the design-system light/dark preview toggle (not part of the app) */button[aria-label="Toggle light or dark mode"]{display:none!important;}</style>
 </head>
 <body>
 <x-dc>
@@ -18,6 +17,7 @@
        by pinning where needed: the status bar is held white (data-theme="dark" scope),
        and the caption uses --text-action-inverse, which is dark in both themes. */
     html, body { height: 100%; }
+    html, body { overflow: hidden; }
     html body { margin: 0; background: var(--background-panel-pressed); display: flex; align-items: stretch; justify-content: center; }
 
     /* Spinner pinned to its LIGHT-folder (black-ring) artwork in BOTH app themes. The
@@ -78,9 +78,9 @@ class Component extends DCLogic {
   state = { out: false };
 
   componentDidMount() {
-    // Hold for 5s, then dissolve (fade out) into the next page.
-    this._holdTimer = setTimeout(() => this.setState({ out: true }), 5000);
-    this._navTimer = setTimeout(() => { window.location.href = "../account-summary/AccountSummary.dc.html"; }, 5320);
+    // Hold for 2.5s, then dissolve (fade out) into the next page.
+    this._holdTimer = setTimeout(() => this.setState({ out: true }), 2500);
+    this._navTimer = setTimeout(() => { window.location.href = "../account-summary/AccountSummary.dc.html"; }, 2820);
   }
 
   componentWillUnmount() {

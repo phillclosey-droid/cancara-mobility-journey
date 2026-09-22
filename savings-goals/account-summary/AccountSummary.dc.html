@@ -4,7 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="./support.js"></script>
-<style id="responsive-frame-fix">/* keep the app frame within the viewport on phones; 430px cap on desktop */.cnc-tpl-base,.cnc-tpl-base__container{width:min(100vw,430px)!important;max-width:100%!important;}/* hide the design-system light/dark preview toggle (not part of the app) */button[aria-label="Toggle light or dark mode"]{display:none!important;}</style>
 </head>
 <body>
 <x-dc>
@@ -15,6 +14,7 @@
   <script src="./image-slot.js"></script>
   <style>
     html, body { height: 100%; }
+    html, body { overflow: hidden; }
     html body { margin: 0; background: var(--background-panel-pressed); display: flex; align-items: stretch; justify-content: center; }
     .as-frame .cnc-tpl-base__container { scrollbar-width: none; -ms-overflow-style: none; }
     .as-frame .cnc-tpl-base__container::-webkit-scrollbar { width: 0; height: 0; }
@@ -502,10 +502,10 @@ class Component extends DCLogic {
       headerTrailing: ["Communication/Question Mark/Question Mark", "Weather/Sun/Sun"],
       hasLeading: true,
       onBack: () => { window.location.href = "../project-index/ProjectIndex.dc.html"; },
-      goToGoals: () => { window.location.href = "../goals-home/GoalsHome.dc.html"; },
+      goToGoals: () => { window.location.href = "../rewards/Rewards.dc.html"; },
       onTabChange: (i) => { if (i === 0) window.location.href = "../project-index/ProjectIndex.dc.html"; },
       homeTab: 0,
-      frameW: 430,
+      frameW: "100%",
 
       spacesRows: [
         [

@@ -4,7 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="./support.js"></script>
-<style id="responsive-frame-fix">/* keep the app frame within the viewport on phones; 430px cap on desktop */.cnc-tpl-base,.cnc-tpl-base__container{width:min(100vw,430px)!important;max-width:100%!important;}/* hide the design-system light/dark preview toggle (not part of the app) */button[aria-label="Toggle light or dark mode"]{display:none!important;}</style>
 </head>
 <body>
 <x-dc>
@@ -15,6 +14,7 @@
     .cnc-l-container { box-sizing: border-box; display: flex; flex-direction: column; padding-left: var(--spacing-size16); padding-right: var(--spacing-size16); margin-bottom: var(--spacing-size24); gap: var(--spacing-size12); }
     .cnc-l-container:last-child { margin-bottom: 0; }
     html, body { height: 100%; }
+    html, body { overflow: hidden; }
     html body { margin: 0; background: var(--background-panel-pressed); display: flex; align-items: stretch; justify-content: center; }
     .cg-frame .cnc-tpl-base__container { scrollbar-width: none; -ms-overflow-style: none; }
     .cg-frame .cnc-tpl-base__container::-webkit-scrollbar { width: 0; height: 0; }
@@ -57,6 +57,7 @@
             status-bar="{{ noStatusBar }}"
             active="{{ noActiveTab }}"
             tabs="{{ noTabs }}"
+            on-tab-change="{{ onTabChange }}"
             base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
             width="{{ frameW }}" height="100%" hint-size="430px,100%">
 
@@ -175,7 +176,8 @@ class Component extends DCLogic {
       noStatusBar: null,
       noActiveTab: -1,
       noTabs: null,
-      frameW: 430,
+      onTabChange: (i) => { if (i === 0) window.location.href = "../account-summary/AccountSummary.dc.html"; },
+      frameW: "100%",
 
       goalName: name,
       charCount: `${name.length}/40`,

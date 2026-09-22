@@ -4,7 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="./support.js"></script>
-<style id="responsive-frame-fix">/* keep the app frame within the viewport on phones; 430px cap on desktop */.cnc-tpl-base,.cnc-tpl-base__container{width:min(100vw,430px)!important;max-width:100%!important;}/* hide the design-system light/dark preview toggle (not part of the app) */button[aria-label="Toggle light or dark mode"]{display:none!important;}</style>
 </head>
 <body>
 <x-dc>
@@ -20,6 +19,7 @@
     .ch-grid { display: grid; grid-template-columns: 1fr; gap: var(--spacing-size16); }
     .ch-streak > *:first-child { margin-left: 0 !important; }
     html, body { height: 100%; }
+    html, body { overflow: hidden; }
     html body { margin: 0; background: var(--background-panel-pressed); display: flex; align-items: stretch; justify-content: center; }
     .jp-frame .cnc-tpl-base__container { scrollbar-width: none; -ms-overflow-style: none; }
     .jp-frame .cnc-tpl-base__container::-webkit-scrollbar { width: 0; height: 0; }
@@ -41,7 +41,7 @@
       <section class="cnc-l-container cnc-l-container--bleed" style="margin-bottom: var(--spacing-size24); padding-left: 0; padding-right: 0;">
         <x-import component-from-global-scope="CancaraDesignSystem_4b0109.TwoTabsFixed"
                   tab1-label="Active" tab2-label="Completed"
-                  value="{{ activeTab }}" on-change="{{ onTabChange }}"
+                  value="{{ activeTab }}" on-change="{{ onSegmentChange }}"
                   width="100%"
                   hint-size="100%,44px"></x-import>
       </section>
@@ -187,18 +187,18 @@ class Component extends DCLogic {
         try { localStorage.setItem("cnc-theme", next); } catch (e) {}
       },
       hasLeading: true,
-      onBack: () => { window.location.href = "../goals-home/GoalsHome.dc.html"; },
+      onBack: () => { window.location.href = "../rewards/Rewards.dc.html"; },
       onTabChange: (i) => { if (i === 0) window.location.href = "../account-summary/AccountSummary.dc.html"; },
       headerTrailing: ["Weather/Sun/Sun"],
       noStatusBar: null,
       noActiveTab: -1,
-      frameW: 430,
+      frameW: "100%",
       iconSize: 24,
       iconPad: true,
       noop: () => {},
 
       activeTab,
-      onTabChange: (i) => this.setState({ activeTab: i }),
+      onSegmentChange: (i) => this.setState({ activeTab: i }),
       isActiveTab: activeTab === 0,
       isCompletedTab: activeTab === 1,
 

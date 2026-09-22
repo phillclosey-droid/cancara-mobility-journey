@@ -4,7 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content">
 <script src="./support.js"></script>
-<style id="responsive-frame-fix">/* keep the app frame within the viewport on phones; 430px cap on desktop */.cnc-tpl-base,.cnc-tpl-base__container{width:min(100vw,430px)!important;max-width:100%!important;}/* hide the design-system light/dark preview toggle (not part of the app) */button[aria-label="Toggle light or dark mode"]{display:none!important;}</style>
 </head>
 <body>
 <x-dc>
@@ -24,6 +23,7 @@
     .cnc-l-page-end { padding-bottom: 76px; }
 
     html, body { height: 100%; }
+    html, body { overflow: hidden; }
     html body { margin: 0; background: var(--background-panel-pressed); display: flex; align-items: stretch; justify-content: center; }
     .sc-frame .cnc-tpl-base__container { scrollbar-width: none; -ms-overflow-style: none; padding-top: var(--spacing-size08); }
     .sc-frame .cnc-tpl-base__container::-webkit-scrollbar { width: 0; height: 0; }
