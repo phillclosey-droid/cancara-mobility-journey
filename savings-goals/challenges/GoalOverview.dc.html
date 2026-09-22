@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<helmet>
+  <script src="./ds-base.js"></script>
+  <style>
+    .cnc-l-container { box-sizing: border-box; display: flex; flex-direction: column; padding-left: var(--spacing-size16); padding-right: var(--spacing-size16); margin-bottom: var(--spacing-size32); gap: var(--spacing-size12); }
+    .cnc-l-container:last-child { margin-bottom: 0; }
+    html, body { height: 100%; }
+    html body { margin: 0; background: var(--background-panel-pressed); display: flex; align-items: stretch; justify-content: center; }
+    .go-frame .cnc-tpl-base__container { scrollbar-width: none; -ms-overflow-style: none; }
+    .go-frame .cnc-tpl-base__container::-webkit-scrollbar { width: 0; height: 0; }
+    .go-frame .cnc-bottomnav { border-top: 1px solid var(--border-generic-default); }
+    .go-frame .cnc-panel-wrap { padding-left: 0 !important; padding-right: 0 !important; }
+
+    .go-goal-card { box-sizing: border-box; display: flex; flex-direction: column; gap: var(--spacing-size12); padding: var(--spacing-size16); border-radius: var(--radius-medium); background: var(--background-panel-default); }
+    .go-goal-head { display: flex; flex-direction: row; align-items: center; gap: var(--spacing-size12); }
+    .go-goal-head__text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: var(--spacing-size04); }
+    .go-progress-track { height: 8px; border-radius: var(--radius-circle); background: var(--background-panel-secondary); overflow: hidden; }
+    .go-progress-fill { height: 100%; border-radius: var(--radius-circle); background: var(--background-action-default); }
+    .go-goal-stats { display: flex; flex-direction: row; justify-content: space-between; }
+    .go-goal-stat { display: flex; flex-direction: column; }
+    .go-goal-stat--right { align-items: flex-end; }
+
+    .go-save-row { box-sizing: border-box; display: grid; grid-template-columns: 1fr 1fr; border-radius: var(--radius-medium); background: var(--background-panel-default); overflow: hidden; }
+    .go-save-card { box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--spacing-size04); padding: var(--spacing-size16); }
+    .go-save-card + .go-save-card { border-left: 1px solid var(--border-generic-default); }
+    .go-save-amount { color: var(--text-generic-default); font-size: 22px; font-weight: 700; }
+    .go-save-label { color: var(--text-generic-subdued); }
+
+    .go-scroll-row { display: flex; flex-direction: row; gap: var(--spacing-size12); overflow-x: auto; scrollbar-width: none; padding-bottom: var(--spacing-size04); scroll-snap-type: x mandatory; }
+    .go-scroll-row::-webkit-scrollbar { display: none; }
+    .go-scroll-row > * { flex: 0 0 320px; scroll-snap-align: start; }
+
+    .go-action-card { box-sizing: border-box; display: flex; flex-direction: column; gap: var(--spacing-size08); padding: var(--spacing-size16); border-radius: var(--radius-medium); background: var(--background-panel-default); cursor: pointer; }
+    .go-action-card__row { display: flex; flex-direction: row; align-items: flex-end; justify-content: space-between; gap: var(--spacing-size08); }
+    .go-action-card__text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: var(--spacing-size04); }
+
+    .go-account-card { box-sizing: border-box; display: flex; flex-direction: column; gap: var(--spacing-size08); padding: var(--spacing-size16); border-radius: var(--radius-medium); background: var(--background-panel-default); }
+    .cnc-l-panel { box-sizing: border-box; display: flex; flex-direction: column; background: var(--background-panel-default); padding: var(--spacing-size16); border-radius: var(--radius-medium); gap: var(--spacing-size16); }
+    .cnc-l-row { display: flex; flex-direction: row; align-items: center; gap: var(--cnc-row-gap, var(--spacing-size16)); }
+    .cnc-l-col { display: flex; flex-direction: column; gap: var(--cnc-col-gap, var(--spacing-size16)); flex: 1 1 0%; }
+    .go-save-panel { box-sizing: border-box; display: flex; flex-direction: column; gap: var(--spacing-size12); padding: var(--spacing-size16); border-radius: var(--radius-medium); background: var(--background-panel-default); }
+    .go-save-panel .go-save-row { background: var(--background-panel-secondary); }
+    .go-tools-group { display: flex; flex-direction: column; border-radius: var(--radius-medium); overflow: hidden; }
+    .go-frame .cnc-lia--compact { padding-left: 0 !important; padding-right: 0 !important; }
+    .go-frame .cnc-lag { max-width: none !important; }
+    .go-action-card .cnc-spotill--padded .cnc-spotill__art { width: 100% !important; height: 100% !important; }
+    .go-action-card .cnc-ibtn--small { width: var(--c-iconbutton-smallminsize) !important; height: var(--c-iconbutton-smallminsize) !important; }
+    .go-frame .cnc-lia__heading { font-family: var(--type-style3-family) !important; font-size: var(--type-style3-size) !important; line-height: var(--type-style3-line) !important; font-weight: var(--type-style3-weight) !important; }
+  </style>
+  <script>document.documentElement.setAttribute("data-theme", localStorage.getItem("cnc-theme") || "dark");</script>
+  <style>
+    a { color: var(--text-action-default); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</helmet>
+
+<div class="go-frame" style="position: relative; box-sizing: border-box; width: 430px; max-width: 100vw; height: 100dvh; overflow: hidden; background: var(--background-page-default);">
+
+  <x-import component-from-global-scope="CancaraDesignSystem_4b0109.BaseTemplate"
+            title="Goal overview"
+            leading-icon="{{ hasLeading }}"
+            leading-icon-name="Arrows/Arrow Left/Arrow Left"
+            on-leading="{{ onBack }}"
+            trailing="{{ headerTrailing }}"
+            on-trailing="{{ toggleTheme }}"
+            status-bar="{{ noStatusBar }}"
+            active="{{ noActiveTab }}"
+            on-tab-change="{{ onTabChange }}"
+            base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+            width="{{ frameW }}" height="100%" hint-size="430px,100%">
+
+    <div data-screen-label="Set a goal - Goal overview">
+
+      <section class="cnc-l-container" style="margin-bottom: var(--spacing-size16);">
+        <div class="go-goal-card">
+          <div class="go-goal-head">
+            <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Pictogram"
+                      asset="illustration"
+                      illustration="Default/Car/Car"
+                      base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                      hint-size="64px,64px"></x-import>
+            <div class="go-goal-head__text">
+              <span class="type-style7" style="color: var(--text-generic-default);">My new car</span>
+              <span class="type-style8" style="color: var(--text-generic-subdued);">£10,000 by Sep 2029</span>
+            </div>
+            <a href="./ChooseGoal.dc.html" class="type-style8" style="text-decoration: underline;">Edit</a>
+          </div>
+          <div class="go-progress-track" style="margin: var(--spacing-size08) 0;">
+            <div class="go-progress-fill" style="width: {{ goalProgressWidth }}; transition: width 0.8s ease;"></div>
+          </div>
+          <div class="go-goal-stats">
+            <div class="go-goal-stat">
+              <span class="type-style3" style="color: var(--text-generic-default);">£2,000.00</span>
+              <span class="type-style8" style="color: var(--text-generic-subdued);">saved so far</span>
+            </div>
+            <div class="go-goal-stat go-goal-stat--right">
+              <span class="type-style3" style="color: var(--text-generic-default);">£10,000</span>
+              <span class="type-style8" style="color: var(--text-generic-subdued);">your target</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="cnc-l-container">
+        <div class="go-save-panel">
+        <h2 class="type-style3" style="margin: 0; color: var(--text-generic-default);">You'll need to save</h2>
+        <div class="go-save-row">
+          <div class="go-save-card">
+            <span class="go-save-amount">£51.28</span>
+            <span class="type-style8 go-save-label">weekly</span>
+          </div>
+          <div class="go-save-card">
+            <span class="go-save-amount">£222.22</span>
+            <span class="type-style8 go-save-label">monthly</span>
+          </div>
+        </div>
+        <x-import component-from-global-scope="CancaraDesignSystem_4b0109.ActionButton"
+                  variant="primary"
+                  icon-position="right"
+                  icon="Arrows/Arrow Right/Arrow Right"
+                  on-click="{{ onAddMoney }}"
+                  base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                  hint-size="100%,48px">Add money</x-import>
+        <x-import component-from-global-scope="CancaraDesignSystem_4b0109.ActionButton"
+                  variant="secondary"
+                  icon-position="right"
+                  icon="Date &amp; time/Calendar/Calendar"
+                  on-click="{{ onStandingOrder }}"
+                  base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                  hint-size="100%,48px">Set up a standing order</x-import>
+        </div>
+      </section>
+
+      <section class="cnc-l-container">
+        <x-import component-from-global-scope="CancaraDesignSystem_4b0109.ListActionGroup"
+                  width="compact"
+                  items="{{ toolItems }}"
+                  base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                  hint-size="100%,160px"></x-import>
+      </section>
+
+      <section class="cnc-l-container">
+        <h2 class="type-style3" style="margin: 0; color: var(--text-generic-default);">Suggested actions</h2>
+        <div class="go-scroll-row" id="go-suggested" style="margin-right: calc(-1 * var(--spacing-size16)); padding-right: var(--spacing-size16);">
+          <sc-for list="{{ suggestedActions }}" as="item" hint-placeholder-count="3">
+            <div class="go-action-card" onClick="{{ item.onClick }}" style="{{ item.clickStyle }}">
+              <x-import component-from-global-scope="CancaraDesignSystem_4b0109.SpotIllustration"
+                        illustration="{{ item.illustration }}"
+                        size="64"
+                        base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                        hint-size="64px,64px"></x-import>
+              <div class="go-action-card__row">
+                <div class="go-action-card__text">
+                  <span class="type-style7" style="color: var(--text-generic-default);">{{ item.title }}</span>
+                  <span class="type-style8" style="color: var(--text-generic-subdued);">{{ item.description }}</span>
+                </div>
+                <x-import component-from-global-scope="CancaraDesignSystem_4b0109.IconButton"
+                          variant="secondary"
+                          size="small"
+                          icon="Arrows/Chevron Right/Chevron Right"
+                          label="More"
+                          base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                          hint-size="32px,32px"></x-import>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Pagination"
+                  total="{{ suggestedActions.length }}" active="{{ activeSuggestedIndex }}" layout="arrows" width="100%"
+                  on-prev="{{ suggestedPrev }}" on-next="{{ suggestedNext }}"
+                  base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                  hint-size="100%,40px"></x-import>
+      </section>
+
+      <section class="cnc-l-container">
+        <div class="cnc-l-panel" style="flex-direction: column; background: var(--c-promo-background-secondaryalt01); padding-bottom: var(--spacing-size08);">
+          <span class="type-style3" style="color: var(--c-promo-text-secondaryalt01);">Weigh up your funding options</span>
+          <div class="cnc-l-row" style="align-items: center; justify-content: space-between;">
+          <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size08); flex: 1 1 auto; min-width: 0;">
+            <span class="type-style6" style="color: var(--c-promo-text-secondaryalt01);">See how saving, borrowing, or a mix of both could help you reach your goal sooner.</span>
+            <div class="cnc-l-row" style="--cnc-row-gap: var(--spacing-size08); align-items: center;">
+              <span class="type-style4" style="color: var(--c-promo-text-secondaryalt01);">Find out more</span>
+              <x-import component-from-global-scope="CancaraDesignSystem_4b0109.IconButton"
+                        size="small"
+                        variant="primary"
+                        on-color="{{ true }}"
+                        icon="Arrows/Arrow Right/Arrow Right"
+                        label="Find out more"
+                        base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                        hint-size="48px,48px"></x-import>
+            </div>
+          </div>
+          <x-import component-from-global-scope="CancaraDesignSystem_4b0109.SpotIllustration"
+                    size="100"
+                    illustration="Secondary Alt 01/Cards & Coins/Cards & Coins"
+                    base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                    hint-size="100px,100px"></x-import>
+          </div>
+        </div>
+      </section>
+
+      <section class="cnc-l-container" style="margin-bottom: var(--spacing-size48);">
+        <h2 class="type-style3" style="margin: 0; color: var(--text-generic-default);">Linked accounts</h2>
+        <div class="go-account-card">
+          <span class="type-style7" style="color: var(--text-generic-default);">Easy access saver</span>
+          <span class="type-style8" style="color: var(--text-generic-subdued);">00-00-00 / 12345678</span>
+          <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: var(--spacing-size08); margin-top: var(--spacing-size12);">
+            <div style="display: flex; flex-direction: column; gap: var(--spacing-size04);">
+              <span class="type-style3" style="color: var(--text-generic-default);">£2,000.00</span>
+              <span class="type-style8" style="color: var(--text-generic-subdued);">Gross interest 4.21%</span>
+            </div>
+            <div style="display: flex; flex: 0 0 auto; padding: var(--spacing-size08); background: var(--background-page-default); border: var(--border-width-01) solid var(--border-generic-default); border-radius: var(--radius-small);">
+              <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Icon"
+                        dc-props="{{ lloydsLogoProps }}"
+                        color="var(--text-generic-default)"
+                        size="24"
+                        base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                        hint-size="24px,24px"></x-import>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </x-import>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { activeSuggestedIndex: 1, goalProgressIn: false };
+
+  componentDidMount() {
+    setTimeout(() => this.setState({ goalProgressIn: true }), 350);
+    try { sessionStorage.setItem("cnc-seen-goals", "1"); } catch (e) {}
+  }
+
+  _scrollSuggested(dir) {
+    const el = document.getElementById("go-suggested");
+    if (!el) return;
+    const total = 3;
+    const next = Math.max(1, Math.min(total, this.state.activeSuggestedIndex + dir));
+    this.setState({ activeSuggestedIndex: next });
+    const card = el.children[next - 1];
+    if (card) el.scrollTo({ left: card.offsetLeft, behavior: "smooth" });
+  }
+
+  renderVals() {
+    return {
+      toggleTheme: () => {
+        const el = document.documentElement;
+        const next = el.getAttribute("data-theme") === "dark" ? "light" : "dark";
+        el.setAttribute("data-theme", next);
+        try { localStorage.setItem("cnc-theme", next); } catch (e) {}
+      },
+      hasLeading: true,
+      onBack: () => { window.location.href = "./GoalAmountDate.dc.html"; },
+      headerTrailing: ["Weather/Sun/Sun"],
+      noStatusBar: null,
+      noActiveTab: -1,
+      onTabChange: (i) => { if (i === 0) window.location.href = "../account-summary/AccountSummary.dc.html"; },
+      frameW: 430,
+
+      onAddMoney: () => {},
+      onStandingOrder: () => {},
+      activeSuggestedIndex: this.state.activeSuggestedIndex,
+      goalProgressWidth: this.state.goalProgressIn ? "20%" : "0%",
+      suggestedPrev: () => this._scrollSuggested(-1),
+      suggestedNext: () => this._scrollSuggested(1),
+      lloydsLogoProps: { src: "../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f/assets/components/Bank Logo/Lloyds/Lloyds.svg" },
+
+      toolItems: [
+        { asset: "pictogram", pictogramIcon: "Miscellaneous/Percent/Percent", pictogramStyle: "secondaryalt01", heading: "Tools to help you save", title: "Turn on Save the change", description: "Round up your purchases to boost your savings", showDescription: true },
+        { asset: "pictogram", pictogramIcon: "Date & time/Calendar/Calendar", pictogramStyle: "secondaryalt03", title: "Build your own budget", description: "Find simple ways to save more and keep your goal on track", showDescription: true },
+      ],
+
+      suggestedActions: [
+        { title: "Your driving essentials", description: "Track your MOT, insurance, tax & finance, all in one place", illustration: "Default Alt 01/_EV Keys/_EV Keys", onClick: () => { window.location.href = "../account-summary/AccountSummary.dc.html?connect=1"; }, clickStyle: { cursor: "pointer" } },
+        { title: "Get on the road sooner", description: "Spread the cost with personalised finance that suits your budget", illustration: "Default Alt 01/Car/Car" },
+        { title: "Your new car, made simple", description: "Pick your spec and enjoy a brand new car", illustration: "Default Alt 01/Car Finance/Car Finance" },
+      ],
+    };
+  }
+}
+
+</script>
+</body>
+</html>

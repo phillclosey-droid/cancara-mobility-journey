@@ -1,0 +1,12 @@
+/* ============================================================
+   Cancara Design System — Token bundle
+   Lloyds Reimagined brand · GT Ultra · light + dark
+   Architecture: primitives → semantic → component
+   Generated from lloyds_reimagined_tokens.json. Do not hand-edit;
+   re-generate from the source token file.
+   ============================================================ */
+
+@import "tokens/primitives.css";
+@import "tokens/colors.css";
+@import "tokens/components.css";
+@import "tokens/typography.css";

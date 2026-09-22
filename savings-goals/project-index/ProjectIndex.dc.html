@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+<link rel="icon" href="assets/icon-192.png">
+<meta name="theme-color" content="#121212">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Lloyds Cancara">
+</head>
+<body>
+<x-dc>
+<!-- @template name="Project Index" description="The front page for a project — the first screen a journey opens on. A centred Cancara horse mark, a vertically-centred stack of standalone project cards (pictogram + description + link), each linking to a relevant journey, and a Style 13 uppercase footer over a divider. Copy this folder to start a project. Duplicate a card per journey the project holds." -->
+<helmet>
+  <script src="./ds-base.js"></script>
+  <style>
+    /* Body reset + backdrop (the grey desk around the device frame). The scrollbar-hide
+       rule uses a pseudo-element, so it can't be inline. `html body` (not bare `body`)
+       so the backdrop wins over base.css's body background reset (ds-base.js appends
+       journey.css AFTER this block). Desk = --background-panel-pressed: reads with no
+       stroke against the page in both themes. */
+    html, body { height: 100%; }
+    html body { margin: 0; background: var(--background-panel-pressed); display: flex; align-items: stretch; justify-content: center; }
+    .pi-frame { scrollbar-width: none; -ms-overflow-style: none; }
+    .pi-frame::-webkit-scrollbar { width: 0; height: 0; }
+
+    /* Launcher layout: three rows — horse (top), project cards (centred), footer (bottom). */
+    .pi-layout { box-sizing: border-box; height: 100%; display: grid; grid-template-rows: auto 1fr auto; padding: var(--spacing-size48) var(--spacing-size16) var(--spacing-size32); overflow: hidden; }
+    .pi-brand { display: flex; justify-content: center; }
+    .pi-projects { display: flex; flex-direction: column; justify-content: center; gap: var(--spacing-size16); }
+    /* Release the extraction's fixed 375 lock so the cards fill the frame naturally
+       (we work wider than 375). A scoped selector is used deliberately: the component
+       injects its own `.cnc-lag { max-width: 375px }` style AFTER journey.css, so a bare
+       `.cnc-fill` utility loses the cascade — this scoped rule wins. Layout-only: it
+       changes width alone and never touches the component's fills, radii or padding. */
+    .pi-projects .cnc-lag { max-width: none; }
+    .pi-foot { display: flex; flex-direction: column; align-items: stretch; gap: var(--spacing-size16); padding-left: var(--spacing-size16); padding-right: var(--spacing-size16); box-sizing: border-box; }
+    /* Scoped override: the Divider's own CSS sets 24px vertical + 16px horizontal padding
+       (loses to a bare inline style since `style` applies to the x-import mount, not the
+       component's inner div) — this scoped selector targets the rendered instance directly. */
+    .pi-foot .cnc-divider { padding-top: 0; padding-bottom: var(--spacing-size12); padding-left: 0; padding-right: 0; }
+    .pi-foot .cnc-hint { max-width: none; padding-left: 0; padding-right: 0; margin-bottom: var(--spacing-size12); }
+    .pi-foot .cnc-hint__frame { align-items: center; }
+    /* Style 13, uppercase, centred. Type tokens are applied directly (not via the
+       .type-style13 class) so the tracking override wins — journey.css loads AFTER
+       this block, so a shared .type-style13 would otherwise clobber letter-spacing.
+       Tracking: the type scale has no 2px tracking token (style13 tracking = 0), so the
+       requested 2px letter-spacing borrows the 2px border-width primitive to stay
+       token-driven rather than a raw value. */
+    .pi-foottext {
+      text-align: center; text-transform: uppercase; color: var(--text-generic-subdued);
+      font-family: var(--type-style13-family); font-size: var(--type-style13-size);
+      line-height: var(--type-style13-line); font-weight: var(--type-style13-weight);
+      letter-spacing: var(--border-width-02);
+    }
+
+    /* Theme-choice popup (shown when a journey card is tapped). The Custom Pop-up
+       Modal is a fixed 375×812 block; release it to fill the 430 frame so its dim
+       overlay covers the whole frame and the card stays centred (layout-only, the
+       same scoped-fill technique as .pi-projects above). .pi-frame is position:
+       relative, so it is the positioning context. */
+    .pi-frame .cnc-cpm { position: absolute; inset: 0; width: auto; height: auto; z-index: 50; }
+  </style>
+  <!-- Read any persisted theme before paint (a returning customer keeps their choice);
+       default dark. The Index is the launcher shown BEFORE the theme is chosen, so it
+       keeps its own outside-frame toggle. -->
+  <script>document.documentElement.setAttribute("data-theme", localStorage.getItem("cnc-theme") || "dark");</script>
+</helmet>
+
+<!-- No outside-frame toggle: the theme is chosen via the pop-up below when a
+     journey card is tapped, and carries forward from there. -->
+
+<!-- Device frame: 430 wide, fills the viewport height, centred, clips content. -->
+<div class="pi-frame" style="position: relative; box-sizing: border-box; width: 430px; max-width: 100vw; height: 100dvh; overflow: hidden; background: var(--background-page-default);">
+
+  <div class="pi-layout" data-screen-label="Project index">
+
+    <!-- Top middle: the Cancara horse mark. Single-colour source masked + filled by
+         --icon-generic-brand (black in light, light in dark) — swaps with the theme. -->
+    <div class="pi-brand">
+      <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Icon" size="{{ horseSize }}" color="var(--icon-generic-brand)" title="Lloyds" dc-props="{{ horseProps }}" hint-size="44px,44px"></x-import>
+    </div>
+
+    <!-- Vertically-centred project cards. Each is a single-item List Action Group, so it
+         renders as a standalone rounded card: pictogram + link title + description + chevron.
+         Duplicate a card per journey the project holds. -->
+    <div class="pi-projects">
+      <x-import component-from-global-scope="CancaraDesignSystem_4b0109.ListActionGroup" width="compact" base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f" items="{{ projectSavings }}" hint-size="100%,96px"></x-import>
+    </div>
+
+    <!-- Footer: install hint (above the divider), a divider, then a Style 13 uppercase brand line. -->
+    <div class="pi-foot">
+      <sc-if value="{{ showInstallHint }}" hint-placeholder-val="{{ false }}">
+        <x-import component-from-global-scope="CancaraDesignSystem_4b0109.NotificationHint" type="default" icon="{{ installIcon }}" text="{{ installText }}" base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f" hint-size="100%,48px"></x-import>
+        <sc-if value="{{ showInstallButton }}" hint-placeholder-val="{{ false }}">
+          <x-import component-from-global-scope="CancaraDesignSystem_4b0109.CompactButton" variant="secondary" size="small" icon-position="left" icon="Miscellaneous/Download/Download" on-click="{{ installApp }}" base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f" hint-size="auto,36px">Add to home screen</x-import>
+        </sc-if>
+      </sc-if>
+      <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Divider" width="default" type="default" hint-size="100%,32px"></x-import>
+      <div class="pi-foottext">Lloyds Cancara Designs</div>
+    </div>
+
+  </div>
+
+  <!-- THEME-CHOICE POPUP — mounts when a journey card is tapped. The customer picks
+       Dark or Light; the choice is persisted (localStorage) and every page of the
+       journey reads it pre-paint, so the whole flow stays in their chosen mode (they
+       can still flip it later with the sun icon in each screen's Custom Header). Uses
+       the Custom Pop-up Modal component — never a hand-built dialog. -->
+  <sc-if value="{{ pickerMounted }}" hint-placeholder-val="{{ false }}">
+    <x-import component-from-global-scope="CancaraDesignSystem_4b0109.CustomPopupModal"
+              link-stack="2-horizontal"
+              title="Choose your theme"
+              message="View this journey in light or dark mode. You can switch anytime with the sun icon in the header."
+              primary-label="Dark"
+              on-primary="{{ pickDark }}"
+              secondary-label="Light"
+              on-secondary="{{ pickLight }}"
+              base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+              hint-size="430px,100%"></x-import>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  // Which journey the tapped card heads to; the popup mounts while it is set.
+  state = { pickerMounted: false, pendingUrl: null, deferredPrompt: null, standalone: false };
+
+  componentDidMount() {
+    // Returning to the index resets every journey's persisted progress (not the theme choice).
+    try {
+      localStorage.removeItem("cnc-mobility-state");
+      localStorage.removeItem("cnc-mobility-vehicles");
+      sessionStorage.removeItem("cnc-mobility-justConnected");
+    } catch (e) {}
+    const isStandalone = (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || window.navigator.standalone === true;
+    this.setState({ standalone: !!isStandalone });
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      this.setState({ deferredPrompt: e });
+    });
+  }
+
+  renderVals() {
+    // Tapping a journey card opens the theme-choice popup (Dark / Light) instead of
+    // navigating straight away. The chosen theme is persisted and every page reads it
+    // pre-paint, so the whole journey stays in the customer's chosen mode. Then we
+    // advance — here to the shared Splash; a real journey points pendingUrl at its own
+    // splash / first screen (the Project Index → Splash → dissolve-to-page flow).
+    const askTheme = (url) => this.setState({ pickerMounted: true, pendingUrl: url });
+    const applyTheme = (mode) => {
+      try { localStorage.setItem("cnc-theme", mode); } catch (e) {}
+      document.documentElement.setAttribute("data-theme", mode);
+    };
+    const advance = () => { window.location.href = this.state.pendingUrl || "../splash/Splash.dc.html"; };
+
+    return {
+      // Theme-choice popup shown when a card is tapped.
+      pickerMounted: this.state.pickerMounted,
+      pickDark: () => { applyTheme("dark"); advance(); },
+      pickLight: () => { applyTheme("light"); advance(); },
+
+      horseSize: 44,
+      // The horse path is spread onto the Icon via dc-props — NOT the x-import `src`
+      // attribute, which is reserved for module loading and can't hold a value hole.
+      // Icon.encodeURI handles the space in "Bank Logo".
+      horseProps: { src: "../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f/assets/components/Bank Logo/Lloyds/Lloyds.svg" },
+
+      showInstallHint: !this.state.standalone,
+      installIcon: /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream ? "Share/Share/Share" : "Devices/Mobile/Mobile",
+      installText: (/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream)
+        ? "Install this app: tap Share, then \"Add to Home Screen\"."
+        : "Add to your desktop for an app-like experience.",
+      showInstallButton: !(/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream) && !!this.state.deferredPrompt,
+      installApp: () => {
+        const dp = this.state.deferredPrompt;
+        if (!dp) return;
+        dp.prompt();
+        this.setState({ deferredPrompt: null });
+      },
+
+      // One standalone card per project/journey. asset="pictogram" = a 40px tinted canvas;
+      // title is the (action-coloured) link text, description is the project summary.
+      projectSavings: [{
+        asset: "pictogram",
+        pictogramIcon: "Finance/Piggy Bank/Piggy Bank",
+        pictogramStyle: "secondary",
+        title: "Savings goals",
+        description: "Rewards, Savings goals and Mobility",
+        showDescription: true,
+        onClick: () => askTheme("../splash/Splash.dc.html"),
+      }],
+    };
+  }
+}
+</script>
+</body>
+</html>

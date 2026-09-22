@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- Goals home — landing page for the Savings Goals journey. Copied from the Journey Page template. -->
+<helmet>
+  <script src="./ds-base.js"></script>
+  <script src="./image-slot.js"></script>
+  <style>
+    .gh-scroll { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; -ms-overflow-style: none; }
+    .gh-scroll::-webkit-scrollbar { width: 0; height: 0; }
+    .gh-scroll > * { scroll-snap-align: start; flex: 0 0 auto; }
+    /* Journey-level layout primitives (documented in journey-assembly.md §8 but not shipped in
+       the bound _ds bundle) — inlined here, same as account-summary/AccountSummary.dc.html. */
+    .cnc-l-container { box-sizing: border-box; display: flex; flex-direction: column; padding-left: var(--spacing-size16); padding-right: var(--spacing-size16); margin-bottom: var(--spacing-size48); gap: var(--cnc-container-gap, var(--spacing-size16)); }
+    .cnc-l-container:last-child { margin-bottom: 0; }
+    .cnc-l-container--bleed { padding-left: 0; padding-right: 0; }
+    .cnc-cbtn--tertiary .cnc-cbtn__label { text-decoration: underline; }
+    .cnc-cbtn--tertiary { padding-right: 0 !important; }
+    .cnc-l-panel { box-sizing: border-box; display: flex; flex-direction: column; background: var(--cnc-panel-surface-bg, var(--background-panel-default)); padding: var(--spacing-size16); border-radius: var(--radius-medium); gap: var(--spacing-size16); }
+    .cnc-l-row { display: flex; flex-direction: row; align-items: center; gap: var(--cnc-row-gap, var(--spacing-size16)); }
+    .cnc-l-col { display: flex; flex-direction: column; gap: var(--cnc-col-gap, var(--spacing-size16)); flex: 1 1 0%; }
+    .cnc-l-flush { margin-left: calc(-1 * var(--spacing-size16)); margin-right: calc(-1 * var(--spacing-size16)); }
+    .as-divider-tight .cnc-divider { padding-top: 0; padding-bottom: 0; }
+    .cnc-lag { max-width: none !important; }
+    .cnc-lia--compact { padding-left: 0 !important; padding-right: 0 !important; }
+    /* Body reset + backdrop (the grey area around the device frame). The
+       scrollbar-hide rule uses a pseudo-element, so it can't be inline. */
+    html, body { height: 100%; }
+    /* `html body` (not bare `body`) so the backdrop colour wins over the design
+       system's base.css `body { background: --background-page-default }` reset —
+       ds-base.js appends journey.css AFTER this block, so source order alone loses.
+       Desk = --background-panel-pressed: it contrasts with the journey page
+       (--background-page-default) in BOTH themes — darker than the page in light
+       (#C9C9C9 vs #F1F1F1), lighter than the page in dark (#1B1B1B vs #121212) —
+       so the device edge reads with NO stroke. */
+    html body { margin: 0; background: var(--background-panel-pressed); display: flex; align-items: stretch; justify-content: center; }
+    .jp-frame .cnc-tpl-base__container { scrollbar-width: none; -ms-overflow-style: none; }
+    .jp-frame .cnc-tpl-base__container::-webkit-scrollbar { width: 0; height: 0; }
+    .jp-fade { opacity: 0; transition: opacity 220ms ease; }
+    .jp-fade.jp-fade--in { opacity: 1; }
+  </style>
+  <!-- Theme: read the persisted choice (set on the Project Index) before paint;
+       default dark. Every page reads the same key so the choice carries across
+       navigations. -->
+  <script>document.documentElement.setAttribute("data-theme", localStorage.getItem("cnc-theme") || "dark");</script>
+  <style>
+    a { color: var(--text-action-default); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .ru-logos > image-slot:first-child { margin-left: 0 !important; }
+  </style>
+</helmet>
+
+<!-- No outside-frame toggle on app screens: the in-journey theme control is the
+     sun icon in the Custom Header (BaseTemplate `trailing` / `on-trailing` below).
+     The initial theme is chosen on the Project Index and persisted. -->
+
+<!-- The device frame: 430 wide, fills the viewport height, centred, clips content. -->
+<div class="jp-frame" style="position: relative; box-sizing: border-box; width: 430px; max-width: 100vw; height: 100dvh; overflow: hidden; background: var(--background-page-default);">
+  <div class="jp-fade{{ jpInClass }}" style="width: 100%; height: 100%;">
+
+  <!-- BaseTemplate = the app screen chrome (header + scrolling container + bottom nav).
+       It is a real namespace component — never recreate it. Bottom nav is core-app
+       chrome (set `active`), NOT the journey's navigation; navigate via tiles + back. -->
+  <x-import component-from-global-scope="CancaraDesignSystem_4b0109.BaseTemplate" title="Rewards" leading-icon="{{ hasLeading }}" leading-icon-name="Arrows/Arrow Left/Arrow Left" on-leading="{{ onBack }}" trailing="{{ headerTrailing }}" on-trailing="{{ toggleTheme }}" status-bar="{{ noStatusBar }}" active="{{ noActiveTab }}" on-tab-change="{{ onTabChange }}" base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f" width="{{ frameW }}" height="100%" hint-size="430px,100%">
+
+    <!-- ================= CONTENT — replace everything below ==================
+         This is a STARTING SKELETON, not real content. Build every section from
+         the layout primitives (.cnc-l-container / -panel / -row / -col) + real
+         namespace components. Defaults encoded here: lead title type Style 2,
+         section headings type Style 3, body type Style 6, sections 48px apart
+         (the container's bottom margin), 16px side gutter (the container).
+         .cnc-l-page-end keeps the 76px clearance above the bottom nav. -->
+    <div class="cnc-l-page-end" data-screen-label="Rewards">
+
+      <!-- HERO — balance panel with the Rewards Plus illustration poking out top-right. -->
+      <section class="cnc-l-container" style="margin-top: var(--spacing-size24);">
+        <div class="cnc-l-panel" style="position: relative; overflow: visible; gap: var(--spacing-size08);">
+          <div style="position: absolute; top: -28px; right: var(--spacing-size16); z-index: 2;">
+            <x-import component-from-global-scope="CancaraDesignSystem_4b0109.SpotIllustration"
+                      size="96"
+                      illustration="Default Alt 01/Rewards/Rewards"
+                      base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                      hint-size="96px,96px"></x-import>
+          </div>
+          <span class="type-style1" style="color: var(--text-generic-default);">&pound;72.50</span>
+          <span class="type-style8" style="color: var(--text-generic-subdued);">So far this year</span>
+          <div class="cnc-l-flush as-divider-tight" style="padding-top: var(--spacing-size04); padding-bottom: var(--spacing-size04);">
+            <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Divider"
+                      width="full"
+                      base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                      hint-size="100%,1px"></x-import>
+          </div>
+          <div class="cnc-l-row" onClick="{{ noop }}" style="cursor: pointer;">
+            <span class="type-style6" style="flex: 1 1 auto; color: var(--text-generic-default);">Show breakdown</span>
+            <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Icon"
+                      name="Arrows/Chevron Right/Chevron Right"
+                      size="16"
+                      color="var(--text-generic-default)"
+                      base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                      hint-size="16px,16px"></x-import>
+          </div>
+        </div>
+      </section>
+
+      <!-- QUICK ACTIONS — Cashback (with a badge) · Challenges · Benefits · Tools. -->
+      <section class="cnc-l-container">
+        <div class="cnc-l-row" style="justify-content: space-between;">
+          <x-import component-from-global-scope="CancaraDesignSystem_4b0109.QuickActionButton"
+                    preset="account-quick-links" shape="circle"
+                    icon="Finance/Cashback/Cashback"
+                    label="Cashback"
+                    badge-count="12"
+                    base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                    hint-size="72px,88px"></x-import>
+          <x-import component-from-global-scope="CancaraDesignSystem_4b0109.QuickActionButton"
+                    preset="action-menu" shape="circle"
+                    icon="Lifestyle/Trophy/Trophy"
+                    label="Challenges"
+                    on-click="{{ goToChallenges }}"
+                    base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                    hint-size="72px,88px"></x-import>
+          <x-import component-from-global-scope="CancaraDesignSystem_4b0109.QuickActionButton"
+                    preset="action-menu" shape="circle"
+                    icon="Miscellaneous/Loyalty Plus/Loyalty Plus"
+                    label="Benefits"
+                    base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                    hint-size="72px,88px"></x-import>
+          <x-import component-from-global-scope="CancaraDesignSystem_4b0109.QuickActionButton"
+                    preset="action-menu" shape="circle"
+                    icon="Miscellaneous/Spanner/Spanner"
+                    label="Tools"
+                    base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                    hint-size="72px,88px"></x-import>
+        </div>
+      </section>
+
+      <!-- PROMOS — horizontal scroll: Prize Draw · Refer a friend, then pagination. -->
+      <section class="cnc-l-container" style="--cnc-container-gap: var(--spacing-size12); margin-bottom: calc(var(--spacing-size48) - 8px);">
+        <div class="gh-scroll" id="gh-promo" style="gap: var(--spacing-size16); margin-right: calc(var(--spacing-size16) * -1); padding-right: var(--spacing-size16);">
+          <div class="cnc-l-panel" style="width: 280px; flex-direction: row; align-items: center; gap: var(--spacing-size12); background: var(--c-promo-background-primary);">
+            <div style="display: flex; align-items: center; justify-content: center; width: 64px; height: 64px; flex: 0 0 auto; border-radius: var(--radius-default); overflow: hidden;">
+              <x-import component-from-global-scope="CancaraDesignSystem_4b0109.SpotIllustration"
+                        size="64"
+                        illustration="Primary/Gift/Gift"
+                        base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                        hint-size="64px,64px"></x-import>
+            </div>
+            <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size04); flex: 1 1 auto; min-width: 0;">
+              <span class="type-style7" style="color: var(--c-promo-text-primary);">Enter the draw to win a magical Disney holiday</span>
+              <span class="type-style8" style="color: var(--c-promo-text-primary);">Ends 01 Jul 26</span>
+            </div>
+          </div>
+          <div class="cnc-l-panel" style="width: 280px; flex-direction: row; align-items: center; gap: var(--spacing-size12); background: var(--c-promo-background-primary);">
+            <div style="display: flex; align-items: center; justify-content: center; width: 64px; height: 64px; flex: 0 0 auto; border-radius: var(--radius-default); overflow: hidden;">
+              <x-import component-from-global-scope="CancaraDesignSystem_4b0109.SpotIllustration"
+                        size="64"
+                        illustration="Primary/Relationship Manager/Relationship Manager"
+                        base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                        hint-size="64px,64px"></x-import>
+            </div>
+            <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size04); flex: 1 1 auto; min-width: 0;">
+              <span class="type-style7" style="color: var(--c-promo-text-primary);">Earn &pound;50 when you refer a friend to Lloyds</span>
+              <span class="type-style8" style="color: var(--c-promo-text-primary);">Ends 20 Jul 26</span>
+            </div>
+          </div>
+        </div>
+        <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Pagination"
+                  total="2" active="{{ promoActive }}" layout="arrows" width="100%"
+                  on-prev="{{ promoPrev }}" on-next="{{ promoNext }}"
+                  base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                  hint-size="100%,40px"></x-import>
+      </section>
+
+      <!-- FEATURED OFFERS — horizontal scroll of retailer cards, then pagination. -->
+      <section class="cnc-l-container" style="--cnc-container-gap: var(--spacing-size12); margin-bottom: calc(var(--spacing-size48) - 8px);">
+        <h2 class="type-style3" style="margin: 0; color: var(--text-generic-default);">Featured offers</h2>
+        <div class="gh-scroll" id="gh-featured" style="gap: var(--spacing-size16); margin-right: calc(var(--spacing-size16) * -1); padding-right: var(--spacing-size16);">
+          <div class="cnc-l-panel" style="width: 280px; padding: 0 var(--spacing-size12) var(--spacing-size12);">
+            <div style="position: relative; margin: 0 calc(var(--spacing-size12) * -1);">
+              <image-slot id="fo-img-1" shape="rect" mask="inset(0 round var(--radius-default) var(--radius-default) 0 0)" placeholder="Waitrose dish" style="width: 280px; height: 120px;"></image-slot>
+              <image-slot id="fo-logo-1" shape="circle" placeholder="Waitrose" style="width: 56px; height: 56px; position: absolute; left: 12px; bottom: -24px;"></image-slot>
+            </div>
+            <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size04); padding-top: var(--spacing-size24);">
+              <span class="type-style7" style="color: var(--text-generic-default);">Waitrose</span>
+              <div class="cnc-l-row" style="--cnc-row-gap: var(--spacing-size08);">
+                <div class="cnc-l-col" style="--cnc-col-gap: 0; flex: 1 1 auto; min-width: 0;">
+                  <span class="type-style6" style="color: var(--text-generic-default);">0% cashback</span>
+                  <span class="type-style8" style="color: var(--text-generic-subdued);">Ongoing &middot; Expires 09 Jan 26</span>
+                </div>
+                <x-import component-from-global-scope="CancaraDesignSystem_4b0109.IconButton"
+                          size="small" variant="secondary"
+                          icon="Action/Plus/Plus"
+                          label="Add offer"
+                          base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                          hint-size="48px,48px"></x-import>
+              </div>
+            </div>
+          </div>
+          <div class="cnc-l-panel" style="width: 280px; padding: 0 var(--spacing-size12) var(--spacing-size12);">
+            <div style="position: relative; margin: 0 calc(var(--spacing-size12) * -1);">
+              <image-slot id="fo-img-2" shape="rect" mask="inset(0 round var(--radius-default) var(--radius-default) 0 0)" placeholder="Burger King meal" style="width: 280px; height: 120px;"></image-slot>
+              <image-slot id="fo-logo-2" shape="circle" placeholder="Burger King" style="width: 56px; height: 56px; position: absolute; left: 12px; bottom: -24px;"></image-slot>
+            </div>
+            <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size04); padding-top: var(--spacing-size24);">
+              <span class="type-style7" style="color: var(--text-generic-default);">Burger King</span>
+              <div class="cnc-l-row" style="--cnc-row-gap: var(--spacing-size08);">
+                <div class="cnc-l-col" style="--cnc-col-gap: 0; flex: 1 1 auto; min-width: 0;">
+                  <span class="type-style6" style="color: var(--text-generic-default);">8% cashback</span>
+                  <span class="type-style8" style="color: var(--text-generic-subdued);">Ongoing &middot; Expires 09 Jan 26</span>
+                </div>
+                <x-import component-from-global-scope="CancaraDesignSystem_4b0109.IconButton"
+                          size="small" variant="secondary"
+                          icon="Action/Plus/Plus"
+                          label="Add offer"
+                          base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                          hint-size="48px,48px"></x-import>
+              </div>
+            </div>
+          </div>
+        </div>
+        <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Pagination"
+                  total="2" active="{{ featuredActive }}" layout="arrows" width="100%"
+                  on-prev="{{ featuredPrev }}" on-next="{{ featuredNext }}"
+                  base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                  hint-size="100%,40px"></x-import>
+      </section>
+
+      <!-- READY TO USE — most recently activated offers, overlapping logos. -->
+      <section class="cnc-l-container">
+        <h2 class="type-style3" style="margin: 0; color: var(--text-generic-default);">Ready to use</h2>
+        <div class="cnc-l-panel" onClick="{{ noop }}" style="cursor: pointer; position: relative;">
+          <span class="type-style7" style="color: var(--text-generic-default);">Your most recently activated offers</span>
+          <div class="cnc-l-row" style="padding-right: 24px;">
+            <div class="ru-logos" style="display: flex; flex: 1 1 auto; min-width: 0;">
+              <sc-for list="{{ readyToUseLogos }}" as="logo" hint-placeholder-count="7">
+                <image-slot id="{{ logo.id }}" shape="circle" placeholder="{{ logo.placeholder }}" style="width: 40px; height: 40px; margin-left: -12px; position: relative;"></image-slot>
+              </sc-for>
+              <div style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; margin-left: -12px; border-radius: 50%; background: var(--background-panel-pressed); flex: 0 0 auto; position: relative; z-index: 10;">
+                <span class="type-style8" style="color: var(--text-generic-subdued);">+2</span>
+              </div>
+            </div>
+          </div>
+          <div style="position: absolute; top: 50%; right: var(--spacing-size16); width: 16px; height: 16px; margin-top: -8px; display: flex; align-items: center; justify-content: center;">
+            <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Icon"
+                      name="Arrows/Chevron Right/Chevron Right"
+                      size="16"
+                      color="var(--text-generic-default)"
+                      base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                      hint-size="16px,16px"></x-import>
+          </div>
+        </div>
+      </section>
+
+      <!-- TOP DEALS — retailer rows with lifestyle images, then a text-only row. -->
+      <section class="cnc-l-container">
+        <h1 class="type-style2" style="margin: 0; color: var(--text-generic-default);">Top deals</h1>
+        <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size12);">
+          <sc-for list="{{ topDeals }}" as="deal" hint-placeholder-count="3">
+            <div class="cnc-l-panel" style="flex-direction: row; align-items: center; gap: var(--spacing-size12);">
+              <sc-if value="{{ deal.img }}" hint-placeholder-val="{{ true }}">
+                <image-slot id="{{ deal.img }}" shape="rounded" radius="12" placeholder="{{ deal.name }}" style="width: 56px; height: 56px; flex: 0 0 auto;"></image-slot>
+              </sc-if>
+              <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size04); flex: 1 1 auto; min-width: 0;">
+                <span class="type-style7" style="color: var(--text-generic-default);">{{ deal.name }}</span>
+                <span class="type-style8" style="color: var(--text-generic-subdued);">{{ deal.desc }}</span>
+              </div>
+              <x-import component-from-global-scope="CancaraDesignSystem_4b0109.IconButton"
+                        size="small" variant="tertiary"
+                        icon="{{ deal.icon }}"
+                        label="{{ deal.iconLabel }}"
+                        base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                        hint-size="48px,48px"></x-import>
+            </div>
+          </sc-for>
+          <div class="cnc-l-panel" style="flex-direction: row; align-items: center; gap: var(--spacing-size12);">
+            <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size04); flex: 1 1 auto; min-width: 0;">
+              <span class="type-style7" style="color: var(--text-generic-default);">Explore more discounts</span>
+              <span class="type-style8" style="color: var(--text-generic-subdued);">Find savings from a range of retailers</span>
+            </div>
+            <x-import component-from-global-scope="CancaraDesignSystem_4b0109.IconButton"
+                      size="small" variant="tertiary"
+                      icon="Miscellaneous/New tab/New tab"
+                      label="Explore more discounts"
+                      base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                      hint-size="48px,48px"></x-import>
+          </div>
+        </div>
+      </section>
+
+      <!-- CHALLENGES — progress panels. -->
+      <section class="cnc-l-container">
+        <div class="cnc-l-row">
+          <h2 class="type-style3" style="margin: 0; flex: 1 1 auto; color: var(--text-generic-default);">Challenges</h2>
+          <x-import component-from-global-scope="CancaraDesignSystem_4b0109.CompactButton"
+                    variant="tertiary" size="small"
+                    on-click="{{ goToChallenges }}"
+                    base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                    hint-size="auto,36px"
+                    style="padding-right: 0;">Show all</x-import>
+        </div>
+        <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size16);">
+          <sc-for list="{{ challenges }}" as="c" hint-placeholder-count="2">
+            <div class="cnc-l-panel" onClick="{{ noop }}" style="cursor: pointer; flex-direction: row; align-items: center;">
+              <image-slot id="{{ c.img }}" src="{{ c.logo }}" shape="circle" placeholder="{{ c.name }}" style="width: 32px; height: 32px; flex: 0 0 auto;"></image-slot>
+              <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size08); flex: 1 1 auto; min-width: 0;">
+                <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size04); flex: 1 1 auto; min-width: 0;">
+                  <span class="type-style7" style="color: var(--text-generic-default);">{{ c.title }}</span>
+                  <span class="type-style8" style="color: var(--text-generic-subdued);">{{ c.desc }}</span>
+                </div>
+                <div style="height: 6px; width: 100%; border-radius: var(--radius-pill, 999px); background: var(--background-generic-subdued, var(--background-panel-pressed)); overflow: hidden;">
+                  <div style="height: 100%; border-radius: var(--radius-pill, 999px); background: var(--background-action-default); width: {{ c.pct }};"></div>
+                </div>
+                <span class="type-style8" style="color: var(--text-generic-subdued);">{{ c.fraction }}</span>
+              </div>
+              <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Icon"
+                        name="Arrows/Chevron Right/Chevron Right"
+                        size="16"
+                        color="var(--text-generic-default)"
+                        base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                        hint-size="16px,16px"></x-import>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <!-- ACCOUNT BENEFITS. -->
+      <section class="cnc-l-container">
+        <div class="cnc-l-row">
+          <h2 class="type-style3" style="margin: 0; flex: 1 1 auto; color: var(--text-generic-default);">Account benefits</h2>
+          <x-import component-from-global-scope="CancaraDesignSystem_4b0109.CompactButton"
+                    variant="tertiary" size="small"
+                    on-click="{{ noop }}"
+                    base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                    hint-size="auto,36px"
+                    style="padding-right: 0;">Show all</x-import>
+        </div>
+        <x-import component-from-global-scope="CancaraDesignSystem_4b0109.ListActionGroup"
+                  width="compact"
+                  style="max-width: none; min-width: 0; width: 100%;"
+                  items="{{ benefitItem1 }}"
+                  base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                  hint-size="100%,72px"></x-import>
+        <x-import component-from-global-scope="CancaraDesignSystem_4b0109.ListActionGroup"
+                  width="compact"
+                  style="max-width: none; min-width: 0; width: 100%;"
+                  items="{{ benefitItem2 }}"
+                  base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                  hint-size="100%,72px"></x-import>
+      </section>
+
+      <!-- FEEDBACK. -->
+      <section class="cnc-l-container" style="align-items: center; text-align: center;">
+        <p class="type-style6" style="margin: 0; color: var(--text-generic-subdued);">Tell us what you think?</p>
+        <x-import component-from-global-scope="CancaraDesignSystem_4b0109.ActionButton"
+                  variant="primary"
+                  base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                  hint-size="100%,48px">Share feedback</x-import>
+        <div style="height: 48px;"></div>
+      </section>
+
+    </div>
+    <!-- ===================== /CONTENT ===================== -->
+  </x-import>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { promoActive: 1, featuredActive: 1, in: false };
+
+  componentDidMount() {
+    requestAnimationFrame(() => this.setState({ in: true }));
+  }
+
+  _scrollTo(elId, key, dir) {
+    const el = document.getElementById(elId);
+    if (!el) return;
+    const next = Math.max(1, Math.min(2, this.state[key] + dir));
+    this.setState({ [key]: next });
+    const card = el.children[next - 1];
+    if (card) card.scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" });
+  }
+
+  renderVals() {
+    return {
+      // Header sun toggle — flips the ROOT data-theme and PERSISTS the choice so it
+      // carries across page navigations (each page reads it pre-paint).
+      toggleTheme: () => {
+        const el = document.documentElement;
+        const next = el.getAttribute("data-theme") === "dark" ? "light" : "dark";
+        el.setAttribute("data-theme", next);
+        try { localStorage.setItem("cnc-theme", next); } catch (e) {}
+      },
+
+      // Non-string props for the imported components (passed as raw values).
+      hasLeading: true,   // back to Account Summary
+      onBack: () => { window.location.href = "../account-summary/AccountSummary.dc.html"; },
+      onTabChange: (i) => { if (i === 0) window.location.href = "../account-summary/AccountSummary.dc.html"; },
+      goToChallenges: () => { window.location.href = "../challenges/Challenges.dc.html"; },
+      headerTrailing: ["Weather/Sun/Sun"], // sun icon = the in-journey theme toggle
+      jpInClass: this.state.in ? " jp-fade--in" : "",
+      noStatusBar: null,  // hide the OS status bar
+      noActiveTab: -1,    // bottom nav shown as chrome, no tab active (not Home)
+      frameW: 430,        // modern large-phone logical width
+      iconSize: 24,
+      iconPad: true,
+      noop: () => {},
+      promoActive: this.state.promoActive ?? 1,
+      featuredActive: this.state.featuredActive ?? 1,
+      promoPrev: () => this._scrollTo("gh-promo", "promoActive", -1),
+      promoNext: () => this._scrollTo("gh-promo", "promoActive", 1),
+      featuredPrev: () => this._scrollTo("gh-featured", "featuredActive", -1),
+      featuredNext: () => this._scrollTo("gh-featured", "featuredActive", 1),
+
+      readyToUseLogos: [
+        { id: "ru-1", placeholder: "Uber" }, { id: "ru-2", placeholder: "Tesco" },
+        { id: "ru-3", placeholder: "Costa" }, { id: "ru-4", placeholder: "Currys" },
+        { id: "ru-5", placeholder: "B&Q" }, { id: "ru-6", placeholder: "Deliveroo" },
+        { id: "ru-7", placeholder: "Boots" },
+      ],
+
+      topDeals: [
+        { img: "td-apple", name: "Apple", desc: "Make a saving on the latest products", icon: "Arrows/Chevron Right/Chevron Right", iconLabel: "View Apple deal" },
+        { img: "td-hellofresh", name: "Hellofresh", desc: "Get up to 38% off + free dessert for life", icon: "Miscellaneous/New tab/New tab", iconLabel: "Activate Hellofresh offer" },
+        { img: "td-justeat", name: "Just Eat", desc: "Get £15 off selected orders when you spend £20", icon: "Miscellaneous/New tab/New tab", iconLabel: "Activate Just Eat offer" },
+      ],
+
+      challenges: [
+        { img: "ch-sainsburys", logo: "logo-sainsburys.png", name: "Sainsbury's", title: "10% cashback at Sainsbury's", desc: "6 more purchases to reach this month", pct: "15%", fraction: "3 / 20 purchases" },
+        { img: "ch-deliveroo", logo: "logo-deliveroo.png", name: "Deliveroo", title: "7% cashback at Deliveroo", desc: "You've earned an Everyday Offer", pct: "100%", fraction: "100%" },
+      ],
+
+      benefitItem1: [
+        { asset: "pictogram", pictogramIcon: "Health/Healthcare/Healthcare", pictogramStyle: "default", title: "Boots Family GP and Wellbeing", description: "Remote GP appointments for you and your family", showDescription: true },
+      ],
+      benefitItem2: [
+        { asset: "pictogram", pictogramIcon: "Lifestyle/Eating Out/Eating Out", pictogramStyle: "default", title: "Lifestyle benefits", description: "Get money off a coffee or food subscription", showDescription: true },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

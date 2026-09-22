@@ -1,0 +1,32 @@
+/* Cancara — base element defaults (token-driven). */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--background-page-default);
+  color: var(--text-generic-default);
+  font-family: var(--type-style5-family);
+  font-size: var(--type-style5-size);
+  line-height: var(--type-style5-line);
+  font-weight: var(--type-style5-weight);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Display / heading default face */
+h1, h2, h3, h4 {
+  font-family: var(--type-style1-family);
+  font-weight: 700;
+  margin: 0;
+}

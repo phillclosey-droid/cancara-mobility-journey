@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <script src="./ds-base.js"></script>
+  <script src="./image-slot.js"></script>
+  <style>
+    .cnc-l-container { box-sizing: border-box; display: flex; flex-direction: column; padding-left: var(--spacing-size16); padding-right: var(--spacing-size16); margin-bottom: var(--spacing-size48); gap: var(--cnc-container-gap, var(--spacing-size16)); }
+    .cnc-l-container:last-child { margin-bottom: 0; }
+    .cnc-l-panel { box-sizing: border-box; display: flex; flex-direction: column; background: var(--cnc-panel-surface-bg, var(--background-panel-default)); padding: var(--spacing-size16); border-radius: var(--radius-medium); gap: var(--spacing-size16); }
+    .cnc-l-row { display: flex; flex-direction: row; align-items: center; gap: var(--cnc-row-gap, var(--spacing-size16)); }
+    .cnc-l-col { display: flex; flex-direction: column; gap: var(--cnc-col-gap, var(--spacing-size16)); flex: 1 1 0%; }
+    .ch-grid { display: grid; grid-template-columns: 1fr; gap: var(--spacing-size16); }
+    .ch-streak > *:first-child { margin-left: 0 !important; }
+    html, body { height: 100%; }
+    html body { margin: 0; background: var(--background-panel-pressed); display: flex; align-items: stretch; justify-content: center; }
+    .jp-frame .cnc-tpl-base__container { scrollbar-width: none; -ms-overflow-style: none; }
+    .jp-frame .cnc-tpl-base__container::-webkit-scrollbar { width: 0; height: 0; }
+  </style>
+  <script>document.documentElement.setAttribute("data-theme", localStorage.getItem("cnc-theme") || "dark");</script>
+  <style>
+    a { color: var(--text-action-default); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</helmet>
+
+<div class="jp-frame" style="position: relative; box-sizing: border-box; width: 430px; max-width: 100vw; height: 100dvh; overflow: hidden; background: var(--background-page-default);">
+
+  <x-import component-from-global-scope="CancaraDesignSystem_4b0109.BaseTemplate" title="Challenges" leading-icon="{{ hasLeading }}" leading-icon-name="Arrows/Arrow Left/Arrow Left" on-leading="{{ onBack }}" trailing="{{ headerTrailing }}" on-trailing="{{ toggleTheme }}" status-bar="{{ noStatusBar }}" active="{{ noActiveTab }}" on-tab-change="{{ onTabChange }}" base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f" width="{{ frameW }}" height="100%" hint-size="430px,100%">
+
+    <div class="cnc-l-page-end" data-screen-label="Challenges">
+
+      <!-- TABS. -->
+      <section class="cnc-l-container cnc-l-container--bleed" style="margin-bottom: var(--spacing-size24); padding-left: 0; padding-right: 0;">
+        <x-import component-from-global-scope="CancaraDesignSystem_4b0109.TwoTabsFixed"
+                  tab1-label="Active" tab2-label="Completed"
+                  value="{{ activeTab }}" on-change="{{ onTabChange }}"
+                  width="100%"
+                  hint-size="100%,44px"></x-import>
+      </section>
+
+      <!-- ACTIVE TAB: in progress + streak panel. -->
+      <sc-if value="{{ isActiveTab }}" hint-placeholder-val="{{ true }}">
+        <section class="cnc-l-container" style="margin-bottom: var(--spacing-size16);">
+          <h1 class="type-style2" style="margin: 0; color: var(--text-generic-default);">In progress</h1>
+          <p class="type-style6" style="margin: 0; color: var(--text-generic-subdued);">You have [13 days left] to complete your tasks for this month.</p>
+        </section>
+
+        <section class="cnc-l-container">
+          <div class="cnc-l-panel" onClick="{{ noop }}" style="cursor: pointer;">
+            <div class="cnc-l-row" style="align-items: center;">
+              <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Pictogram"
+                        asset="pictogram" style="secondary"
+                        icon="Finance/Cash/Cash"
+                        base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                        hint-size="40px,40px"></x-import>
+              <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size12); flex: 1 1 auto; min-width: 0;">
+                <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size04);">
+                  <span class="type-style7" style="color: var(--text-generic-default);">Get &pound;5 Club Lloyds fee back</span>
+                  <span class="type-style8" style="color: var(--text-generic-subdued);">Nice streak, keep it going!</span>
+                </div>
+                <div class="cnc-l-row ch-streak" style="--cnc-row-gap: 0;">
+                  <sc-for list="{{ streakMonths }}" as="m" hint-placeholder-count="7">
+                    <div style="box-sizing: border-box; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; flex: 0 0 auto; background: {{ m.bg }}; border: 1px solid var(--border-generic-default); margin-left: -8px; position: relative;">
+                      <span class="type-style9" style="color: {{ m.color }};">{{ m.label }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+              <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Icon"
+                        name="Arrows/Chevron Right/Chevron Right"
+                        size="16"
+                        color="var(--text-generic-default)"
+                        base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                        hint-size="16px,16px"></x-import>
+            </div>
+          </div>
+        </section>
+      </sc-if>
+
+      <!-- COMPLETED TAB. -->
+      <sc-if value="{{ isCompletedTab }}" hint-placeholder-val="{{ false }}">
+        <section class="cnc-l-container">
+          <h1 class="type-style2" style="margin: 0; color: var(--text-generic-default);">Completed</h1>
+          <p class="type-style6" style="margin: 0; color: var(--text-generic-subdued);">Challenges you've finished this month.</p>
+        </section>
+        <section class="cnc-l-container">
+          <div class="cnc-l-panel" style="flex-direction: row; align-items: center; gap: var(--spacing-size12);">
+            <image-slot id="ch-deliveroo-done" src="logo-deliveroo.png" shape="circle" placeholder="Deliveroo" style="width: 32px; height: 32px; flex: 0 0 auto;"></image-slot>
+            <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size04); flex: 1 1 auto; min-width: 0;">
+              <span class="type-style7" style="color: var(--text-generic-default);">7% cashback at Deliveroo</span>
+              <span class="type-style8" style="color: var(--text-generic-subdued);">You've earned an Everyday Offer</span>
+            </div>
+            <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Icon"
+                      name="Sentiment system/Tick/Tick"
+                      size="20" color="var(--text-generic-default)"
+                      base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                      hint-size="20px,20px"></x-import>
+          </div>
+        </section>
+      </sc-if>
+
+      <!-- AVAILABLE. -->
+      <section class="cnc-l-container" style="margin-bottom: var(--spacing-size16);">
+        <h2 class="type-style3" style="margin: 0; color: var(--text-generic-default);">Available</h2>
+        <p class="type-style6" style="margin: 0; color: var(--text-generic-subdued);">New challenges you can start today. They'll refresh on the 1st of the month.</p>
+      </section>
+
+      <section class="cnc-l-container">
+        <div class="ch-grid">
+          <sc-for list="{{ available }}" as="a" hint-placeholder-count="10">
+            <div class="cnc-l-panel" onClick="{{ a.onClick }}" style="cursor: pointer; align-items: flex-start; text-align: left; --cnc-panel-surface-bg: var(--background-panel-default);">
+              <sc-if value="{{ a.img }}" hint-placeholder-val="{{ false }}">
+                <div style="width: 100%; display: flex; justify-content: center;">
+                  <image-slot id="{{ a.img }}" src="{{ a.logo }}" shape="circle" placeholder="{{ a.name }}" style="width: 40px; height: 40px;"></image-slot>
+                </div>
+              </sc-if>
+              <sc-if value="{{ a.asset }}" hint-placeholder-val="{{ true }}">
+                <div style="width: 100%; display: flex; justify-content: center;">
+                  <sc-if value="{{ a.illustration }}" hint-placeholder-val="{{ false }}">
+                    <x-import component-from-global-scope="CancaraDesignSystem_4b0109.SpotIllustration"
+                              size="{{ a.size }}"
+                              illustration="{{ a.illustration }}"
+                              base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                              hint-size="{{ a.size }}px,{{ a.size }}px"></x-import>
+                  </sc-if>
+                  <sc-if value="{{ a.icon }}" hint-placeholder-val="{{ true }}">
+                    <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Pictogram"
+                              asset="pictogram" style="{{ a.pictStyle }}"
+                              icon="{{ a.icon }}"
+                              base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                              style="width: {{ a.size }}px; height: {{ a.size }}px;"
+                              hint-size="{{ a.size }}px,{{ a.size }}px"></x-import>
+                  </sc-if>
+                </div>
+              </sc-if>
+              <span class="type-style8" style="color: var(--text-generic-subdued); margin-top: var(--spacing-size08); margin-bottom: calc(-1 * var(--spacing-size12));">{{ a.eyebrow }}</span>
+              <span class="type-style7" style="color: var(--text-generic-default);">{{ a.title }}</span>
+              <span class="type-style9" style="color: var(--text-generic-subdued);">{{ a.desc }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <!-- EXPIRED. -->
+      <section class="cnc-l-container">
+        <h2 class="type-style3" style="margin: 0; color: var(--text-generic-default);">Expired</h2>
+        <p class="type-style6" style="margin: 0; color: var(--text-generic-subdued);">Look back at recent challenges that have now ended.</p>
+        <div class="cnc-l-panel">
+          <p class="type-style6" style="margin: 0; color: var(--text-generic-subdued);">If a challenge expires before you complete it, we'll show it here.</p>
+        </div>
+      </section>
+
+      <!-- FEEDBACK. -->
+      <section class="cnc-l-container" style="align-items: center; text-align: center;">
+        <p class="type-style6" style="margin: 0; color: var(--text-generic-subdued);">Tell us about your experience?</p>
+        <x-import component-from-global-scope="CancaraDesignSystem_4b0109.ActionButton"
+                  variant="primary"
+                  base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                  hint-size="100%,48px">Share feedback</x-import>
+        <div style="height: 48px;"></div>
+      </section>
+
+    </div>
+  </x-import>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { activeTab: 0 };
+
+  renderVals() {
+    const activeTab = this.state.activeTab ?? 0;
+    return {
+      toggleTheme: () => {
+        const el = document.documentElement;
+        const next = el.getAttribute("data-theme") === "dark" ? "light" : "dark";
+        el.setAttribute("data-theme", next);
+        try { localStorage.setItem("cnc-theme", next); } catch (e) {}
+      },
+      hasLeading: true,
+      onBack: () => { window.location.href = "../goals-home/GoalsHome.dc.html"; },
+      onTabChange: (i) => { if (i === 0) window.location.href = "../account-summary/AccountSummary.dc.html"; },
+      headerTrailing: ["Weather/Sun/Sun"],
+      noStatusBar: null,
+      noActiveTab: -1,
+      frameW: 430,
+      iconSize: 24,
+      iconPad: true,
+      noop: () => {},
+
+      activeTab,
+      onTabChange: (i) => this.setState({ activeTab: i }),
+      isActiveTab: activeTab === 0,
+      isCompletedTab: activeTab === 1,
+
+      streakMonths: [
+        { label: "Mar", bg: "var(--background-action-default)", color: "var(--text-action-inverse)" },
+        { label: "Apr", bg: "var(--background-action-default)", color: "var(--text-action-inverse)" },
+        { label: "May", bg: "var(--background-action-default)", color: "var(--text-action-inverse)" },
+        { label: "Jun", bg: "var(--background-panel-pressed)", color: "var(--text-generic-subdued)" },
+        { label: "Jul", bg: "var(--background-action-default)", color: "var(--text-action-inverse)" },
+        { label: "Aug", bg: "var(--background-action-default)", color: "var(--text-action-inverse)" },
+        { label: "Sep", bg: "var(--background-panel-pressed)", color: "var(--text-generic-subdued)" },
+      ],
+
+      available: [
+        { img: "av-deliveroo", logo: "logo-deliveroo.png", name: "Deliveroo", eyebrow: "Activate an offer", title: "7% cashback at Deliveroo", desc: "Simply activate this challenge to get your exclusive cashback offer." },
+        { asset: "illustration", size: 88, pictStyle: "defaultalt01", illustration: "Default Alt 01/Savings Alt 01/Savings Alt 01", eyebrow: "Set a goal", title: "Take control and build for the future", desc: "Set a goal, choose a timeframe and build for the future.", onClick: () => { window.location.href = "./SetGoal.dc.html"; } },
+        { img: "av-sainsburys", logo: "logo-sainsburys.png", name: "Sainsbury's", eyebrow: "Spend 20 times at any retailer", title: "10% cashback at Sainsbury's", desc: "Use your debit card 20 times across retailers this month to earn your reward." },
+        { asset: "illustration", size: 88, pictStyle: "defaultalt01", illustration: "Default Alt 01/Upcoming Payments/Upcoming Payments", eyebrow: "Pay 3 or more direct debits", title: "Win back your direct debits up to £1,000", desc: "Pay 3 or more direct debits from your Lloyds account for the chance to win up to £1,000." },
+        { asset: "illustration", size: 88, pictStyle: "defaultalt01", illustration: "Default Alt 01/Notifications/Notifications", eyebrow: "Set a renewal alert", title: "Win a £5,000 cash prize", desc: "Set a reminder for when your broadband, energy or mobile contract is due to end, for a chance to win." },
+        { asset: "illustration", size: 88, pictStyle: "defaultalt01", illustration: "Default Alt 01/Rewards/Rewards", eyebrow: "Visit Rewards 3 times", title: "Win 1 of 50 cash prizes of £50", desc: "Visit Rewards 3 times this month for a chance to win." },
+        { asset: "illustration", size: 88, pictStyle: "defaultalt01", illustration: "Default Alt 01/Credit Score/Credit Score", eyebrow: "Check your credit score 3 times", title: "Win a £1,000 cash prize", desc: "Check your credit score once a month for the next 3 months for a chance to win." },
+        { asset: "illustration", size: 88, pictStyle: "defaultalt01", illustration: "Default Alt 01/Travel/Travel", eyebrow: "Spend abroad on your debit card 10 times", title: "£20 Lloyds Travel Booking voucher", desc: "Make 10 qualifying fee-free purchases abroad this month to earn a £20 Lloyds Travel voucher." },
+        { asset: "illustration", size: 88, pictStyle: "defaultalt01", illustration: "Default Alt 01/Savings/Savings", eyebrow: "Pay into your goal", title: "Win 1 of 10 prizes of £100", desc: "Pay at least £10 towards a goal this month for a chance to win." },
+        { asset: "illustration", size: 88, pictStyle: "defaultalt01", illustration: "Default Alt 01/Cards & Coins/Cards & Coins", eyebrow: "Pay in £1,000 of income", title: "Win a £2,027 payday cash prize", desc: "Have at least £1,000 paid into your current account this month for a chance to win." },
+      ],
+    };
+  }
+}
+
+</script>
+</body>
+</html>

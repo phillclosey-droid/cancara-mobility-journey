@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <script src="./ds-base.js"></script>
+  <style>
+    .cnc-l-container { box-sizing: border-box; display: flex; flex-direction: column; padding-left: var(--spacing-size16); padding-right: var(--spacing-size16); margin-bottom: var(--spacing-size32); gap: var(--spacing-size12); }
+    .cnc-l-container:last-child { margin-bottom: 0; }
+    .cnc-l-panel { box-sizing: border-box; display: flex; flex-direction: column; background: var(--background-panel-default); padding: var(--spacing-size16); border-radius: var(--radius-medium); gap: var(--spacing-size12); }
+    .cnc-l-row { display: flex; flex-direction: row; align-items: center; gap: var(--spacing-size16); }
+    .cnc-l-col { display: flex; flex-direction: column; gap: var(--cnc-col-gap, var(--spacing-size16)); }
+    html, body { height: 100%; }
+    html body { margin: 0; background: var(--background-panel-pressed); display: flex; align-items: stretch; justify-content: center; }
+    .sg-frame .cnc-tpl-base__container { scrollbar-width: none; -ms-overflow-style: none; }
+    .sg-frame .cnc-tpl-base__container::-webkit-scrollbar { width: 0; height: 0; }
+    .sg-step { display: flex; flex-direction: row; gap: var(--spacing-size12); align-items: stretch; }
+    .sg-step-rail { display: flex; flex-direction: column; align-items: center; width: 28px; flex: 0 0 auto; }
+    .sg-step-dot { width: 28px; height: 28px; border-radius: 50%; flex: 0 0 auto; display: flex; align-items: center; justify-content: center; box-sizing: border-box; }
+    .sg-step-line { width: 0; flex: 1 1 auto; min-height: var(--spacing-size16); border-left: 2px dashed var(--border-generic-default); margin: 0; }
+    .sg-step-body { flex: 1 1 auto; min-width: 0; padding-bottom: var(--spacing-size24); display: flex; flex-direction: column; gap: var(--spacing-size08); }
+  </style>
+  <script>document.documentElement.setAttribute("data-theme", localStorage.getItem("cnc-theme") || "dark");</script>
+  <style>
+    a { color: var(--text-action-default); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</helmet>
+
+<div class="sg-frame" style="position: relative; box-sizing: border-box; width: 430px; max-width: 100vw; height: 100dvh; overflow: hidden; background: var(--background-page-default);">
+
+  <x-import component-from-global-scope="CancaraDesignSystem_4b0109.BaseTemplate"
+            title="Challenges"
+            leading-icon="{{ hasLeading }}"
+            leading-icon-name="Arrows/Arrow Left/Arrow Left"
+            on-leading="{{ onBack }}"
+            trailing="{{ headerTrailing }}"
+            on-trailing="{{ toggleTheme }}"
+            status-bar="{{ noStatusBar }}"
+            active="{{ homeTab }}"
+            base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+            width="{{ frameW }}" height="100%" hint-size="430px,100%">
+
+    <div class="cnc-l-page-end" data-screen-label="Set a goal - Activated">
+
+      <!-- HERO -->
+      <section class="cnc-l-container" style="align-items: center; margin-bottom: var(--spacing-size16);">
+        <x-import component-from-global-scope="CancaraDesignSystem_4b0109.SpotIllustration"
+                  size="88"
+                  illustration="Default Alt 01/Savings Alt 01/Savings Alt 01"
+                  base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                  hint-size="88px,88px"></x-import>
+      </section>
+
+      <section class="cnc-l-container" style="margin-bottom: var(--spacing-size16);">
+        <span class="type-style8" style="color: var(--text-generic-subdued);">Set a goal</span>
+        <h1 class="type-style2" style="margin: 0; color: var(--text-generic-default);">Take control and build for the future</h1>
+      </section>
+
+      <section class="cnc-l-container" style="margin-bottom: var(--spacing-size16);">
+        <div style="height: 6px; border-radius: var(--radius-medium); background: var(--background-panel-pressed); overflow: hidden;">
+          <div style="height: 100%; width: {{ progressPct }}; min-width: 6px; border-radius: var(--radius-full); background: var(--background-action-default);"></div>
+        </div>
+        <span class="type-style6" style="color: var(--text-generic-subdued);">{{ progressLabel }}</span>
+      </section>
+
+      <!-- ACTIVATED / EXPIRES -->
+      <section class="cnc-l-container">
+        <div class="cnc-l-panel" style="background: transparent; border: 1px solid var(--border-generic-default);">
+          <div class="cnc-l-row" style="justify-content: space-between;">
+            <span class="type-style7" style="color: var(--text-generic-default);">Challenge activated</span>
+            <span class="type-style7" style="color: var(--text-generic-subdued);">13 February</span>
+          </div>
+          <div class="cnc-l-row" style="justify-content: space-between;">
+            <span class="type-style7" style="color: var(--text-generic-default);">Challenge expires</span>
+            <span class="type-style7" style="color: var(--text-generic-subdued);">28 February</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- HOW IT WORKS -->
+      <section class="cnc-l-container" style="margin-bottom: var(--spacing-size16);">
+        <h2 class="type-style3" style="margin: 0; color: var(--text-generic-default);">How this challenge works</h2>
+        <p class="type-style6" style="margin: 0; color: var(--text-generic-subdued);">Set a goal, choose a timeframe and build for the future.</p>
+        <p class="type-style7" style="margin: var(--spacing-size16) 0 0; color: var(--text-generic-default);">Follow these steps and track your progress!</p>
+      </section>
+
+      <!-- STEPPER -->
+      <section class="cnc-l-container">
+        <div class="cnc-l-panel" style="gap: 0;">
+
+          <div class="sg-step">
+            <div class="sg-step-rail">
+              <div class="sg-step-dot" style="background: transparent; border: 2px solid var(--background-action-default);">
+                <span class="type-style9" style="color: var(--text-generic-inverse);">1</span>
+              </div>
+              <div class="sg-step-line"></div>
+            </div>
+            <div class="sg-step-body">
+              <span class="type-style7" style="color: var(--text-generic-default);">Activate challenge</span>
+              <span class="type-style8" style="color: var(--text-generic-subdued);">You've activated the challenge</span>
+            </div>
+          </div>
+
+          <div class="sg-step">
+            <div class="sg-step-rail">
+              <div class="sg-step-dot" style="border: 1px solid var(--border-generic-default);">
+                <span class="type-style9" style="color: var(--text-generic-default);">2</span>
+              </div>
+              <div class="sg-step-line"></div>
+            </div>
+            <div class="sg-step-body">
+              <span class="type-style7" style="color: var(--text-generic-default);">Set up a goal</span>
+              <span class="type-style8" style="color: var(--text-generic-subdued);">Choose a timeframe and link to your account</span>
+              <div class="cnc-l-row" onClick="{{ onChooseGoal }}" style="margin-top: var(--spacing-size08); border: 1px solid var(--border-generic-default); border-radius: var(--radius-medium); padding: var(--spacing-size16); cursor: pointer;">
+                <x-import component-from-global-scope="CancaraDesignSystem_4b0109.RadioButton"
+                          selected="{{ false }}"
+                          hit-target-area="{{ false }}"
+                          base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                          hint-size="24px,24px"></x-import>
+                <div class="cnc-l-col" style="--cnc-col-gap: var(--spacing-size04); flex: 1 1 auto; min-width: 0;">
+                  <span class="type-style7" style="color: var(--text-generic-default);">Set up a goal</span>
+                  <span class="type-style8" style="color: var(--text-generic-subdued);">From home deposits to holidays, choose your goal</span>
+                </div>
+                <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Icon"
+                          name="Arrows/Chevron Right/Chevron Right"
+                          size="16"
+                          color="var(--text-generic-default)"
+                          base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                          hint-size="16px,16px"></x-import>
+              </div>
+            </div>
+          </div>
+
+          <div class="sg-step">
+            <div class="sg-step-rail">
+              <div class="sg-step-dot" style="border: 1px solid var(--border-generic-default);">
+                <span class="type-style9" style="color: var(--text-generic-default);">3</span>
+              </div>
+            </div>
+            <div class="sg-step-body" style="padding-bottom: 0;">
+              <div class="cnc-l-row" style="justify-content: space-between;">
+                <span class="type-style7" style="color: var(--text-generic-default);">You've set up your goal</span>
+                <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Icon"
+                          name="Lifestyle/Trophy/Trophy" size="20" color="var(--text-generic-subdued)"
+                          base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                          hint-size="20px,20px"></x-import>
+              </div>
+              <span class="type-style8" style="color: var(--text-generic-subdued);">Nice work! You've set up your goal. Now, keep at it and track your progress.</span>
+            </div>
+          </div>
+
+          <div style="margin-top: var(--spacing-size08);">
+            <x-import component-from-global-scope="CancaraDesignSystem_4b0109.ActionButton"
+                      variant="secondary"
+                      disabled="{{ true }}"
+                      base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                      hint-size="100%,48px">See your goal</x-import>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- TIP -->
+      <section class="cnc-l-container" style="margin-bottom: var(--spacing-size48) !important;">
+        <div class="cnc-l-panel" style="flex-direction: row; align-items: flex-start;">
+          <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Icon"
+                    name="Sentiment system/Success/Success" size="20" color="var(--text-generic-default)"
+                    base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                    hint-size="20px,20px"></x-import>
+          <span class="type-style8" style="color: var(--text-generic-subdued);">Whatever you're working towards, setting goals builds habits and is a proven way to get there faster.</span>
+        </div>
+      </section>
+
+    </div>
+  </x-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      toggleTheme: () => {
+        const el = document.documentElement;
+        const next = el.getAttribute("data-theme") === "dark" ? "light" : "dark";
+        el.setAttribute("data-theme", next);
+        try { localStorage.setItem("cnc-theme", next); } catch (e) {}
+      },
+      hasLeading: true,
+      onBack: () => { window.location.href = "./Challenges.dc.html"; },
+      headerTrailing: ["Weather/Sun/Sun"],
+      noStatusBar: null,
+      homeTab: 0,
+      frameW: 430,
+      progressLabel: "0 / 1 goals set up",
+      progressPct: "6px",
+      onChooseGoal: () => { window.location.href = "./ChooseGoal.dc.html"; },
+    };
+  }
+}
+
+</script>
+</body>
+</html>

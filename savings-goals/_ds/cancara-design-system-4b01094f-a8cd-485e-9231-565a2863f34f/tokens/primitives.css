@@ -1,0 +1,54 @@
+/* Cancara — Primitives (spacing, radius, border, OS). Generated. */
+
+:root {
+  /* Spacing */
+  --spacing-none: 0px;
+  --spacing-size04: 4px;
+  --spacing-size08: 8px;
+  --spacing-size12: 12px;
+  --spacing-size16: 16px;
+  --spacing-size24: 24px;
+  --spacing-size32: 32px;
+  --spacing-size48: 48px;
+  /* Corner radius */
+  --radius-circle: 9999px;
+  --radius-default: 12px;
+  --radius-full: 200px;
+  --radius-medium: 16px;
+  --radius-none: 0px;
+  --radius-small: 8px;
+  /* Border width */
+  --border-width-01: 1px;
+  --border-width-02: 2px;
+  --border-width-none: 0px;
+  /* OS */
+  --os-hittarget-default: 48px;
+  --os--modalstack-statusbarios: #FFFFFF;
+  --os--modalstack-statusbariosbackground: #000000;
+}
+
+:root {
+  --os--applekeyboard-icon: #595A60;
+  --os--applekeyboard-keybackground: #FCFCFE;
+  --os--applekeyboard-keybackgroundalt01: #ABB0BA;
+  --os--applekeyboard-keybackgroundshadow: #83858A;
+  --os--applekeyboard-keyboardbackground: #CED0D5;
+  --os--applekeyboard-keytext: #000000;
+  --os--modalstack-statusbarandroid: #000000;
+  --os--modalstack-statusbarandroidbackground: #FFFFFF;
+  --os--statusbar: #000000;
+  --os-homeindicator: #000000;
+}
+
+[data-theme="dark"] {
+  --os--applekeyboard-icon: #E7E7E7;
+  --os--applekeyboard-keybackground: #979797;
+  --os--applekeyboard-keybackgroundalt01: #777777;
+  --os--applekeyboard-keybackgroundshadow: #454545;
+  --os--applekeyboard-keyboardbackground: #6A6A6A;
+  --os--applekeyboard-keytext: #FFFFFF;
+  --os--modalstack-statusbarandroid: #FFFFFF;
+  --os--modalstack-statusbarandroidbackground: #000000;
+  --os--statusbar: #FFFFFF;
+  --os-homeindicator: #FFFFFF;
+}

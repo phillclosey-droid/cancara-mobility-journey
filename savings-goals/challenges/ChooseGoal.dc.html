@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<helmet>
+  <script src="./ds-base.js"></script>
+  <style>
+    .cnc-l-container { box-sizing: border-box; display: flex; flex-direction: column; padding-left: var(--spacing-size16); padding-right: var(--spacing-size16); margin-bottom: var(--spacing-size24); gap: var(--spacing-size12); }
+    .cnc-l-container:last-child { margin-bottom: 0; }
+    html, body { height: 100%; }
+    html body { margin: 0; background: var(--background-panel-pressed); display: flex; align-items: stretch; justify-content: center; }
+    .cg-frame .cnc-tpl-base__container { scrollbar-width: none; -ms-overflow-style: none; }
+    .cg-frame .cnc-tpl-base__container::-webkit-scrollbar { width: 0; height: 0; }
+    .cg-cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-size12); }
+    .cg-cat-card { box-sizing: border-box; display: flex; flex-direction: row; align-items: center; gap: var(--spacing-size12); padding: var(--spacing-size12); border-radius: var(--radius-medium); border: 1px solid var(--border-generic-default); background: var(--background-panel-default); cursor: pointer; }
+    .cg-cat-card--selected { border: 2px solid var(--border-input-active); }
+    .cg-name-field { box-sizing: border-box; display: flex; align-items: center; min-height: var(--c-input-minheight); padding: var(--spacing-size16); border-radius: var(--c-input-cornerradius); border: 1px solid var(--border-input-default); background: var(--background-input-default); cursor: pointer; }
+    .cg-name-field--active { border-color: var(--border-input-active); }
+    .cg-frame .cnc-bottomnav { border-top: 1px solid var(--border-generic-default); }
+    .cg-name-field__text { color: var(--text-input-default); }
+    .cg-name-field__text--placeholder { color: var(--text-input-placeholder); }
+    .cg-actionbar { position: absolute; left: 0; right: 0; bottom: var(--cg-nav-h, 0px); z-index: 2; background: var(--background-page-default); box-sizing: border-box; padding: var(--spacing-size16); margin-bottom: 0 !important; }
+    .cg-frame .cnc-tpl-base__container { padding-bottom: calc(var(--cg-bar-h, 80px) + var(--spacing-size16)); }
+    .cg-kb-scrim { position: absolute; inset: 0; z-index: 40; background: rgba(0,0,0,0.5); opacity: 0; pointer-events: none; transition: opacity .2s ease; }
+    .cg-kb-scrim.cg-kb--open { opacity: 1; pointer-events: auto; }
+    .cg-keyboard { position: absolute; left: 0; right: 0; bottom: 0; z-index: 41; box-sizing: border-box; display: flex; flex-direction: column; gap: var(--spacing-size08); padding: var(--spacing-size08) var(--spacing-size08) var(--spacing-size16); background: var(--background-panel-default); border-top: 1px solid var(--border-generic-default); transform: translateY(100%); transition: transform .25s ease; }
+    .cg-keyboard.cg-kb--open { transform: translateY(0); }
+    .cg-kb-row { display: flex; flex-direction: row; gap: var(--spacing-size04); }
+    .cg-kb-key { flex: 1 1 0; min-width: 0; min-height: 44px; border: 0; border-radius: var(--radius-small); background: var(--background-page-default); color: var(--text-generic-default); font-size: 16px; text-transform: lowercase; cursor: pointer; }
+    .cg-kb-key--wide { flex: 1.6 1 0; }
+    .cg-kb-key--space { flex: 4 1 0; }
+    .cg-kb-key--return { background: var(--background-action-default); color: var(--text-generic-inverse); text-transform: none; font-weight: 600; }
+  </style>
+  <script>document.documentElement.setAttribute("data-theme", localStorage.getItem("cnc-theme") || "dark");</script>
+  <style>
+    a { color: var(--text-action-default); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</helmet>
+
+<div class="cg-frame" style="position: relative; box-sizing: border-box; width: 430px; max-width: 100vw; height: 100dvh; overflow: hidden; background: var(--background-page-default);">
+
+  <x-import component-from-global-scope="CancaraDesignSystem_4b0109.BaseTemplate"
+            title="Add a goal"
+            leading-icon="{{ hasLeading }}"
+            leading-icon-name="Arrows/Arrow Left/Arrow Left"
+            on-leading="{{ onBack }}"
+            trailing="{{ headerTrailing }}"
+            on-trailing="{{ toggleTheme }}"
+            status-bar="{{ noStatusBar }}"
+            active="{{ noActiveTab }}"
+            tabs="{{ noTabs }}"
+            base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+            width="{{ frameW }}" height="100%" hint-size="430px,100%">
+
+    <div data-screen-label="Set a goal - Add a goal">
+
+      <section class="cnc-l-container">
+        <span class="type-style7" style="color: var(--text-generic-default);">Give your goal a name (optional)</span>
+        <div class="cg-name-field {{ nameFieldActiveClass }}" onClick="{{ openKeyboard }}">
+          <span class="cg-name-field__text {{ nameFieldEmptyClass }}">{{ nameFieldDisplay }}</span>
+        </div>
+        <span class="type-style8" style="color: var(--text-generic-subdued);">{{ charCount }}</span>
+      </section>
+
+      <section class="cnc-l-container">
+        <h2 class="type-style3" style="margin: 0; color: var(--text-generic-default);">Pick a category</h2>
+        <p class="type-style6" style="margin: 0; color: var(--text-generic-subdued);">This helps us tailor your experience later</p>
+
+        <div class="cg-cat-grid" style="margin-top: var(--spacing-size08);">
+          <sc-for list="{{ categories }}" as="cat" hint-placeholder-count="7">
+            <div class="cg-cat-card {{ cat.selectedClass }}" onClick="{{ cat.onSelect }}">
+              <x-import component-from-global-scope="CancaraDesignSystem_4b0109.Pictogram"
+                        icon="{{ cat.icon }}"
+                        style="default"
+                        base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                        hint-size="40px,40px"></x-import>
+              <span class="type-style7" style="color: var(--text-generic-default);">{{ cat.label }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <section class="cnc-l-container cg-actionbar">
+        <x-import component-from-global-scope="CancaraDesignSystem_4b0109.ActionButton"
+                  variant="primary"
+                  on-click="{{ onContinue }}"
+                  base-path="../_ds/cancara-design-system-4b01094f-a8cd-485e-9231-565a2863f34f"
+                  hint-size="100%,48px">Continue</x-import>
+      </section>
+
+    </div>
+  </x-import>
+
+  <div class="cg-kb-scrim {{ kbOpenClass }}" onClick="{{ closeKeyboard }}"></div>
+  <div class="cg-keyboard {{ kbOpenClass }}">
+    <sc-for list="{{ kbRows }}" as="row" hint-placeholder-count="3">
+      <div class="cg-kb-row">
+        <sc-for list="{{ row.keys }}" as="k" hint-placeholder-count="10">
+          <button class="cg-kb-key" onClick="{{ k.onPress }}">{{ k.label }}</button>
+        </sc-for>
+      </div>
+    </sc-for>
+    <div class="cg-kb-row">
+      <button class="cg-kb-key cg-kb-key--wide" onClick="{{ backspace }}">⌫</button>
+      <button class="cg-kb-key cg-kb-key--space" onClick="{{ addSpace }}">space</button>
+      <button class="cg-kb-key cg-kb-key--wide cg-kb-key--return" onClick="{{ closeKeyboard }}">Return</button>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { goalName: "", catSel: null, kbOpen: false };
+
+  componentDidMount() {
+    const tick = () => {
+      const frame = document.querySelector(".cg-frame");
+      const nav = frame && frame.querySelector(".cnc-bottomnav");
+      const bar = frame && frame.querySelector(".cg-actionbar");
+      if (!frame || !nav || !bar) { this._raf = requestAnimationFrame(tick); return; }
+      const apply = () => {
+        frame.style.setProperty("--cg-nav-h", nav.offsetHeight + "px");
+        frame.style.setProperty("--cg-bar-h", bar.offsetHeight + "px");
+      };
+      apply();
+      this._ro = new ResizeObserver(apply);
+      this._ro.observe(nav);
+      this._ro.observe(bar);
+    };
+    tick();
+  }
+
+  componentWillUnmount() {
+    if (this._ro) this._ro.disconnect();
+    if (this._raf) cancelAnimationFrame(this._raf);
+  }
+
+  renderVals() {
+    const CATS = [
+      { label: "Emergency fund", icon: "Goals/Safety Net/Safety Net" },
+      { label: "Holiday", icon: "Travel/Holiday/Holiday" },
+      { label: "Home deposit", icon: "Goals/Home Deposit/Home Deposit" },
+      { label: "Car", icon: "Travel/Car/Car" },
+      { label: "Home improvements", icon: "Goals/Home Improvements/Home Improvements" },
+      { label: "Special purchase", icon: "Goals/Gift/Gift" },
+      { label: "Other", icon: "Finance/Piggy Bank/Piggy Bank" },
+    ];
+    const name = this.state.goalName || "";
+    const KEY_ROWS = [
+      ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
+      ["a", "s", "d", "f", "g", "h", "j", "k", "l"],
+      ["z", "x", "c", "v", "b", "n", "m"],
+    ];
+    const appendChar = (ch) => this.setState((s) => ({ goalName: (s.goalName || "").length >= 40 ? s.goalName : (s.goalName || "") + ch }));
+
+    return {
+      toggleTheme: () => {
+        const el = document.documentElement;
+        const next = el.getAttribute("data-theme") === "dark" ? "light" : "dark";
+        el.setAttribute("data-theme", next);
+        try { localStorage.setItem("cnc-theme", next); } catch (e) {}
+      },
+      hasLeading: true,
+      onBack: () => { window.location.href = "./SetGoal.dc.html"; },
+      headerTrailing: ["Weather/Sun/Sun"],
+      noStatusBar: null,
+      noActiveTab: -1,
+      noTabs: null,
+      frameW: 430,
+
+      goalName: name,
+      charCount: `${name.length}/40`,
+      nameFieldDisplay: name || "e.g. Dream holiday",
+      nameFieldEmptyClass: name ? "" : "cg-name-field__text--placeholder",
+      nameFieldActiveClass: this.state.kbOpen ? "cg-name-field--active" : "",
+
+      openKeyboard: () => this.setState((s) => ({ kbOpen: true, goalName: s.goalName || "My new car" })),
+      closeKeyboard: () => this.setState({ kbOpen: false }),
+      kbOpenClass: this.state.kbOpen ? "cg-kb--open" : "",
+      kbRows: KEY_ROWS.map((row) => ({
+        keys: row.map((ch) => ({ label: ch, onPress: () => appendChar(ch) })),
+      })),
+      backspace: () => this.setState((s) => ({ goalName: (s.goalName || "").slice(0, -1) })),
+      addSpace: () => appendChar(" "),
+
+      categories: CATS.map((c, i) => ({
+        label: c.label,
+        icon: c.icon,
+        selectedClass: i === this.state.catSel ? "cg-cat-card--selected" : "",
+        onSelect: () => this.setState({ catSel: i }),
+      })),
+
+      onContinue: () => { window.location.href = "./GoalAmountDate.dc.html"; },
+    };
+  }
+}
+
+</script>
+</body>
+</html>
