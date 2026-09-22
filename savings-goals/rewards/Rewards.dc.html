@@ -4,8 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="./support.js"></script>
-<style id="hide-ds-preview-toggle">/* hide the design-system floating light/dark preview pill (re-injected on every export) */button[aria-label="Toggle light or dark mode"]{display:none!important;}</style>
-<script id="app-vh-fix">/* iOS: 100dvh lays the bottom nav below the visible area on first paint; track the real visible height (same as the p1/p2 journey) */(function(){var s=function(){var h=(window.visualViewport&&window.visualViewport.height)||window.innerHeight;document.documentElement.style.setProperty('--app-vh',h+'px');};s();window.addEventListener('resize',s);window.addEventListener('orientationchange',s);if(window.visualViewport)window.visualViewport.addEventListener("resize",s);})();</script>
+<style id="hide-ds-preview-toggle">button[aria-label="Toggle light or dark mode"]{display:none!important;}</style>
 </head>
 <body>
 <x-dc>
@@ -62,7 +61,7 @@
      The initial theme is chosen on the Project Index and persisted. -->
 
 <!-- The device frame: 430 wide, fills the viewport height, centred, clips content. -->
-<div class="jp-frame" style="position: relative; box-sizing: border-box; width: min(100vw, 430px); height: var(--app-vh, 100dvh); overflow: hidden; background: var(--background-page-default);">
+<div class="jp-frame" style="position: relative; box-sizing: border-box; width: min(100vw, 430px); height: 100dvh; overflow: hidden; background: var(--background-page-default);">
   <div style="width: 100%; height: 100%;">
 
   <!-- BaseTemplate = the app screen chrome (header + scrolling container + bottom nav).
