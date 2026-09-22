@@ -4,9 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="./support.js"></script>
-<style id="hide-ds-preview-toggle">/* hide the design-system floating light/dark PREVIEW toggle (not part of the app; re-injected on every export) */button[aria-label="Toggle light or dark mode"]{display:none!important;}</style>
-<script id="app-vh-fix">/* stable mobile viewport height (matches the p1/p2 journey) so the frame does not resize as the iOS URL bar hides/shows during scroll */(function(){var s=function(){var h=(window.visualViewport&&window.visualViewport.height)||window.innerHeight;document.documentElement.style.setProperty('--app-vh',h+'px');};s();window.addEventListener('resize',s);window.addEventListener('orientationchange',s);if(window.visualViewport)window.visualViewport.addEventListener("resize",s);})();</script><style id="scroll-fix">/* horizontal carousels only pan sideways, so vertical drags pass straight to the page scroller */.gh-scroll{touch-action:pan-x;}</style>
-<style id="native-scroll">/* Native page scrolling: the document scrolls (URL bar hides, real momentum) instead of a nested overflow container; header sticks to top, bottom nav pinned to bottom. */html,body{overflow:visible!important;height:auto!important;}.jp-frame{height:auto!important;min-height:100svh!important;overflow:visible!important;}.jp-frame>div{height:auto!important;overflow:visible!important;}.cnc-tpl-base{height:auto!important;min-height:100svh!important;overflow:visible!important;}.cnc-tpl-base__container{overflow:visible!important;height:auto!important;flex:0 0 auto!important;touch-action:auto!important;padding-bottom:calc(76px + env(safe-area-inset-bottom))!important;}.cnc-header{position:sticky!important;top:0!important;z-index:30!important;background:var(--background-page-default)!important;}.cnc-bottomnav{position:fixed!important;left:50%!important;transform:translateX(-50%)!important;bottom:0!important;width:100%!important;max-width:430px!important;z-index:30!important;padding-bottom:env(safe-area-inset-bottom)!important;}.cnc-tray-overlay,.cnc-tpl-tray,.cnc-cpm,[class*="tray-overlay"],[class*="-cpm"]{position:fixed!important;}</style>
 </head>
 <body>
 <x-dc>
@@ -44,7 +41,7 @@
        (#C9C9C9 vs #F1F1F1), lighter than the page in dark (#1B1B1B vs #121212) —
        so the device edge reads with NO stroke. */
     html body { margin: 0; background: var(--background-panel-pressed); display: flex; align-items: stretch; justify-content: center; }
-    .jp-frame .cnc-tpl-base__container { scrollbar-width: none; -ms-overflow-style: none; -webkit-overflow-scrolling: touch; touch-action: pan-y; }
+    .jp-frame .cnc-tpl-base__container { scrollbar-width: none; -ms-overflow-style: none; }
     .jp-frame .cnc-tpl-base__container::-webkit-scrollbar { width: 0; height: 0; }
   </style>
   <!-- Theme: read the persisted choice (set on the Project Index) before paint;
@@ -63,7 +60,7 @@
      The initial theme is chosen on the Project Index and persisted. -->
 
 <!-- The device frame: 430 wide, fills the viewport height, centred, clips content. -->
-<div class="jp-frame" style="position: relative; box-sizing: border-box; width: 430px; max-width: 100vw; height: var(--app-vh, 100dvh); overflow: hidden; background: var(--background-page-default);">
+<div class="jp-frame" style="position: relative; box-sizing: border-box; width: min(100vw, 430px); height: 100dvh; overflow: hidden; background: var(--background-page-default);">
   <div style="width: 100%; height: 100%;">
 
   <!-- BaseTemplate = the app screen chrome (header + scrolling container + bottom nav).
@@ -382,7 +379,7 @@ class Component extends DCLogic {
     const next = Math.max(1, Math.min(2, this.state[key] + dir));
     this.setState({ [key]: next });
     const card = el.children[next - 1];
-    if (card) card.scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" });
+    if (card) el.scrollTo({ left: card.offsetLeft - el.children[0].offsetLeft, behavior: "smooth" });
   }
 
   renderVals() {
