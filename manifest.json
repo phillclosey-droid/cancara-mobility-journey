@@ -1,6 +1,8 @@
 {
-  "name": "Lloyds Cancara — Multiple Cars",
+  "name": "Multiple Cars",
   "short_name": "Multiple Cars",
+  "id": "/cancara-mobility-journey/",
+  "scope": "/cancara-mobility-journey/",
   "start_url": "index.dc.html",
   "display": "standalone",
   "background_color": "#121212",

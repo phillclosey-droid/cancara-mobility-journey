@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content">
 <script src="./support.js"></script>
 <style id="hide-ds-preview-toggle">/* hide the design-system floating light/dark PREVIEW toggle (not part of the app; re-injected on every export) */button[aria-label="Toggle light or dark mode"]{display:none!important;}</style>
+<script id="app-vh-fix">/* stable mobile viewport height (matches the p1/p2 journey) so the frame does not resize as the iOS URL bar hides/shows during scroll */(function(){var s=function(){var h=(window.visualViewport&&window.visualViewport.height)||window.innerHeight;document.documentElement.style.setProperty('--app-vh',h+'px');};s();window.addEventListener('resize',s);window.addEventListener('orientationchange',s);if(window.visualViewport)window.visualViewport.addEventListener("resize",s);})();</script><style id="scroll-fix">/* horizontal carousels only pan sideways, so vertical drags pass straight to the page scroller */.gh-scroll{touch-action:pan-x;}</style>
 </head>
 <body>
 <x-dc>
